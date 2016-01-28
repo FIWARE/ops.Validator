@@ -26,7 +26,7 @@ To install package dependencies you must run:
 API Definition
 --------------
 
-The API definition can be found at http://docs.chefvalidatorapi.apiary.io/#
+The API definition can be found at http://docs.validatorapi2.apiary.io/#
 
 External Dependencies
 ---------------------
