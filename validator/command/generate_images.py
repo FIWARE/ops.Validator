@@ -48,7 +48,7 @@ def dock_image(df):
 
 
 def dock_images(wp):
-    # find dockerfiles in config dir
+    """find dockerfiles in config dir"""
     LOG.info("Generating Images...")
     for df in os.listdir(wp):
         if df.endswith(".dockerfile"):
@@ -57,9 +57,7 @@ def dock_images(wp):
 
 
 def main():
-    """
-    Generates a Docker Image of test environments based on a local dockerfile.
-    """
+    """Generates a Docker Image of test environments based on a local dockerfile."""
     # inject config files dir to syspath
     wp = os.path.abspath(CONF.config_dir)
     sys.path.insert(0, wp)
