@@ -41,8 +41,7 @@ i18n.enable_lazy()
 
 LOG = logging.getLogger()
 CONF = config.CONF
-
-if __name__ == '__main__':
+def main():
     try:
         logging.register_options(CONF)
         config.parse_args()
@@ -58,3 +57,7 @@ if __name__ == '__main__':
     except RuntimeError as e:
         msg = six.text_type(e)
         sys.exit("ERROR: %s" % msg)
+
+
+if __name__ == '__main__':
+    main()
