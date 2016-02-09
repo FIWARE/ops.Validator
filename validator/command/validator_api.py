@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -14,42 +14,46 @@
 #  under the License.
 
 """
-Validator API Server. An OpenStack ReST API to Validate Chef Cookbooks.
+Chef Validator API Server. An OpenStack ReST API to Validate Chef Cookbooks.
 """
 
-from __future__ import unicode_literals
 import os
 import sys
-
 import six
 import oslo_i18n as i18n
-from oslo_log import log as logging
+from oslo_config import cfg
 
-from validator.common.i18n import _LI
-from validator.common import config
-from validator.common import wsgi
-
+if 'config_dir' not in cfg.CONF:
+    cfg.CONF.config_dir = "/etc/validator"
 
 # If ../validator/__init__.py exists, add ../ to Python search path,
 # so that it will override what happens to be installed in
 # /usr/(local/)lib/python...
-root = os.path.join(os.path.abspath(__file__), os.pardir, os.pardir, os.pardir)
+root = os.path.abspath(
+    os.path.join(os.path.abspath(__file__), os.pardir, os.pardir, os.pardir)
+)
 if os.path.exists(os.path.join(root, 'validator', '__init__.py')):
     sys.path.insert(0, root)
+
+from validator.common import log as logging
+from validator.common.i18n import _LI
+from validator.common import config
+from validator.common import wsgi
 
 i18n.enable_lazy()
 
 LOG = logging.getLogger()
 CONF = config.CONF
+
+
 def main():
+    """Launch validator API """
     try:
-        logging.register_options(CONF)
         config.parse_args()
         logging.setup(CONF, 'validator_api')
-
         app = config.load_paste_app("validator_api")
         port, host = (CONF.bind_port, CONF.bind_host)
-        LOG.info(_LI('Starting Chef Validator ReST API on %(host)s:%(port)s'),
+        LOG.info(_LI('Starting Validator ReST API on %(host)s:%(port)s'),
                  {'host': host, 'port': port})
         server = wsgi.Service(app, port, host)
         server.start()
