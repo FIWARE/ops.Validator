@@ -1,0 +1,18 @@
+---
+- hosts: validator-api
+  user: ubuntu
+  become: yes
+  vars:
+    - cache_time: 3600
+  roles:
+    - docker_daemon
+    - python
+  tasks:
+    - name: Download validator
+      git: repo=https://github.com/ging/fiware-validator.git dest={{validator_path}} update=yes
+
+    - name: Install validator dependencies
+      pip: requirements={{validator_path}}/requirements.txt
+
+    - name: Run validator
+      command: {{validator_path}}/validator/command/validator-api.py

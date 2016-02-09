@@ -1,6 +1,7 @@
 # Dockerfile to deploy a valid chef-solo container
 # tag: pmverdugo/trusty-chef-zero
-FROM ubuntu:14.04
+
+FROM ubuntu:12.04
 MAINTAINER Pedro Verdugo <pmverdugo 'at' dit.upm.es>
 
 # Needed for Chef 12

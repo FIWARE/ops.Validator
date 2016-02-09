@@ -7,18 +7,16 @@ Requirements
 ============
 
 Ubuntu 14.04
-Chef must be installed.
 
 Attributes
 ==========
 
-node[bork]['app_dir'] contains the path to install
+An entry for the destination system, ```validator-api``` must be present in the hosts file.
 
 Usage
 =====
 
-With chef-solo:
 
-    sudo chef-solo -c solo.rb -j node.json
+    ansible-playbook validator.yml
 
 You can find a solo.rb and node.json samples at the root of the recipe.

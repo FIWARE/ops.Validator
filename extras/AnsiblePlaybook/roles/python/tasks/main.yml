@@ -1,0 +1,5 @@
+- name: Install pip, python-dev package with apt
+  apt: name={{item}} state=latest update_cache=yes cache_valid_time={{cache_time}}
+  with_items:
+    - python-dev
+    - python-pip
