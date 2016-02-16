@@ -10,5 +10,5 @@
       pip: name="git+https://github.com/ging/fiware-validator.git" editable=false
 
     - name: Run validator
-      shell: nohup /usr/local/bin/validator_api
+      shell: nohup /usr/local/bin/validator_api &
 
