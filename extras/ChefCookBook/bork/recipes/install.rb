@@ -46,14 +46,6 @@ pkg_depends.each do |pkg|
   end
 end
 
-# Git resource seems to fail on master testbed server
-#
-# git INSTALL_DIR do
-#   repository 'https://github.com/ging/bork'
-#   action :sync
-#   timeout 3600
-# end
-
 directory INSTALL_DIR do
   owner 'root'
   group 'root'

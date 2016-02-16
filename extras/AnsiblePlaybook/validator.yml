@@ -15,4 +15,4 @@
       pip: requirements={{validator_path}}/requirements.txt
 
     - name: Run validator
-      command: {{validator_path}}/validator/command/validator-api.py
+      command: {{validator_path}}/bork/command/validator-api.py
