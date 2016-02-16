@@ -16,8 +16,8 @@
 from mock import mock
 import docker.errors
 
-from validator.engine.validate import ValidateEngine
-from validator.tests.unit.base import ValidatorTestCase
+from bork.engine.validate import ValidateEngine
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class ValidateEngineTestCase(ValidatorTestCase):

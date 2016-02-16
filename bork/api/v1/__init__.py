@@ -13,8 +13,8 @@
 
 import routes
 
-from validator.api.v1 import actions
-from validator.common import wsgi
+from bork.api.v1 import actions
+from bork.common import wsgi
 
 
 class API(wsgi.Router):

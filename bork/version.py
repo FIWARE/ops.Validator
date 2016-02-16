@@ -16,5 +16,5 @@
 
 from pbr import version
 
-version_info = version.VersionInfo('validator')
+version_info = version.VersionInfo('bork')
 version_string = version_info.cached_version_string()

@@ -23,22 +23,14 @@ import six
 import oslo_i18n as i18n
 from oslo_config import cfg
 
-if 'config_dir' not in cfg.CONF:
-    cfg.CONF.config_dir = "/etc/validator"
-
-# If ../validator/__init__.py exists, add ../ to Python search path,
-# so that it will override what happens to be installed in
-# /usr/(local/)lib/python...
-root = os.path.abspath(
-    os.path.join(os.path.abspath(__file__), os.pardir, os.pardir, os.pardir)
-)
-if os.path.exists(os.path.join(root, 'validator', '__init__.py')):
-    sys.path.insert(0, root)
-
-from validator.common import log as logging
-from validator.common.i18n import _LI
-from validator.common import config
-from validator.common import wsgi
+# if 'config_dir' not in cfg.CONF:
+#     cfg.CONF.config_dir = "/etc/bork"
+# if not os.path.exists("/etc/bork"):
+#     os.mkdir("/etc/bork")
+from bork.common import log as logging
+from bork.common.i18n import _LI
+from bork.common import config
+from bork.common import wsgi
 
 i18n.enable_lazy()
 

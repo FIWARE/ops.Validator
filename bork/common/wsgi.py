@@ -24,7 +24,7 @@ import webob.dec
 import webob.exc
 import eventlet
 
-from validator.common.utils import JSONSerializer, JSONDeserializer
+from bork.common.utils import JSONSerializer, JSONDeserializer
 
 eventlet.patcher.monkey_patch(all=False, socket=True)
 import eventlet.wsgi
@@ -36,8 +36,8 @@ from oslo_log import log as logging
 from oslo_utils import importutils
 from oslo_config import cfg
 
-from validator.common import exception
-from validator.common.i18n import _, _LW
+from bork.common import exception
+from bork.common.i18n import _, _LW
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -404,7 +404,7 @@ class AppFactory(BasePasteFactory):
     <module>:<callable> e.g.
 
       [app:apiv1app]
-      paste.app_factory = validator.common.wsgi:app_factory
+      paste.app_factory = bork.common.wsgi:app_factory
       validator.app_factory = validator.api.cfn.v1:API
 
     The WSGI app constructor must accept a ConfigOpts object and a local config
@@ -427,7 +427,7 @@ class FilterFactory(AppFactory):
     <module>:<callable> e.g.
 
       [filter:cache]
-      paste.filter_factory = validator.common.wsgi:filter_factory
+      paste.filter_factory = bork.common.wsgi:filter_factory
       validator.filter_factory =
       validator.api.middleware.cache:CacheFilter
 
@@ -452,11 +452,11 @@ def setup_paste_factories(conf):
 
     Set things up so that:
 
-      paste.app_factory = validator.common.wsgi:app_factory
+      paste.app_factory = bork.common.wsgi:app_factory
 
     and
 
-      paste.filter_factory = validator.common.wsgi:filter_factory
+      paste.filter_factory = bork.common.wsgi:filter_factory
 
     work correctly while loading PasteDeploy configuration.
 

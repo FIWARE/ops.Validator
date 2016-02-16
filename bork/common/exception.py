@@ -13,7 +13,7 @@
 #  under the License.
 import sys
 
-from validator.common.i18n import _
+from bork.common.i18n import _
 
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
 

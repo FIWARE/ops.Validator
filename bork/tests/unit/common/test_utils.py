@@ -12,12 +12,12 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
-"""Tests for validator.common.utils """
+"""Tests for bork.common.utils """
 
 import mock
-from validator.common.utils import JSONDeserializer
-from validator.common.utils import JSONSerializer
-from validator.tests.unit.base import ValidatorTestCase
+from bork.common.utils import JSONDeserializer
+from bork.common.utils import JSONSerializer
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class JSONDeserializerTestCase(ValidatorTestCase):

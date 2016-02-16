@@ -22,9 +22,9 @@ import six
 from oslo_config import cfg
 import webob
 
-from validator.common import exception
-from validator.common import wsgi
-from validator.common.utils import JSONSerializer
+from bork.common import exception
+from bork.common import wsgi
+from bork.common.utils import JSONSerializer
 
 
 class Fault(object):

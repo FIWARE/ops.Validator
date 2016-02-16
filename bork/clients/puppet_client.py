@@ -16,11 +16,11 @@ from oslo_log import log as logging
 from oslo_config import cfg
 from docker import Client as DC
 
-from validator.common.exception import CookbookSyntaxException, \
+from bork.common.exception import CookbookSyntaxException, \
     CookbookDeploymentException, \
     CookbookInstallException, \
     DockerContainerException
-from validator.common.i18n import _LW, _LE, _, _LI
+from bork.common.i18n import _LW, _LE, _, _LI
 
 LOG = logging.getLogger(__name__)
 

@@ -16,8 +16,8 @@
 
 import mock
 import webob
-from validator.api.middleware.ssl import SSLMiddleware
-from validator.tests.unit.base import ValidatorTestCase
+from bork.api.middleware.ssl import SSLMiddleware
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class SSLMiddlewareTestCase(ValidatorTestCase):

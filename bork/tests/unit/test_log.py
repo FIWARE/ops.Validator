@@ -18,7 +18,7 @@
 import logging
 import sys
 
-from validator.tests.unit import base as tb
+from bork.tests.unit import base as tb
 
 
 class SysLogHandlersTestCase(tb.ValidatorTestCase):

@@ -20,8 +20,8 @@ from keystoneclient import session as ks_session
 import mox
 import webob
 
-from validator.api.middleware import auth_password
-from validator.tests.unit.base import ValidatorTestCase
+from bork.api.middleware import auth_password
+from bork.tests.unit.base import ValidatorTestCase
 
 EXPECTED_ENV_RESPONSE = {
     'HTTP_X_IDENTITY_STATUS': 'Confirmed',

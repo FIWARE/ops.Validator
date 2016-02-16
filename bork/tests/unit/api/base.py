@@ -17,7 +17,7 @@ import fixtures
 import mock
 from oslo_utils import timeutils
 
-from validator.tests.unit import base
+from bork.tests.unit import base
 
 TEST_DEFAULT_LOGLEVELS = {'migrate': logging.WARN}
 
