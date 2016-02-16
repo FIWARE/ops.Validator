@@ -23,9 +23,9 @@ from oslo_utils import importutils
 import oslo_messaging
 import six
 
-from validator.common import exception
-from validator.common.i18n import _LE
-from validator.common import wsgi
+from bork.common import exception
+from bork.common.i18n import _LE
+from bork.common import wsgi
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF

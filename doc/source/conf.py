@@ -60,7 +60,7 @@ author = u'Pedro Verdugo'
 # built documents.
 #
 
-from validator.version import version_info
+from bork.version import version_info
 # The short X.Y version.
 version = version_info.version_string()
 

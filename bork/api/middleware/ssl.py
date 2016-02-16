@@ -13,7 +13,7 @@
 
 from oslo_config import cfg
 
-from validator.common import wsgi
+from bork.common import wsgi
 
 ssl_middleware_opts = [
     cfg.StrOpt('secure_proxy_ssl_header',

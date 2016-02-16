@@ -14,7 +14,7 @@
 import mox
 
 from oslo_config import cfg
-from validator.common import log
+from bork.common import log
 import testtools
 import fixtures
 

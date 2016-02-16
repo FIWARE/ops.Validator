@@ -17,10 +17,10 @@ from oslo_log import log as logging
 from oslo_config import cfg
 from webob import exc
 
-from validator.common import wsgi
-from validator.common.i18n import _LI, _
-import validator.common.utils
-from validator.engine.validate import ValidateEngine
+from bork.common import wsgi
+from bork.common.i18n import _LI, _
+import bork.common.utils
+from bork.engine.validate import ValidateEngine
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -84,8 +84,8 @@ def create_chef_resource():
     """
     Actions action factory method.
     """
-    deserializer = validator.common.utils.JSONDeserializer()
-    serializer = validator.common.utils.JSONSerializer()
+    deserializer = bork.common.utils.JSONDeserializer()
+    serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(ChefController(), deserializer, serializer)
 
 
@@ -93,6 +93,6 @@ def create_puppet_resource():
     """
     Actions action factory method.
     """
-    deserializer = validator.common.utils.JSONDeserializer()
-    serializer = validator.common.utils.JSONSerializer()
+    deserializer = bork.common.utils.JSONDeserializer()
+    serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(PuppetController(), deserializer, serializer)

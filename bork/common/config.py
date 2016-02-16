@@ -23,9 +23,9 @@ from eventlet.green import socket
 from oslo_config import cfg
 from oslo_log import log as logging
 
-from validator.common import wsgi
-from validator.common.i18n import _
-from validator import version
+from bork.common import wsgi
+from bork.common.i18n import _
+from bork import version
 
 socket_opts = [
     cfg.IntOpt('tcp_keepidle',

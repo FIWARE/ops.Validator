@@ -18,8 +18,8 @@ import mock
 import webob
 from webob import exc
 
-from validator.api.middleware import auth_url
-from validator.tests.unit.base import ValidatorTestCase
+from bork.api.middleware import auth_url
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class FakeApp(object):

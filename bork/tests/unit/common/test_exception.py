@@ -12,24 +12,24 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
-"""Tests for validator.common.exception """
+"""Tests for bork.common.exception """
 
-from validator.common.exception import AuthorizationFailure
-from validator.common.exception import CookbookInstallException
-from validator.common.exception import OpenstackException
-from validator.common.exception import CookbookDeploymentException
-from validator.common.exception import MalformedRequestBody
-from validator.common.exception import HTTPExceptionDisguise
-from validator.common.exception import CookbookSyntaxException
-from validator.common.exception import SerialConnectException
-from validator.common.exception import NotAuthenticated
-from validator.common.exception import InvalidContentType
-from validator.common.exception import ImageNotFound
-from validator.common.exception import SshConnectException
-from validator.common.exception import DockerContainerException
-from validator.common.exception import AmbiguousNameException
-from validator.common.exception import EntityNotFound
-from validator.tests.unit.base import ValidatorTestCase
+from bork.common.exception import AuthorizationFailure
+from bork.common.exception import CookbookInstallException
+from bork.common.exception import OpenstackException
+from bork.common.exception import CookbookDeploymentException
+from bork.common.exception import MalformedRequestBody
+from bork.common.exception import HTTPExceptionDisguise
+from bork.common.exception import CookbookSyntaxException
+from bork.common.exception import SerialConnectException
+from bork.common.exception import NotAuthenticated
+from bork.common.exception import InvalidContentType
+from bork.common.exception import ImageNotFound
+from bork.common.exception import SshConnectException
+from bork.common.exception import DockerContainerException
+from bork.common.exception import AmbiguousNameException
+from bork.common.exception import EntityNotFound
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class AuthorizationFailureTestCase(ValidatorTestCase):

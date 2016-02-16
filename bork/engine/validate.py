@@ -15,8 +15,8 @@
 
 from oslo_log import log as logging
 from oslo_config import cfg
-from validator.clients.puppet_client import PuppetClient
-from validator.clients.chef_client import ChefClient
+from bork.clients.puppet_client import PuppetClient
+from bork.clients.chef_client import ChefClient
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
 

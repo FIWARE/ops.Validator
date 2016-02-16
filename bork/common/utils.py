@@ -19,8 +19,8 @@ import datetime
 from oslo_serialization import jsonutils
 from oslo_log import log as logging
 
-from validator.common import exception
-from validator.common.i18n import _
+from bork.common import exception
+from bork.common.i18n import _
 
 LOG = logging.getLogger(__name__)
 

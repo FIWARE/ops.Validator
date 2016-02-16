@@ -3,16 +3,16 @@
 # process, which may cause wedges in the gate later.
 
 # Infrastructure
-oslo.utils == 2.2.0
+oslo.utils == 3.4.0
 oslo.messaging == 2.2.0
-oslo.config == 2.2.0
+oslo.config == 3.2.0
 oslo.i18n == 2.3.0
 oslo.log == 1.8.0
 oslo.service == 0.6.0
 oslo.concurrency == 2.4.0 # posix-ipc breaks windows build
 oslo.middleware == 2.5.0
 
-pbr == 1.4.0
+pbr == 1.6.0
 Babel == 2.0
 eventlet == 0.17.4
 Paste == 2.0.2

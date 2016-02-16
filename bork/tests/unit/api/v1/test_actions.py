@@ -16,8 +16,8 @@
 from mock import mock
 from oslo_config import cfg
 
-from validator.api.v1.actions import ValidateController
-from validator.tests.unit.base import ValidatorTestCase
+from bork.api.v1.actions import ValidateController
+from bork.tests.unit.base import ValidatorTestCase
 
 
 CONF = cfg.CONF

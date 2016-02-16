@@ -19,8 +19,8 @@ from oslo_config import cfg
 from oslo_utils import importutils
 from webob import exc
 
-from validator.common.i18n import _
-from validator.common import wsgi
+from bork.common.i18n import _
+from bork.common import wsgi
 
 
 class AuthUrlFilter(wsgi.Middleware):

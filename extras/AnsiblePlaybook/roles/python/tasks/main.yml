@@ -3,3 +3,8 @@
   with_items:
     - python-dev
     - python-pip
+    - git
+    - libffi-dev
+    - libssl-dev
+- name: Update pip SSL connections
+  pip: name=pyopenssl

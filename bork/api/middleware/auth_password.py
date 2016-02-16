@@ -19,8 +19,8 @@ from keystoneclient import session
 from webob import exc
 from oslo_log import log as logging
 
-from validator.common.i18n import _LE
-from validator.api.middleware import context
+from bork.common.i18n import _LE
+from bork.api.middleware import context
 
 LOG = logging.getLogger(__name__)
 

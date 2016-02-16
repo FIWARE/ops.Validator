@@ -16,13 +16,13 @@ import inspect
 import re
 import six
 from oslo_config import cfg
-from validator.common import log
+from bork.common import log
 from oslo_messaging._drivers import common as rpc_common
 import webob
-import validator.api.middleware.fault as fault
-from validator.common import exception as validator_exc
-from validator.common.i18n import _
-from validator.tests.unit.base import ValidatorTestCase
+import bork.api.middleware.fault as fault
+from bork.common import exception as validator_exc
+from bork.common.i18n import _
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class StackNotFoundChild(validator_exc.EntityNotFound):
@@ -204,7 +204,7 @@ class FaultMiddlewareTest(ValidatorTestCase):
         exc_info = (type(error), error, None)
         serialized = rpc_common.serialize_remote_exception(exc_info)
         remote_error = rpc_common.deserialize_remote_exception(
-            serialized, ["validator.common.exception"])
+            serialized, ["bork.common.exception"])
         wrapper = fault.FaultWrapper(None)
         msg = wrapper._error(remote_error)
         expected_message, expected_traceback = six.text_type(

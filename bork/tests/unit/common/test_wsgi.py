@@ -17,9 +17,9 @@
 
 import stubout
 
-from validator.common import exception
-from validator.common import wsgi
-from validator.tests.unit.base import ValidatorTestCase
+from bork.common import exception
+from bork.common import wsgi
+from bork.tests.unit.base import ValidatorTestCase
 
 
 class RequestTest(ValidatorTestCase):

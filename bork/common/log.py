@@ -45,7 +45,7 @@ from six import moves
 
 _PY26 = sys.version_info[0:2] == (2, 6)
 
-from validator.common.i18n import _, _LI
+from bork.common.i18n import _, _LI
 
 _DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
