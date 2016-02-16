@@ -70,7 +70,7 @@ CONF.register_opts(clients_opts)
 
 def parse_args(args=None, usage=None, default_config_files=None):
     CONF(args=args,
-         project='validator',
+         project='bork',
          version=version.version_string,
          usage=usage,
          default_config_files=default_config_files)
@@ -92,7 +92,7 @@ def _get_paste_config_path():
         # to the last config file
         path = CONF.config_file[-1].replace(conf_suffix, paste_suffix)
     else:
-        path = CONF.prog + '-paste.ini'
+        path = CONF.prog + paste_suffix
     return CONF.find_file(os.path.basename(path))
 
 
@@ -100,9 +100,7 @@ def _get_deployment_config_file():
     """Retrieve the deployment_config_file config item, formatted as an
        absolute pathname.
     """
-    path = CONF.paste_deploy.config_file
-    if CONF.debug:
-        return os.path.abspath(os.path.join(CONF.config_dir, path))
+    path = os.path.abspath(os.path.join(CONF.config_dir, CONF.paste_deploy.config_file))
     if not path:
         path = _get_paste_config_path()
     if not path:
@@ -129,7 +127,6 @@ def load_paste_app(app_name=None):
     conf_file = _get_deployment_config_file()
     if conf_file is None:
         raise RuntimeError(_("Unable to locate config file"))
-
     try:
         LOG.debug("Loading %(app_name)s from %(conf_file)s" %
                   {'conf_file': conf_file, 'app_name': app_name})

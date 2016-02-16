@@ -23,10 +23,10 @@ import six
 import oslo_i18n as i18n
 from oslo_config import cfg
 
-# if 'config_dir' not in cfg.CONF:
-#     cfg.CONF.config_dir = "/etc/bork"
-# if not os.path.exists("/etc/bork"):
-#     os.mkdir("/etc/bork")
+# default path
+if 'config_dir' not in cfg.CONF:
+    cfg.CONF.config_dir = "/etc/bork"
+
 from bork.common import log as logging
 from bork.common.i18n import _LI
 from bork.common import config
