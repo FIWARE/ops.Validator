@@ -7,7 +7,7 @@
     - python
   tasks:
     - name: Install validator
-      pip: name="git+https://github.com/ging/fiware-validator.git"
+      pip: name="git+https://github.com/ging/fiware-validator.git" editable=false
 
     - name: Run validator
-      command: "validator_api"
+      command: "/usr/local/bin/validator_api &&"
