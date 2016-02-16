@@ -20,6 +20,6 @@ RUN git clone https://github.com/ging/fiware-validator /opt/fiware-validator && 
     pip install -r /opt/fiware-validator/requirements.txt
 
 EXPOSE 4042
-WORKDIR /opt/fi-ware-validator
-ENV PYTHONPATH $PYTHONPATH:/opt/fi-ware-validator/validator
-CMD ["python", "./validator/command/validator-api.py", "--config-dir=etc/validator"]
+WORKDIR /opt/fiware-validator
+ENV PYTHONPATH $PYTHONPATH:/opt/fi-ware-validator/bork
+CMD ["python", "./bork/command/validator-api.py", "--config-dir=etc/bork"]

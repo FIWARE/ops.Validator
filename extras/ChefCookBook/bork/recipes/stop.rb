@@ -23,6 +23,6 @@ execute 'stop validator' do
   user 'root'
   ignore_failure true
   code <<-EOH
-    pkill -f "python #{INSTALL_DIR}/validator/cmd/chef-validator-api.py"
+    pkill -f "python #{INSTALL_DIR}/bork/command/validator-api.py"
   EOH
 end
