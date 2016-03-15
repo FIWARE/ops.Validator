@@ -1,0 +1,65 @@
+<html>
+<head>
+    <title>Automated Recipe Validation</title>
+    <link rel="stylesheet" type="text/css" href="./css/application.css"/>
+</head>
+
+<body>
+
+<h1>Automated Recipe Validation</h1>
+<p>
+    User<input></input>Pass<input></input>
+</p>
+<div>
+<button>Refresh Cookbooks</button>
+<button>Run All</button>
+</div>
+<h2>Cookbooks</h2>
+<div>
+<button>Select All</button>
+<button>Select None</button>
+</div>
+<table>
+    <tr>
+        <th>Selected</th>
+        <th>Cookbook</th>
+        <th>Recipes</th>
+        <th>Dependencies</th>
+        <th>Syntax</th>
+        <th>Deployment</th>
+        <th>Full Log</th>
+        <th>Actions</th>
+    </tr>
+    <tr>
+        <td><input type="checkbox"></input></td>
+        <td>TestCbook1</td>
+        <td>Recipe1</td>
+        <td><a href="#">OK</a></td>
+        <td><a href="#">OK</a></td>
+        <td><a href="#">Fail</a></td>
+        <td><a href="#">Log</a></td>
+        <td><a href="#">Run</a></td>
+    </tr>
+    <tr>
+        <td><input type="checkbox"></input></td>
+        <td>TestCbook1</td>
+        <td>Recipe2</td>
+        <td><a href="#">OK</a></td>
+        <td><a href="#">Fail</a></td>
+        <td><a href="#">Fail</a></td>
+        <td><a href="#">Log</a></td>
+        <td><a href="#">Run</a></td>
+    </tr>
+        <tr>
+        <td><input type="checkbox"></input></td>
+        <td>TestCbook2</td>
+        <td>Recipe1</td>
+        <td><a href="#">OK</a></td>
+        <td><a href="#">Processing</a></td>
+        <td><a href="#">Queued</a></td>
+            <td><a href="#">Log</a></td>
+        <td><a href="#">Stop</a></td>
+    </tr>
+</table>
+</body>
+</html>
