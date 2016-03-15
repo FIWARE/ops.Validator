@@ -70,7 +70,7 @@ Executing the listener API
 
 The listener api can be manually launched with the following command:
 
-    validator/command/validator-api.py --config-dir etc/validator
+    bork/command/validator-api.py --config-dir etc/bork
 
 
 External Dependencies
@@ -106,14 +106,14 @@ Example Client
 ---------------
 An example client is provided in command/validator-client. It can be run with the following command:
 
-    validator/command/validator-client.py --validator_url=${url_of_the_validator_api} --username=${username} --password=${password} --image=${author/image_name} --cookbook=${cookbook_name}
+    bork/command/validator-client.py --validator_url=${url_of_the_validator_api} --username=${username} --password=${password} --image=${author/image_name} --cookbook=${cookbook_name}
 
 Image generation
 ---------------------
 A default chef-solo image can be automatically generated and uploaded to the glance server with the following command:
 
-    validator/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
+    bork/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
 
 Identically, a default puppet-standalone image can be automatically generated and uploaded to the glance server with the following command:
 
-    validator/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
+    bork/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
