@@ -1,8 +1,14 @@
 # coding=utf-8
+"""
+Cookbook Repository Management
+"""
 import svn.remote
 
 
 class CookbookRepo:
+    """
+    Cookbook Repository Object Model
+    """
 
     def __init__(self, user, pwd, url):
         """
