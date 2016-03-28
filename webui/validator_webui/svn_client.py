@@ -22,17 +22,19 @@ class CookbookRepo:
             pwd=pwd,
             url=url
         )
+        print svn_repo
         self.r = svn.remote.RemoteClient(svn_repo)
 
     def list_cookbooks(self):
         """
         :return: List of all cookbooks in repo
         """
-        cbs = []
+        cookbooks = []
         entries = self.r.list()
         for filename in entries:
-            cbs.append(filename)
-        return cbs
+            print filename
+            cookbooks.append(filename)
+        return cookbooks
 
     def download_cookbooks(self, local_path='/tmp/cookbooks'):
         """
@@ -41,3 +43,12 @@ class CookbookRepo:
         :return: operation result
         """
         return self.r.export(local_path)
+
+    def info(self):
+        return self.r.info()
+
+if __name__ == '__main__':
+    import sys
+    c = CookbookRepo(*sys.argv[1:])
+    print c.info()
+    c.list_cookbooks()

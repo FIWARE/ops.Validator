@@ -9,7 +9,7 @@ MAINTAINER Pedro Verdugo <pmverdugo 'at' dit.upm.es>
 # environment configuration
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
-    apt-get install -y wget tar git curl nano wget dialog net-tools build-essential && \
+    apt-get install -y wget tar git curl nano wget dialog net-tools build-essential subversion && \
     apt-get install -y python python-dev python-distribute python-pip && \
     apt-get install -y libffi-dev libssl-dev
 

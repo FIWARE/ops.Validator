@@ -6,6 +6,17 @@
     - docker_daemon
     - python
   tasks:
+    - name: install dependencies
+      apt: name={{item}} state=present update_cache=yes
+      with_items:
+        - git
+        - curl
+        - nano
+        - wget
+        - dialog
+        - net-tools
+        - build-essential
+        - subversion
     - name: Install validator
       pip: name="git+https://github.com/ging/fiware_validator.git" editable=false
 

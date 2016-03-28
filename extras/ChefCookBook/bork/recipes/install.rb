@@ -37,7 +37,7 @@ return if node['platform'] != 'ubuntu'
 include_recipe 'apt'
 
 pkg_depends = value_for_platform_family(
-                  'default' => %w(git curl nano wget dialog net-tools build-essential)
+                  'default' => %w(git curl nano wget dialog net-tools build-essential subversion)
 )
 
 pkg_depends.each do |pkg|
