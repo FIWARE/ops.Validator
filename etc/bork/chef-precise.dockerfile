@@ -19,7 +19,7 @@ RUN apt-get update -y && \
 
 # ChefDK install
 RUN cd /tmp && \
-    wget --no-check-certificate https://opscode-omnibus-packages.s3.amazonaws.com/ubuntu/12.04/x86_64/chefdk_0.6.2-1_amd64.deb && \
+    wget --no-check-certificate https://packages.chef.io/stable/ubuntu/12.04/chefdk_0.12.0-1_amd64.deb && \
     dpkg -i chefdk_*.deb && \
     echo 'gem: --no-ri --no-rdoc' > ~/.gemrc
 

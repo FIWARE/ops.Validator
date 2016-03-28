@@ -7,58 +7,87 @@
 <body>
 
 <h1>Automated Recipe Validation</h1>
+<p>Enter user and pass for testbed svn</p>
 <p>
-    User<input></input>Pass<input></input>
+    User<input></input>Pass<input></input><button>Refresh Cookbooks</button>
 </p>
 <div>
-<button>Refresh Cookbooks</button>
-<button>Run All</button>
+
 </div>
-<h2>Cookbooks</h2>
-<div>
-<button>Select All</button>
-<button>Select None</button>
-</div>
+<h2>Cookbooks <button>Run Selected</button> <button>Run All</button></h2>
+<p>Select systems and cookbooks/recipes to run</p>
+<table>
+    <tr>
+        <th>System <a href="#">All</a>|<a href="#">None</a></th>
+        <th>Cookbooks <a href="#">All</a>|<a href="#">None</a></th>
+        <th>Recipes <a href="#">All</a>|<a href="#">None</a></th>
+    </tr>
+    <tr>
+        <td>
+            <select multiple>
+                <option value="ubuntu_precise">Ubuntu 12.04</option>
+                <option value="ubuntu_trusty">Ubuntu 14.04</option>
+                <option value="centos6">CentOs6</option>
+                <option value="centos7">CentOs7</option>
+        </select>
+        </td>
+        <td>
+            <select multiple>
+                <option>Cookbook1</option>
+                <option>Cookbook2</option>
+                <option>Cookbook3</option>
+            </select>
+        </td>
+
+                    <td>
+            <select multiple>
+                <option>Cookbook1:Recipe1</option>
+                <option>Cookbook1:Recipe2</option>
+                <option>Cookbook2:Recipe1</option>
+                <option>Cookbook3:Recipe1</option>
+            </select>
+
+        </td>
+    </tr>
+</table>
+<h2>Results <button>Export All</button> <button>Export Selected</button> <button>Unselect All</button></h2>
+<p>Export results to json or open log file in new tab</p>
 <table>
     <tr>
         <th>Selected</th>
-        <th>Cookbook</th>
+        <th>System</th>
         <th>Recipes</th>
         <th>Dependencies</th>
         <th>Syntax</th>
         <th>Deployment</th>
         <th>Full Log</th>
-        <th>Actions</th>
     </tr>
     <tr>
         <td><input type="checkbox"></input></td>
-        <td>TestCbook1</td>
-        <td>Recipe1</td>
+        <td>Ubuntu 14.04</td>
+        <td>TestCbook1:Recipe1</td>
         <td><a href="#">OK</a></td>
         <td><a href="#">OK</a></td>
         <td><a href="#">Fail</a></td>
         <td><a href="#">Log</a></td>
-        <td><a href="#">Run</a></td>
     </tr>
     <tr>
         <td><input type="checkbox"></input></td>
-        <td>TestCbook1</td>
-        <td>Recipe2</td>
+        <td>Ubuntu 12.04</td>
+        <td>TestCbook1:Recipe2</td>
         <td><a href="#">OK</a></td>
         <td><a href="#">Fail</a></td>
-        <td><a href="#">Fail</a></td>
+        <td><a href="#">Processing</a></td>
         <td><a href="#">Log</a></td>
-        <td><a href="#">Run</a></td>
     </tr>
         <tr>
         <td><input type="checkbox"></input></td>
-        <td>TestCbook2</td>
-        <td>Recipe1</td>
-        <td><a href="#">OK</a></td>
-        <td><a href="#">Processing</a></td>
+        <td>CentOs 7</td>
+        <td>TestCbook2:Recipe1</td>
+        <td><a href="#">Queued</a></td>
+        <td><a href="#">Queued</a></td>
         <td><a href="#">Queued</a></td>
             <td><a href="#">Log</a></td>
-        <td><a href="#">Stop</a></td>
     </tr>
 </table>
 </body>
