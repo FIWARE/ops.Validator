@@ -16,7 +16,7 @@ import os
 import logging
 
 
-class CookbookRepo:
+class LocalStorage:
 
     def __init__(self, path="/cookbooks"):
         self.path = os.path.abspath(path)
@@ -53,5 +53,5 @@ class CookbookRepo:
 if __name__ == '__main__':
     import sys
     logging.basicConfig(level=logging.DEBUG)
-    c = CookbookRepo(*sys.argv[1])
+    c = LocalStorage(*sys.argv[1])
     print c.list_cookbooks()

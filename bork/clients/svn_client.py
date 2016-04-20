@@ -68,7 +68,6 @@ class CookbookRepo:
 
 if __name__ == '__main__':
     import sys
-
     logging.basicConfig(level=logging.DEBUG)
     c = CookbookRepo(*sys.argv[1:])
     print c.list_cookbooks()
