@@ -12,7 +12,9 @@ RUN apt-get update && \
 # Puppet install
 RUN wget http://apt.puppetlabs.com/puppetlabs-release-trusty.deb && \
     dpkg -i puppetlabs-release-trusty.deb
-
+	apt-get update \
+    apt-get -y install puppetmaster
+	
 # environment cleanup
 RUN rm puppetlabs-release-trusty.deb && \
     apt-get clean
