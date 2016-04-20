@@ -45,8 +45,8 @@ class RepoManager:
     def view(self):
         """List repository entries for current user"""
         self.check_credentials()
-        tree = self.repo.heads
-        return tree
+        tree = self.repo.heads.master.commit
+        return [f for f in tree]
 
     def archive(self, tar_path):
         """Archive the repository contents to a tar file"""
