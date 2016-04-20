@@ -1,8 +1,8 @@
 FI-Ware Validator
 ======================
 
-[![License badge](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Documentation badge](https://img.shields.io/badge/docs-stable-brightgreen.svg?style=flat)](doc/source/adminmanual.rst)
+![License](http://img.shields.io/:license-apache-blue.svg?style=flat-square)](http://www.apache.org/licenses/LICENSE-2.0.html)
+![Documentation badge](https://img.shields.io/badge/docs-stable-brightgreen.svg?style=flat)](doc/source/adminmanual.rst)
 
 **Table of Contents**
 
