@@ -18,22 +18,39 @@ import logging
 
 class CookbookRepo:
 
-    def list_cookbooks(self, path="/cookbooks"):
+    def __init__(self, path="/cookbooks"):
+        self.path = os.path.abspath(path)
+
+    def list_cookbooks(self):
+        """
+        :return: list of all cookbooks in the current path
+        """
         valid = []
-        for cb in os.listdir(path):
+        for cb in os.listdir(self.path):
             if self.check_cookbook(cb):
-                valid.append(cb)
+                valid.append(os.path.join(self.path, cb))
         return valid
 
     def check_cookbook(self, cb):
+        """
+        Test if a directory contains a cookbook
+        :param cb: directory name
+        :return: test result
+        """
         logging.info("checking %s" % cb)
         check = False
         # check if the item is a directory
         if os.path.isdir(cb):
             # check if the item has a recipes directory
-            if "recipes" in os.listdir(cb) and os.isdir(os.path.join(cb, "recipes")):
+            if "recipes" in os.listdir(cb) and os.path.isdir(os.path.join(cb, "recipes")):
                 check = True
                 logging.debug("Cookbook found: %s" % cb)
         if not check:
             logging.debug("Not a cookbook: %s" % cb)
         return check
+
+if __name__ == '__main__':
+    import sys
+    logging.basicConfig(level=logging.DEBUG)
+    c = CookbookRepo(*sys.argv[1])
+    print c.list_cookbooks()
