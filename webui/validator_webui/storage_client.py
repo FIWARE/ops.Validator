@@ -40,9 +40,10 @@ class CookbookRepo:
         logging.info("checking %s" % cb)
         check = False
         # check if the item is a directory
-        if os.path.isdir(cb):
+        cb_path = os.path.join(self.path, cb)
+        if os.path.isdir(cb_path):
             # check if the item has a recipes directory
-            if "recipes" in os.listdir(cb) and os.path.isdir(os.path.join(cb, "recipes")):
+            if os.path.isdir(os.path.join(cb_path, "recipes")):
                 check = True
                 logging.debug("Cookbook found: %s" % cb)
         if not check:
