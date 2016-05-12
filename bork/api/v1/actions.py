@@ -80,9 +80,29 @@ class ChefController(object):
         return res
 
 
+class CookBooksController(object):
+    """
+    Cookbook Controller Object
+    Implements Application logic
+    """
+
+    @staticmethod
+    def list(request, body):
+        """ List available cookbooks
+        :param request: request context
+        :param body: a json with deployment parameters
+        :return : a json file with process results
+        """
+        body = body or {}
+        if len(body) < 1:
+            raise exc.HTTPBadRequest(_("No action specified"))
+        LOG.info(_LI('Processing Request for list cookbooks'))
+        res = CookBookEngine().list_cookbooks(cookbook, image, request)
+        return res
+
 def create_chef_resource():
     """
-    Actions action factory method.
+    Actions chef factory method.
     """
     deserializer = bork.common.utils.JSONDeserializer()
     serializer = bork.common.utils.JSONSerializer()
@@ -91,8 +111,14 @@ def create_chef_resource():
 
 def create_puppet_resource():
     """
-    Actions action factory method.
+    Actions puppet factory method.
     """
     deserializer = bork.common.utils.JSONDeserializer()
     serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(PuppetController(), deserializer, serializer)
+
+
+def create_cookbooks_resource():
+    deserializer = bork.common.utils.JSONDeserializer()
+    serializer = bork.common.utils.JSONSerializer()
+    return wsgi.Resource(CookBooksController(), deserializer, serializer)
