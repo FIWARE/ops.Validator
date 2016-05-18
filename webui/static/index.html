@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <title>Automated Recipe Validation</title>
     <link rel="stylesheet" type="text/css" href="./css/application.css"/>
-    <script type="text/javascript" src="js/lib/jquery-2.2.3.js"></script>
-    <script type="text/javascript" src="js/lib/underscore.js"></script>
-    <script type="text/javascript" src="js/lib/backbone.js"></script>
 </head>
 
 <body>
@@ -26,35 +23,17 @@
 <p>Select systems and cookbooks/recipes to run</p>
 <table>
     <tr>
-        <th>System <a href="#">All</a>|<a href="#">None</a></th>
-        <th>Cookbooks <a href="#">All</a>|<a href="#">None</a></th>
-        <th>Recipes <a href="#">All</a>|<a href="#">None</a></th>
+        <th>System</th>
+        <th>Cookbooks</th>
     </tr>
     <tr>
         <td>
-            <select multiple>
-                <option value="ubuntu_precise">Ubuntu 12.04</option>
-                <option value="ubuntu_trusty">Ubuntu 14.04</option>
-                <option value="centos6">CentOs6</option>
-                <option value="centos7">CentOs7</option>
-            </select>
+            <ul id="syslist">
+            </ul>
         </td>
         <td>
-            <select multiple id="cblist">
-                <option>Cookbook1</option>
-                <option>Cookbook2</option>
-                <option>Cookbook3</option>
-            </select>
-        </td>
-
-        <td>
-            <select multiple>
-                <option>Cookbook1:Recipe1</option>
-                <option>Cookbook1:Recipe2</option>
-                <option>Cookbook2:Recipe1</option>
-                <option>Cookbook3:Recipe1</option>
-            </select>
-
+            <ul id="cblist">
+            </ul>
         </td>
     </tr>
 </table>
@@ -70,7 +49,7 @@
     <tr>
         <th>Selected</th>
         <th>System</th>
-        <th>Recipes</th>
+        <th>Cookbooks</th>
         <th>Dependencies</th>
         <th>Syntax</th>
         <th>Deployment</th>
@@ -79,7 +58,7 @@
     <tr>
         <td><input type="checkbox"></input></td>
         <td>Ubuntu 14.04</td>
-        <td>TestCbook1:Recipe1</td>
+        <td>TestCbook1</td>
         <td><a href="#">OK</a></td>
         <td><a href="#">OK</a></td>
         <td><a href="#">Fail</a></td>
@@ -88,7 +67,7 @@
     <tr>
         <td><input type="checkbox"></input></td>
         <td>Ubuntu 12.04</td>
-        <td>TestCbook1:Recipe2</td>
+        <td>TestCbook2</td>
         <td><a href="#">OK</a></td>
         <td><a href="#">Fail</a></td>
         <td><a href="#">Processing</a></td>
@@ -97,7 +76,7 @@
     <tr>
         <td><input type="checkbox"></input></td>
         <td>CentOs 7</td>
-        <td>TestCbook2:Recipe1</td>
+        <td>TestCbook3</td>
         <td><a href="#">Queued</a></td>
         <td><a href="#">Queued</a></td>
         <td><a href="#">Queued</a></td>
