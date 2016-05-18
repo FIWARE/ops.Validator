@@ -5,13 +5,13 @@ define(function (require) {
     "use strict";
 
     var CollectionView = require('collectionview'),
-        CookBookView = require('views/CookBookView'),
-        CookBooks = require('models/CookBooksModel');
-
+        SystemView = require('views/SystemView');
+    
     return CollectionView.extend({
-        el: "#cblist",
-        modelView: CookBookView,
+        el: "#syslist",
+        modelView: SystemView,
         selectable : true,
         selectMultiple : true,
     });
+    
 });

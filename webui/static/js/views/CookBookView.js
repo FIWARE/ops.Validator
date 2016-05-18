@@ -12,7 +12,7 @@ define(function (require) {
             template: '',
 
             initialize: function () {
-                this.template = _.template('<option value="cookbooks/<%= id %>"><%= name %></option>');
+                this.template = _.template('<%= name %>');
             },
             render: function () {
                 this.$el.html(this.template(this.model.attributes));
