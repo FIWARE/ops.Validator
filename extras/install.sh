@@ -10,3 +10,5 @@ apt-get install -y docker-engine
 cd ..
 pip install --upgrade pip setuptools
 pip install -r requirements.txt
+git clone https://github.com/ging/fiware-validator
+pip install -e .

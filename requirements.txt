@@ -12,13 +12,14 @@ oslo.service == 0.6.0
 oslo.concurrency == 2.4.0 # posix-ipc breaks windows build
 oslo.middleware == 2.5.0
 
-pbr == 1.6.0
+pbr == 1.8.1
 Babel == 2.0
 eventlet == 0.17.4
 Paste == 2.0.2
 PasteDeploy == 1.5.2
 webob == 1.4.1
 Routes == 2.2
+
 
 # 1st step Authentication
 keystonemiddleware == 2.1.0
