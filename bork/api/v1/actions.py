@@ -21,6 +21,8 @@ from bork.common import wsgi
 from bork.common.i18n import _LI, _
 import bork.common.utils
 from bork.engine.validate import ValidateEngine
+from bork.engine.CookBook import CookBookEngine
+from bork.engine.System import SystemEngine
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -97,7 +99,27 @@ class CookBooksController(object):
         if len(body) < 1:
             raise exc.HTTPBadRequest(_("No action specified"))
         LOG.info(_LI('Processing Request for list cookbooks'))
-        res = CookBookEngine().list_cookbooks(cookbook, image, request)
+        res = CookBookEngine().list()
+        return res
+
+class SystemsController(object):
+    """
+    Cookbook Controller Object
+    Implements Application logic
+    """
+
+    @staticmethod
+    def list(request, body):
+        """ List available cookbooks
+        :param request: request context
+        :param body: a json with deployment parameters
+        :return : a json file with process results
+        """
+        body = body or {}
+        if len(body) < 1:
+            raise exc.HTTPBadRequest(_("No action specified"))
+        LOG.info(_LI('Processing Request for list cookbooks'))
+        res = SystemEngine().list()
         return res
 
 def create_chef_resource():
@@ -122,3 +144,8 @@ def create_cookbooks_resource():
     deserializer = bork.common.utils.JSONDeserializer()
     serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(CookBooksController(), deserializer, serializer)
+
+def create_systems_resource():
+    deserializer = bork.common.utils.JSONDeserializer()
+    serializer = bork.common.utils.JSONSerializer()
+    return wsgi.Resource(SystemsController(), deserializer, serializer)

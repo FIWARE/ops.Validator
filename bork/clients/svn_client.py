@@ -3,7 +3,6 @@
 Cookbook Repository Management
 """
 import logging
-
 import svn.remote
 
 
