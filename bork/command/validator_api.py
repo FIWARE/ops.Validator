@@ -37,18 +37,19 @@ def main():
         config_dir = "/etc/bork"
         app_name = os.path.splitext(os.path.basename(__file__))[0]
         # default path
-        if 'config_dir' not in cfg.CONF:
-            sys.argv.append('--config-dir=%s' % config_dir)
-        if 'config_file' not in cfg.CONF:
-            sys.argv.append('--config-file=%s' %
-                            os.path.join(
-                                config_dir,
-                                "%s.conf" % app_name
-                            )
-                            )
         i18n.enable_lazy()
 
         config.parse_args()
+        if 'config_dir' not in cfg.CONF:
+            sys.argv.append('--config-dir=%s' % config_dir)
+            cfg.CONF.config_dir = config_dir
+        if 'config_file' not in cfg.CONF:
+            sys.argv.append('--config-file=%s' %
+                            os.path.join(
+                                cfg.CONF.config_dir,
+                                "%s.conf" % app_name
+                            )
+                            )
         logging.setup(CONF, app_name)
         app = config.load_paste_app(app_name)
         port, host = (CONF.bind_port, CONF.bind_host)

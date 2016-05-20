@@ -23,7 +23,6 @@ class API(wsgi.Router):
     """
 
     def __init__(self, conf, **local_conf):
-        self.conf = conf
         mapper = routes.Mapper()
         systems_resource = actions.create_systems_resource()
         cookbooks_resource = actions.create_cookbooks_resource()
@@ -33,8 +32,8 @@ class API(wsgi.Router):
                        action='validate', conditions={'method': ['POST']})
         mapper.connect('/puppet/validate', controller=puppet_resource,
                        action='validate', conditions={'method': ['POST']})
-        mapper.connect('/cookbooks', controller=cookbooks_resource,
-                       action='list', conditions={'method': ['POST']})
+        mapper.connect('/cookbooks/list', controller=cookbooks_resource,
+                       action='list', conditions={'method': ['GET']})
         mapper.connect('/systems', controller=systems_resource,
-                       action='list', conditions={'method': ['POST']})
+                       action='list', conditions={'method': ['GET']})
         super(API, self).__init__(mapper)

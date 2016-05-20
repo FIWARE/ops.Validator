@@ -16,7 +16,6 @@ import inspect
 import re
 import six
 from oslo_config import cfg
-from bork.common import log
 from oslo_messaging._drivers import common as rpc_common
 import webob
 import bork.api.middleware.fault as fault
