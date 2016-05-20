@@ -29,5 +29,9 @@ python-novaclient == 2.26.0
 # Image Generation
 docker-py == 1.3.1
 
+# Version Control
+svn == 0.3.36
+GitPython == 2.0.2
+
 # web ui
 -r webui/requirements.txt
