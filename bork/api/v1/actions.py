@@ -89,15 +89,11 @@ class CookBooksController(object):
     """
 
     @staticmethod
-    def list(request, body):
+    def list():
         """ List available cookbooks
-        :param request: request context
-        :param body: a json with deployment parameters
+
         :return : a json file with process results
         """
-        body = body or {}
-        if len(body) < 1:
-            raise exc.HTTPBadRequest(_("No action specified"))
         LOG.info(_LI('Processing Request for list cookbooks'))
         res = CookBookEngine().list()
         return res
@@ -110,15 +106,10 @@ class SystemsController(object):
     """
 
     @staticmethod
-    def list(request, body):
+    def list():
         """ List available systems
-        :param request: request context
-        :param body: a json with deployment parameters
         :return : a json file with process results
         """
-        body = body or {}
-        if len(body) < 1:
-            raise exc.HTTPBadRequest(_("No action specified"))
         LOG.info(_LI('Processing Request for list systems'))
         res = SystemEngine().list()
         return res
@@ -147,7 +138,6 @@ def create_cookbooks_resource():
     serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(CookBooksController(), deserializer, serializer)
 
+
 def create_systems_resource():
-    deserializer = bork.common.utils.JSONDeserializer()
-    serializer = bork.common.utils.JSONSerializer()
-    return wsgi.Resource(SystemsController(), deserializer, serializer)
+    return wsgi.Resource(SystemsController())
