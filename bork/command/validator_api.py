@@ -22,29 +22,34 @@ import sys
 import six
 import oslo_i18n as i18n
 from oslo_config import cfg
-
-# default path
-if 'config_dir' not in cfg.CONF:
-    cfg.CONF.config_dir = "/etc/bork"
-
 from bork.common import log as logging
 from bork.common.i18n import _LI
 from bork.common import config
 from bork.common import wsgi
 
-i18n.enable_lazy()
-
-LOG = logging.getLogger()
-CONF = config.CONF
-
 
 def main():
     """Launch validator API """
     try:
+        config_dir = "/etc/bork"
+        app_name = os.path.splitext(os.path.basename(__file__))[0]
+        # default path
+        if 'config_dir' not in cfg.CONF:
+            sys.argv.append('--config-dir=%s' % config_dir)
+        if 'config_file' not in cfg.CONF:
+            sys.argv.append('--config-file=%s' %
+                            os.path.join(
+                                config_dir,
+                                "%s.conf" % app_name
+                            )
+                            )
+        i18n.enable_lazy()
+        CONF = config.CONF
         config.parse_args()
-        logging.setup(CONF, 'validator_api')
-        app = config.load_paste_app("validator_api")
+        logging.setup(CONF, app_name)
+        app = config.load_paste_app(app_name)
         port, host = (CONF.bind_port, CONF.bind_host)
+        LOG = logging.getLogger()
         LOG.info(_LI('Starting Validator ReST API on %(host)s:%(port)s'),
                  {'host': host, 'port': port})
         server = wsgi.Service(app, port, host)
