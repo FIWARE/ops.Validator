@@ -1,6 +1,6 @@
 keystone:
   build: ./docker-keystone
-  hostname: 0.0.0.0
+  hostname: keystone
   container_name: keystone
   ports:
     - "5000:5000"
@@ -14,7 +14,8 @@ keystone:
     OS_PASSWORD: admin
 
 mysql:
-  build: ./docker-mysql
+  #build: ./docker-mysql
+  image: mysql:5.5
   container_name: mysql
   hostname: mysql
   ports:
