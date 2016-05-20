@@ -27,6 +27,9 @@ from bork.common.i18n import _LI
 from bork.common import config
 from bork.common import wsgi
 
+CONF = config.CONF
+LOG = logging.getLogger()
+
 
 def main():
     """Launch validator API """
@@ -44,12 +47,12 @@ def main():
                             )
                             )
         i18n.enable_lazy()
-        CONF = config.CONF
+
         config.parse_args()
         logging.setup(CONF, app_name)
         app = config.load_paste_app(app_name)
         port, host = (CONF.bind_port, CONF.bind_host)
-        LOG = logging.getLogger()
+
         LOG.info(_LI('Starting Validator ReST API on %(host)s:%(port)s'),
                  {'host': host, 'port': port})
         server = wsgi.Service(app, port, host)
