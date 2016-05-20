@@ -35,4 +35,6 @@ class API(wsgi.Router):
                        action='validate', conditions={'method': ['POST']})
         mapper.connect('/cookbooks', controller=cookbooks_resource,
                        action='list', conditions={'method': ['POST']})
+        mapper.connect('/systems', controller=systems_resource,
+                       action='list', conditions={'method': ['POST']})
         super(API, self).__init__(mapper)

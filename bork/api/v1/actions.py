@@ -102,6 +102,7 @@ class CookBooksController(object):
         res = CookBookEngine().list()
         return res
 
+
 class SystemsController(object):
     """
     Cookbook Controller Object
@@ -110,7 +111,7 @@ class SystemsController(object):
 
     @staticmethod
     def list(request, body):
-        """ List available cookbooks
+        """ List available systems
         :param request: request context
         :param body: a json with deployment parameters
         :return : a json file with process results
@@ -118,9 +119,10 @@ class SystemsController(object):
         body = body or {}
         if len(body) < 1:
             raise exc.HTTPBadRequest(_("No action specified"))
-        LOG.info(_LI('Processing Request for list cookbooks'))
+        LOG.info(_LI('Processing Request for list systems'))
         res = SystemEngine().list()
         return res
+
 
 def create_chef_resource():
     """

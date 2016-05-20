@@ -2,10 +2,10 @@ FROM ubuntu:14.04
 MAINTAINER pmverdugo "pmverdugo at dit.upm.es"
 ENV DEBIAN_FRONTEND noninteractive
 # install packages
-RUN set -x \
+RUN apt-get -qqy update
+RUN apt-get -y install ubuntu-cloud-keyring \
+    set -x \
 	&& echo "deb http://ubuntu-cloud.archive.canonical.com/ubuntu trusty-updates/juno main" > /etc/apt/sources.list.d/juno.list \
-	&& apt-get -y update \
-	&& apt-get -y install ubuntu-cloud-keyring \
 	&& apt-get -y update \
 	&& apt-get -y install \
 		mysql-client \
