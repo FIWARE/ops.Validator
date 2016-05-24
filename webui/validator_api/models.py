@@ -71,6 +71,6 @@ class Deployment(models.Model):
     """
     recipe = models.ForeignKey(Recipe, blank=True, null=True)
     system = models.ForeignKey(System, blank=True, null=True)
-    image = models.ForeignKey(System, blank=True, null=True)
+    image = models.ForeignKey(Image, blank=True, null=True)
     ok = models.BooleanField(default=False)
     description = models.TextField()

@@ -4,10 +4,17 @@ from rest_framework import serializers
 from validator_api.models import System, Repo, Recipe, CookBook, Deployment, Image
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class SystemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = System
+        fields = ('id',  'name')
+
+
+class ImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Image
         fields = ('id', 'name', 'version')
 
     def refresh(self):
@@ -80,7 +87,7 @@ class DeploymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Deployment
-        fields = ('id', 'recipe', 'system', 'ok', 'description')
+        fields = ('id', 'recipe', 'image', 'system', 'ok', 'description')
 
     def deploy(self, data):
         """
