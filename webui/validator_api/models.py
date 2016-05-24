@@ -1,9 +1,10 @@
+# coding=utf-8
 from __future__ import unicode_literals
 
 from django.db import models
 
 
-class System(models.Model):
+class Image(models.Model):
     """
     A docker OS image identified by OS name and version
     """
@@ -12,6 +13,16 @@ class System(models.Model):
 
     def __unicode__(self):
         return "%s:%s" % (self.name, self.version)
+
+
+class System(models.Model):
+    """
+    A known deployment system
+    """
+    name = models.CharField(max_length=50, blank=False, default='Unknown')
+
+    def __unicode__(self):
+        return self.name
 
 
 class Repo(models.Model):
@@ -60,5 +71,6 @@ class Deployment(models.Model):
     """
     recipe = models.ForeignKey(Recipe, blank=True, null=True)
     system = models.ForeignKey(System, blank=True, null=True)
+    image = models.ForeignKey(System, blank=True, null=True)
     ok = models.BooleanField(default=False)
     description = models.TextField()
