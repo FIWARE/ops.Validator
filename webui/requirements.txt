@@ -8,8 +8,8 @@ Django == 1.8.13
 djangorestframework == 3.3.3
 
 # User Authentication
-django_openstack_auth == 2.2.1
-python-keystoneclient == 3.1.0
+-e git+https://github.com/ging/django-openstack-auth.git#egg=django-openstack-auth
+-e git+https://github.com/ging/python-keystoneclient.git#egg=python-keystoneclient
 keystoneauth1 == 2.6.0
 oslo.utils == 3.11.0
 oslo.config == 3.10.0
