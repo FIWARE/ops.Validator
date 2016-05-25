@@ -15,8 +15,8 @@ router.register(r'deployments', views.DeploymentViewSet)
 
 urlpatterns = [
     # url(r'^$', views.index, name='index'),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^', include('openstack_auth.urls')),
+    # url(r'^admin/', include(admin.site.urls)),
+    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # url(r'^', include('openstack_auth.urls')),
     url(r'^', include(router.urls)),
 ]

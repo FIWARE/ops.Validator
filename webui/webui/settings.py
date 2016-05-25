@@ -25,7 +25,7 @@ SECRET_KEY = '6yj2&xqtb2-o^(!pi^44#2yl1%9-)nkg7zjq1%0+s#1vs&-5vs'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '130.206.116.166']
 
 
 # Application definition
@@ -42,11 +42,6 @@ INSTALLED_APPS = [
     'validator_api.apps.ValidatorApiConfig'
 ]
 
-# Keystone Auth
-OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v3/"
-
-AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
-
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -56,6 +51,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'validator_api.middleware.KeystoneAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'webui.urls'
@@ -76,7 +72,8 @@ TEMPLATES = [
         },
     },
 ]
-
+PREPEND_WWW = False
+APPEND_SLASH = True
 WSGI_APPLICATION = 'webui.wsgi.application'
 
 
@@ -133,7 +130,9 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-    )
 }
+
+# Keystone Auth
+OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
+
+AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
