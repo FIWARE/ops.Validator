@@ -2,5 +2,19 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-Django == 1.9.4
-djangorestframework = 3.3.3
+six == 1.10.0
+
+Django == 1.8.13
+djangorestframework == 3.3.3
+
+# User Authentication
+django_openstack_auth == 2.2.1
+python-keystoneclient == 3.1.0
+keystoneauth1 == 2.6.0
+oslo.utils == 3.11.0
+oslo.config == 3.10.0
+oslo.policy == 1.8.0
+
+# Version Control
+svn == 0.3.36
+GitPython == 2.0.2
