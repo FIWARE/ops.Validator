@@ -37,9 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'openstack_auth',
     'rest_framework',
     'validator_api.apps.ValidatorApiConfig'
 ]
+
+# Keystone Auth
+OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v3/"
+
+AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
 
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
@@ -122,3 +128,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
