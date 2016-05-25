@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'openstack_auth',
-    'rest_framework',
-    'validator_api.apps.ValidatorApiConfig'
+    'validator_webui'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -54,7 +53,7 @@ MIDDLEWARE_CLASSES = [
     'validator_api.middleware.KeystoneAuthExceptionMiddleware',
 ]
 
-ROOT_URLCONF = 'webui.urls'
+ROOT_URLCONF = 'validator_webui.urls'
 
 TEMPLATES = [
     {
@@ -83,7 +82,7 @@ WSGI_APPLICATION = 'webui.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'validator.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'validator_webui.sqlite3'),
     }
 }
 
@@ -125,12 +124,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
-REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    ),
-}
 
 # Keystone Auth
 OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
