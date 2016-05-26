@@ -15,16 +15,6 @@ class Image(models.Model):
         return "%s:%s" % (self.name, self.version)
 
 
-class System(models.Model):
-    """
-    A known deployment system
-    """
-    name = models.CharField(max_length=50, blank=False, default='Unknown')
-
-    def __unicode__(self):
-        return self.name
-
-
 class Repo(models.Model):
     """
     A repository identified by type and location (url or filepath)
@@ -37,6 +27,8 @@ class Repo(models.Model):
     )
     location = models.CharField(max_length=255, blank=False, default='Unknown')
     type = models.CharField(max_length=3, choices=REPOS, default="svn")
+    user = models.CharField(max_length=255, blank=False, default='Unknown')
+    password = models.CharField(max_length=255, blank=False, default='Unknown')
 
     def __unicode__(self):
         return self.location
@@ -70,7 +62,6 @@ class Deployment(models.Model):
     The deployment of a recipe in a system image
     """
     recipe = models.ForeignKey(Recipe, blank=True, null=True)
-    system = models.ForeignKey(System, blank=True, null=True)
     image = models.ForeignKey(Image, blank=True, null=True)
     ok = models.BooleanField(default=False)
     description = models.TextField()

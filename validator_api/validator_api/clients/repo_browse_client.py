@@ -11,19 +11,18 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
-import os
-import shutil
-import logging
+
 from git import Repo
 
 
-class RepoBrowser:
-    def __init__(self, repo):
+class GITRepo:
+    def __init__(self, url):
         """
         Instantiates a repository browser object
         :param repo: RepoManager object
         """
-        self.repo = repo
+        self.url = url
+        self.repo = Repo()
 
     def browse_file(self, file):
         """Shows file contents"""
@@ -51,6 +50,9 @@ class RepoBrowser:
         """Commit Repository changes"""
         return self.repo.commit(message)
 
+    def checkout(self, location="/tmp/cookbooks"):
+        self.repo.clone_from(self.url, location)
+
     def statistics(self):
         """Show several usage statistics"""
         message = u""
@@ -66,4 +68,4 @@ class RepoBrowser:
         return message
 
 if __name__ == '__main__':
-    m = RepoBrowser()
+    m = GITRepo()

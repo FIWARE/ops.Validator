@@ -1,9 +1,12 @@
+import os
+import logging
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import list_route, detail_route
-from validator_api.models import System, Repo, CookBook, Recipe, Deployment, Image
-from validator_api.serializers import SystemSerializer, RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
+from models import Repo, CookBook, Recipe, Deployment, Image
+from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
+from validator_api import settings
 
 
 class ImageViewSet(viewsets.ModelViewSet):
@@ -12,23 +15,18 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
-    def refresh(self):
+    def refresh(self, request):
         """
         Update image list from local configuration
         """
-        from validator_api.clients.docker_client import DockerClient
+        Image.objects.all().delete()
+        from clients.docker_client import DockerClient
         for s in DockerClient().list_systems():
             instance = Image()
-            instance.name = s.name
-            instance.version = s.version
+            instance.name = s['name']
+            instance.version = s['version']
             instance.save()
-        return Response(Image.objects.all())
-
-
-class SystemViewSet(viewsets.ModelViewSet):
-    queryset = System.objects.all()
-    serializer_class = SystemSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+        return self.list(None)
 
 
 class RepoViewSet(viewsets.ModelViewSet):
@@ -43,39 +41,50 @@ class CookBookViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
-    def refresh(self):
+    def refresh(self, request):
         """
         Update cookbook list from repos
         """
-        for r in Repo().objects.all():
+        # Cleanup phase
+        logging.info("Cleanup old Cookbooks in %s" % settings.LOCAL_STORAGE)
+        cookbooks = set()
+        CookBook.objects.all().delete()
+        if os.path.exists(settings.LOCAL_STORAGE):
+            import shutil
+            shutil.rmtree(settings.LOCAL_STORAGE)
+            os.mkdir(settings.LOCAL_STORAGE)
+        for r in Repo.objects.all():
             if r.type == "svn":
-                from validator_api.clients.svn_client import CookbookRepo
-                r = CookbookRepo(url=r.location)
-                for c in r.list_cookbooks():
-                    cb = CookBook()
-                    cb.repo = r
-                    cb.name = c.name
-                    cb.version = c.version
-                    cb.save()
+                logging.info("Downloading Cookbooks from %s" % r.location)
+                from clients.svn_client import SVNRepo
+                repo = SVNRepo(url=r.location, user=r.user, pwd=r.password)
+                repo.download_cookbooks()
+                generate_cookbooks(cookbooks, r)
             elif r.type == "git":
-                from validator_api.clients.repo_browse_client import RepoBrowser
-                r = RepoBrowser(r.location)
-                for c in r.browse_repository():
-                    cb = CookBook()
-                    cb.repo = r
-                    cb.name = c.name
-                    cb.version = c.version
-                    cb.save()
-            elif r.type == "tgz" or r.type == "zip":
-                from validator_api.clients.storage_client import LocalStorage
-                r = LocalStorage(r.location)
-                for c in r.list_cookbooks():
-                    cb = CookBook()
-                    cb.repo = r
-                    cb.name = c.name
-                    cb.version = c.version
-                    cb.save()
-        return Response(CookBook.objects.all())
+                from clients.repo_browse_client import GITRepo
+                logging.info("Downloading Cookbooks from %s" % r.location)
+                repo = GITRepo(r.location)
+                repo.checkout()
+                generate_cookbooks(cookbooks, r)
+        return self.list(None)
+
+
+def generate_cookbooks(cookbooks, r):
+    from clients.storage_client import LocalStorage
+    l = LocalStorage(settings.LOCAL_STORAGE)
+    for c in l.list_cookbooks():
+        if c not in cookbooks:
+            logging.info("Adding cookbook %s" % c)
+            cb = CookBook()
+            cb.repo = r
+            cb.name = c
+            cb.save()
+            cookbooks.add(c)
+            for r in l.list_recipes(c):
+                ro = Recipe()
+                ro.name = r
+                ro.cookbook = cb
+                ro.save()
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -96,7 +105,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """
         instance = Deployment()
         if "chef" == data.system:
-            from validator_api.clients.chef_client import ChefClient
+            from clients.chef_client import ChefClient
             cc = ChefClient()
             cc.run_container(data.image)
             res = cc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)
@@ -104,7 +113,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             instance.description = res['result']
             instance.save()
         elif "puppet" == data.system:
-            from validator_api.clients.puppet_client import PuppetClient
+            from clients.puppet_client import PuppetClient
             pc = PuppetClient()
             pc.run_container(data.image)
             res = pc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)

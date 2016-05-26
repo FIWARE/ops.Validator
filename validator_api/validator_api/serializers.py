@@ -1,14 +1,7 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from rest_framework import serializers
-from validator_api.models import System, Repo, Recipe, CookBook, Deployment, Image
-
-
-class SystemSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model = System
-        fields = ('id',  'name')
+from models import Repo, Recipe, CookBook, Deployment, Image
 
 
 class ImageSerializer(serializers.HyperlinkedModelSerializer):

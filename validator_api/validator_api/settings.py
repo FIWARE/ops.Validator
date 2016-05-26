@@ -72,6 +72,7 @@ TEMPLATES = [
         },
     },
 ]
+
 PREPEND_WWW = False
 APPEND_SLASH = True
 WSGI_APPLICATION = 'validator_api.wsgi.application'
@@ -129,10 +130,16 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
-
 # Keystone Auth
 OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
 
 AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
+
+LOCAL_STORAGE = "/tmp/cookbooks"
