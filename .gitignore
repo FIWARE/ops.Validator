@@ -72,3 +72,9 @@ doc/build
 .testrepository
 
 Changelog
+
+# Initial Database Objects
+initial_data.yaml
+
+# Database
+*.sqlite3

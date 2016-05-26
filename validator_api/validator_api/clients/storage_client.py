@@ -18,7 +18,7 @@ import logging
 
 class LocalStorage:
 
-    def __init__(self, path="/cookbooks"):
+    def __init__(self, path="/tmp/cookbooks"):
         self.path = os.path.abspath(path)
 
     def list_cookbooks(self):
@@ -28,8 +28,21 @@ class LocalStorage:
         valid = []
         for cb in os.listdir(self.path):
             if self.check_cookbook(cb):
-                valid.append(os.path.join(self.path, cb))
+                valid.append(cb)
         return valid
+
+    def list_recipes(self, cb):
+        """
+        :return: list of all recipes in the current cookbook
+        """
+        valid = []
+        for rec in os.listdir(os.path.join(self.path, cb)):
+            if self.check_recipe(rec):
+                valid.append(rec)
+        return valid
+
+    def check_recipe(self, rec):
+        return True
 
     def check_cookbook(self, cb):
         """
@@ -53,5 +66,5 @@ class LocalStorage:
 if __name__ == '__main__':
     import sys
     logging.basicConfig(level=logging.DEBUG)
-    c = LocalStorage(*sys.argv[1])
+    c = LocalStorage(path=sys.argv[1])
     print c.list_cookbooks()

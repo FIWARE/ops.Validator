@@ -15,7 +15,7 @@
 
 from oslo_log import log as logging
 from oslo_config import cfg
-from clients.svn_client import CookbookRepo
+from clients.svn_client import SVNRepo
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
 
@@ -25,4 +25,4 @@ class CookBookEngine(object):
 
     @staticmethod
     def list():
-        return CookbookRepo().list_cookbooks()
+        return SVNRepo().list_cookbooks()

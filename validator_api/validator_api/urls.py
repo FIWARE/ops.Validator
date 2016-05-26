@@ -6,7 +6,6 @@ from django.contrib import admin
 admin.autodiscover()
 
 router = DefaultRouter()
-router.register(r'systems', views.SystemViewSet)
 router.register(r'images', views.ImageViewSet)
 router.register(r'repos', views.RepoViewSet)
 router.register(r'cookbooks', views.CookBookViewSet)

@@ -2,8 +2,8 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-# web ui
--r webui/requirements.txt
+# API
+-r validator_api/requirements.txt
 
-# old api
-#-r bork/requirements.txt
+# web ui
+#-r validator_webui/requirements.txt

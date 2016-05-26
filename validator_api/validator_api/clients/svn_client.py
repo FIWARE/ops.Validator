@@ -6,27 +6,19 @@ import logging
 import svn.remote
 
 
-class CookbookRepo:
+class SVNRepo:
     """
     Cookbook Repository Object Model
     """
 
-    def __init__(self, user, pwd, url):
+    def __init__(self, url, user="default", pwd="default", ):
         """
         Connects to a remote svn server
         :param user: username
         :param pwd: password
         :param url: url
         """
-        if url.startswith("https://"):
-            svn_repo = url
-        else:
-            svn_repo = 'https://{user}:{pwd}@{url}'.format(
-                user=user,
-                pwd=pwd,
-                url=url
-            )
-        self.r = svn.remote.RemoteClient(svn_repo)
+        self.r = svn.remote.RemoteClient(url, username=user, password=pwd)
 
     def list_cookbooks(self, rp=None):
         """
@@ -60,7 +52,7 @@ class CookbookRepo:
         :param local_path: path to download to
         :return: operation result
         """
-        return self.r.export(local_path)
+        return self.r.run_command("export", [self.r.url, local_path, "--trust-server-cert", "--force"])
 
     def info(self, rel_path=None):
         return self.r.info(rel_path=rel_path)
@@ -68,7 +60,7 @@ class CookbookRepo:
 if __name__ == '__main__':
     import sys
     logging.basicConfig(level=logging.DEBUG)
-    c = CookbookRepo(*sys.argv[1:])
+    c = SVNRepo(*sys.argv[1:])
     print c.list_cookbooks()
     c.download_cookbooks()
 
