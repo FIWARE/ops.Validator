@@ -4,42 +4,42 @@ from rest_framework import serializers
 from validator_api.models import System, Repo, Recipe, CookBook, Deployment, Image
 
 
-class SystemSerializer(serializers.ModelSerializer):
+class SystemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = System
         fields = ('id',  'name')
 
 
-class ImageSerializer(serializers.ModelSerializer):
+class ImageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
         fields = ('id', 'name', 'version')
 
 
-class RepoSerializer(serializers.ModelSerializer):
+class RepoSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Repo
         fields = ('id', 'type', 'location')
 
 
-class CookBookSerializer(serializers.ModelSerializer):
+class CookBookSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = CookBook
         fields = ('id', 'name', 'version', 'repo')
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'cookbook')
 
 
-class DeploymentSerializer(serializers.ModelSerializer):
+class DeploymentSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Deployment
