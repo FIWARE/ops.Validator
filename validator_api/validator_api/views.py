@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from validator_api.models import System, Repo, CookBook, Recipe, Deployment, Image
 from validator_api.serializers import SystemSerializer, RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 
@@ -89,7 +89,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
     serializer_class = DeploymentSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
-    @list_route()
+    @detail_route(methods=['post'])
     def deploy(self, data):
         """
         Deploys the given recipe
