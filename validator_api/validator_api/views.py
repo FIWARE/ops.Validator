@@ -22,6 +22,7 @@ class ImageViewSet(viewsets.ModelViewSet):
             instance.name = s.name
             instance.version = s.version
             instance.save()
+        return Response(Image.objects.all())
 
 
 class SystemViewSet(viewsets.ModelViewSet):
@@ -65,7 +66,7 @@ class CookBookViewSet(viewsets.ModelViewSet):
                     cb.name = c.name
                     cb.version = c.version
                     cb.save()
-            elif r.type == "tgz":
+            elif r.type == "tgz" or r.type == "zip":
                 from validator_api.clients.storage_client import LocalStorage
                 r = LocalStorage(r.location)
                 for c in r.list_cookbooks():
@@ -74,6 +75,7 @@ class CookBookViewSet(viewsets.ModelViewSet):
                     cb.name = c.name
                     cb.version = c.version
                     cb.save()
+        return Response(CookBook.objects.all())
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -100,6 +102,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             res = cc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)
             instance.ok = res['success']
             instance.description = res['result']
+            instance.save()
         elif "puppet" == data.system:
             from validator_api.clients.puppet_client import PuppetClient
             pc = PuppetClient()
@@ -107,5 +110,5 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             res = pc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)
             instance.ok = res['success']
             instance.description = res['result']
-        instance.save()
+            instance.save()
         return Response(instance)
