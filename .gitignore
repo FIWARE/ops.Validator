@@ -61,7 +61,7 @@ docs/_build/
 .idea/
 
 # local configuration
-etc/validator/*.conf
+etc/bork/*.conf
 
 # Runtime Built Documentation
 doc/make.bat
@@ -74,7 +74,8 @@ doc/build
 Changelog
 
 # Initial Database Objects
-initial_data.yaml
+validator_api/initial_data.yaml
 
 # Database
-*.sqlite3
+validator_api/*.sqlite3
+validator_webui/*.sqlite3
