@@ -13,8 +13,8 @@
 
 from django.conf.urls import url
 
-from openstack_auth import utils
-from openstack_auth import views
+from idm_auth import utils
+from idm_auth import views
 
 utils.patch_middleware_get_user()
 

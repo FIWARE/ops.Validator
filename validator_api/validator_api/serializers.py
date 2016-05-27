@@ -8,7 +8,7 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'version')
+        fields = ('id', 'name', 'version', 'dockerfile', 'system')
 
 
 class RepoSerializer(serializers.HyperlinkedModelSerializer):

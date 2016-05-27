@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from openstack_auth.plugin.base import *  # noqa
-from openstack_auth.plugin.password import *  # noqa
-from openstack_auth.plugin.token import *  # noqa
+from idm_auth.plugin.base import *  # noqa
+from idm_auth.plugin.password import *  # noqa
+from idm_auth.plugin.token import *  # noqa
 
 
 __all__ = ['BasePlugin',

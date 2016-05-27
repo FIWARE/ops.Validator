@@ -21,8 +21,8 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.debug import sensitive_variables  # noqa
 
-from openstack_auth import exceptions
-from openstack_auth import utils
+from idm_auth import exceptions
+from idm_auth import utils
 
 
 LOG = logging.getLogger(__name__)

@@ -15,8 +15,8 @@ import logging
 from keystoneauth1.identity import v2 as v2_auth
 from keystoneauth1.identity import v3 as v3_auth
 
-from openstack_auth.plugin import base
-from openstack_auth import utils
+from idm_auth.plugin import base
+from idm_auth import utils
 
 LOG = logging.getLogger(__name__)
 

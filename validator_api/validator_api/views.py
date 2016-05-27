@@ -2,8 +2,9 @@ import os
 import logging
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route
 from models import Repo, CookBook, Recipe, Deployment, Image
 from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 from validator_api import settings
@@ -12,7 +13,7 @@ from validator_api import settings
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
     def refresh(self, request):
@@ -25,6 +26,8 @@ class ImageViewSet(viewsets.ModelViewSet):
             instance = Image()
             instance.name = s['name']
             instance.version = s['version']
+            instance.dockerfile = s['dockerfile']
+            instance.system = s['system']
             instance.save()
         return self.list(None)
 
@@ -32,13 +35,13 @@ class ImageViewSet(viewsets.ModelViewSet):
 class RepoViewSet(viewsets.ModelViewSet):
     queryset = Repo.objects.all()
     serializer_class = RepoSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
 
 
 class CookBookViewSet(viewsets.ModelViewSet):
     queryset = CookBook.objects.all()
     serializer_class = CookBookSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
     def refresh(self, request):
@@ -90,34 +93,35 @@ def generate_cookbooks(cookbooks, r):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
 
 
 class DeploymentViewSet(viewsets.ModelViewSet):
     queryset = Deployment.objects.all()
     serializer_class = DeploymentSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    #permission_classes = (permissions.IsAuthenticated,)
 
-    @detail_route(methods=['post'])
-    def deploy(self, data):
+    def create(self, request, *args, **kwargs):
         """
         Deploys the given recipe
         """
         instance = Deployment()
-        if "chef" == data.system:
+        image_name, image_version = request.data['image'].split(":")
+        try:
+            image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=request.data['system'].lower())
+            image_path = image.dockerfile
+        except Image.DoesNotExist:
+            return Response({'detail': 'Image not found %s' % request.data['image']}, status=status.HTTP_404_NOT_FOUND)
+        except Image.MultipleObjectsReturned:
+            return Response('Multiple images found %s' % request.data['image'], status=status.HTTP_404_NOT_FOUND)
+        if "chef" == request.data['system'].lower():
             from clients.chef_client import ChefClient
-            cc = ChefClient()
-            cc.run_container(data.image)
-            res = cc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)
-            instance.ok = res['success']
-            instance.description = res['result']
+            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_path)
+            instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
-        elif "puppet" == data.system:
+        elif "puppet" == request.data.system.lower():
             from clients.puppet_client import PuppetClient
-            pc = PuppetClient()
-            pc.run_container(data.image)
-            res = pc.cookbook_deployment_test(data.recipe.cookbook, data.recipe.name, data.image)
-            instance.ok = res['success']
-            instance.description = res['result']
+            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_path)
+            instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
-        return Response(instance)
+        return Response(instance, status=status.HTTP_201_CREATED)

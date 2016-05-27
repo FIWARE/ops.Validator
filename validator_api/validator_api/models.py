@@ -3,6 +3,12 @@ from __future__ import unicode_literals
 
 from django.db import models
 
+SYSTEMS = (
+    ("chef", "chef"),
+    ("pupp", "puppet"),
+    ("mura", "murano"),
+)
+
 
 class Image(models.Model):
     """
@@ -10,6 +16,8 @@ class Image(models.Model):
     """
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     version = models.CharField(max_length=50, blank=False, default='Unknown')
+    dockerfile = models.CharField(max_length=255, blank=False, default='Unknown')
+    system = models.CharField(max_length=4, choices=SYSTEMS, default="chef")
 
     def __unicode__(self):
         return "%s:%s" % (self.name, self.version)
