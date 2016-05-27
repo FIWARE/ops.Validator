@@ -21,14 +21,24 @@ class ImageViewSet(viewsets.ModelViewSet):
         Update image list from local configuration
         """
         Image.objects.all().delete()
-        from clients.docker_client import DockerClient
-        for s in DockerClient().list_systems():
+        from clients.docker_client import DockerManager
+        for s in DockerManager().list_systems():
             instance = Image()
             instance.name = s['name']
             instance.version = s['version']
             instance.dockerfile = s['dockerfile']
             instance.system = s['system']
             instance.save()
+        return self.list(None)
+
+    @list_route()
+    def generate(self, request):
+        """
+        Update image list from local configuration
+        """
+        from clients.docker_client import DockerManager
+        for s in Image.objects.all():
+            DockerManager().generate_image(s.dockerfile)
         return self.list(None)
 
 
