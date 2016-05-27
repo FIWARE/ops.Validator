@@ -21,7 +21,7 @@ from keystoneauth1 import exceptions as keystone_exceptions
 from keystoneclient.common import cms as keystone_cms
 import six
 
-from openstack_auth import utils
+from idm_auth import utils
 
 
 LOG = logging.getLogger(__name__)

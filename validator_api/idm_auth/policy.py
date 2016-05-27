@@ -21,8 +21,8 @@ from oslo_config import cfg
 from oslo_policy import opts as policy_opts
 from oslo_policy import policy
 
-from openstack_auth import user as auth_user
-from openstack_auth import utils as auth_utils
+from idm_auth import user as auth_user
+from idm_auth import utils as auth_utils
 
 LOG = logging.getLogger(__name__)
 

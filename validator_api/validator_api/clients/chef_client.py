@@ -11,18 +11,20 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
+import os
+
 from docker.errors import DockerException, NotFound
-from oslo_log import log as logging
+import logging
 from oslo_config import cfg
 from docker import Client as DC
 
-from bork.common.exception import CookbookSyntaxException, \
+from validator_api.exception import CookbookSyntaxException, \
     CookbookDeploymentException, \
     CookbookInstallException, \
     DockerContainerException
-from bork.common.i18n import _LW, _LE, _, _LI
+from validator_api.i18n import _LW, _LE, _, _LI
 
-LOG = logging.getLogger(__name__)
+LOG = logging
 
 opts = [
     cfg.StrOpt('url'),
@@ -46,10 +48,11 @@ class ChefClient(object):
             LOG.error(_LE("Docker client error: %s") % e)
             raise e
 
-    def cookbook_deployment_test(self, cookbook, recipe, image=CONF.clients_docker.image):
+    def cookbook_deployment_test(self, cookbook, recipe='default', image=CONF.clients_docker.image):
         """
         Try to process a cookbook and return results
         :param cookbook: cookbook to deploy
+        :param recipe: recipe to deploy
         :param image: image to deploy to
         :return: dictionary with results
         """
@@ -150,12 +153,13 @@ class ChefClient(object):
             raise CookbookInstallException(cookbook=cookbook)
         return msg
 
-    def run_container(self, image):
+    def run_container(self, image_path):
         """Run and start a container based on the given image
         :param image: image to run
         :return:
         """
-        contname = "{}-validate".format(image).replace("/", "_")
+        image_name = os.path.basename(image_path.replace(".dockerfile", ""))
+        contname = "{}-validate".format(image_name).replace("/", "_")
         try:
             try:
                 self.dc.remove_container(contname, force=True)
@@ -163,14 +167,16 @@ class ChefClient(object):
             except NotFound:
                 pass
             self.container = self.dc.create_container(
-                image,
+                image_name,
                 tty=True,
                 name=contname
             ).get('Id')
             self.dc.start(container=self.container)
+        except NotFound as e:
+            LOG.error(_LW("Image not found: %s" % image_name))
         except AttributeError as e:
             LOG.error(_LW("Error creating container: %s" % e))
-            raise DockerContainerException(image=image)
+            raise DockerContainerException(image=image_name)
 
     def remove_container(self, kill=True):
         """destroy container on exit
@@ -191,3 +197,7 @@ class ChefClient(object):
             cmd=bash_txt
         )
         return self.dc.exec_start(exec_txt)
+
+if __name__ == '__main__':
+    c = ChefClient("tcp://127.0.0.1:2375")
+    c.run_container("/etc/bork/chef-trusty.dockerfile")

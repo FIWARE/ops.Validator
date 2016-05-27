@@ -18,8 +18,8 @@ from keystoneclient.v2_0 import client as v2_client
 from keystoneclient.v3 import client as v3_client
 import six
 
-from openstack_auth import exceptions
-from openstack_auth import utils
+from idm_auth import exceptions
+from idm_auth import utils
 
 __all__ = ['BasePlugin']
 

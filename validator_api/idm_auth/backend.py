@@ -22,9 +22,9 @@ from django.utils.module_loading import import_string  # noqa
 from django.utils.translation import ugettext_lazy as _
 from keystoneauth1 import exceptions as keystone_exceptions
 
-from openstack_auth import exceptions
-from openstack_auth import user as auth_user
-from openstack_auth import utils
+from idm_auth import exceptions
+from idm_auth import user as auth_user
+from idm_auth import utils
 
 
 LOG = logging.getLogger(__name__)

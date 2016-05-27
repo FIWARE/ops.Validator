@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -27,7 +26,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '130.206.116.166']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -37,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'openstack_auth',
+    'idm_auth',
     'rest_framework',
     'validator_api.apps.ValidatorApiConfig'
 ]
@@ -77,7 +75,6 @@ PREPEND_WWW = False
 APPEND_SLASH = True
 WSGI_APPLICATION = 'validator_api.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
@@ -88,25 +85,15 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
@@ -120,7 +107,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
@@ -140,6 +126,8 @@ REST_FRAMEWORK = {
 # Keystone Auth
 OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
 
-AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
+AUTHENTICATION_BACKENDS = ('idm_auth.backend.KeystoneBackend', )
 
 LOCAL_STORAGE = "/tmp/cookbooks"
+
+DOCKER_URL = "tcp://127.0.0.1:2375"
