@@ -1,5 +1,6 @@
 # Dockerfile to deploy a valid chef-solo container
 # tag: pmverdugo/puppet-centos6
+
 FROM centos:centos6
 MAINTAINER Pedro Verdugo <pmverdugo 'at' dit.upm.es>
 

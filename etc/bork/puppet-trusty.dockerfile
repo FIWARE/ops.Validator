@@ -1,5 +1,5 @@
 # Dockerfile to deploy a valid puppet self-service container
-# tag: pmverdugo/trusty-puppet-self-service
+# tag: pmverdugo/puppet-ubuntu14
 
 FROM ubuntu:14.04
 MAINTAINER Pedro Verdugo <pmverdugo 'at' dit.upm.es>
@@ -11,8 +11,8 @@ RUN apt-get update && \
 
 # Puppet install
 RUN wget http://apt.puppetlabs.com/puppetlabs-release-trusty.deb && \
-    dpkg -i puppetlabs-release-trusty.deb \
-	apt-get update \
+    dpkg -i puppetlabs-release-trusty.deb &&\
+	apt-get update &&\
     apt-get -y install puppetmaster
 
 # environment cleanup

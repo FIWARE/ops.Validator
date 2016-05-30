@@ -1,5 +1,5 @@
 # Dockerfile to deploy a valid chef-solo container
-# tag: pmverdugo/chef-centos6
+# tag: pmverdugo/chef-centos7
 FROM centos:centos7
 MAINTAINER Pedro Verdugo <pmverdugo 'at' dit.upm.es>
 
