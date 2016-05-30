@@ -25,48 +25,65 @@ CONF = cfg.CONF
 CONF.register_opt(cfg.StrOpt('config_dir', default="/etc/bork"))
 CONF.register_opt(cfg.StrOpt('url', default="tcp://127.0.0.1:2375"), group="clients_docker")
 LOG = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
-def dock_image(df):
+def dock_image(dockerfile_path):
     """generate docker image"""
-    status = False
+    status = True
     dc = DockerClient(base_url=CONF.clients_docker.url)
     dc.info()
-    with open(df) as dockerfile:
+    with open(dockerfile_path) as dockerfile:
         tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
-        LOG.debug("Generating %s from %s" % (tag, df))
+        LOG.debug("Generating %s from %s" % (tag, dockerfile_path))
     if tag:
         resp = dc.build(
-            path=CONF.config_dir,
-            dockerfile=df,
+            path=os.path.dirname(dockerfile_path),
+            dockerfile=os.path.basename(dockerfile_path),
             rm=True,
             tag=tag
         )
         for l in resp:
             if "error" in l.lower():
                 status = False
-            LOG.debug(l)
+            LOG.debug(l.strip())
     return status
 
 
-def dock_images(wp):
+def dock_upload_image(tag):
+    status = True
+    dc = DockerClient(base_url=CONF.clients_docker.url)
+    resp = [line for line in dc.push(tag, stream=True)]
+    for l in resp:
+        if "error" in l.lower():
+            status = False
+        LOG.debug(l.strip())
+    return status
+
+
+def dock_images(wp, upload=False):
     """find dockerfiles in config dir"""
     LOG.info("Generating Images...")
     for df in os.listdir(wp):
         if df.endswith(".dockerfile"):
             LOG.info("Generating Image for %s" % df)
-            dock_image(df)
+            dockerfile_path = os.path.join(wp, df)
+            ok = dock_image(dockerfile_path)
+            if ok and upload:
+                with open(dockerfile_path) as dockerfile:
+                    tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
+                    LOG.info("Uploading image %s" % tag)
+                dock_upload_image(tag)
 
 
-def main():
+def main(images_dir=CONF.config_dir, upload=False):
     """Generates a Docker Image of test environments based on a local dockerfile."""
     # inject config files dir to syspath
-    wp = os.path.abspath(CONF.config_dir)
+    wp = os.path.abspath(images_dir)
     sys.path.insert(0, wp)
     os.chdir(wp)
-    dock_images(wp)
+    dock_images(wp, upload=upload)
 
 if __name__ == '__main__':
     # include arg --config-dir={configpath}
-    main()
+    main(images_dir="../etc/bork", upload=True)
