@@ -8,6 +8,7 @@ from rest_framework.decorators import list_route
 from models import Repo, CookBook, Recipe, Deployment, Image
 from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 from validator_api import settings
+from validator_api.clients.storage_client import LocalStorage
 
 
 class ImageViewSet(viewsets.ModelViewSet):
@@ -83,7 +84,6 @@ class CookBookViewSet(viewsets.ModelViewSet):
 
 
 def generate_cookbooks(cookbooks, r):
-    from clients.storage_client import LocalStorage
     l = LocalStorage(settings.LOCAL_STORAGE)
     for c in l.list_cookbooks():
         if c not in cookbooks:
@@ -91,6 +91,7 @@ def generate_cookbooks(cookbooks, r):
             cb = CookBook()
             cb.repo = r
             cb.name = c
+            cb.path = os.path.join(settings.LOCAL_STORAGE, c)
             cb.save()
             cookbooks.add(c)
             for r in l.list_recipes(c):
@@ -104,6 +105,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     #permission_classes = (permissions.IsAuthenticated,)
+
+    def refresh(self, request):
+        """
+        Update recipe list from local cookbooks
+        """
+        l = LocalStorage(settings.LOCAL_STORAGE)
+        for cb in CookBook.objects.all():
+            for r in l.list_recipes(cb.path):
+                ro = Recipe()
+                ro.name = r
+                ro.cookbook = cb
+                ro.version = cb.version
+                ro.save()
 
 
 class DeploymentViewSet(viewsets.ModelViewSet):

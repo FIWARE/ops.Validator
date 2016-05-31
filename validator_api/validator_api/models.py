@@ -49,6 +49,7 @@ class CookBook(models.Model):
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     version = models.CharField(max_length=50, blank=False, default='Unknown')
     repo = models.ForeignKey(Repo, blank=True, null=True)
+    path = models.CharField(max_length=255, blank=False, default='/tmp/cookbooks')
 
     def __unicode__(self):
         return self.name
@@ -60,6 +61,7 @@ class Recipe(models.Model):
     """
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     cookbook = models.ForeignKey(CookBook, blank=True, null=True)
+    version = models.CharField(max_length=50, blank=False, default='Unknown')
 
     def __unicode__(self):
         return self.name
