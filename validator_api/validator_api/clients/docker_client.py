@@ -39,7 +39,8 @@ class DockerManager:
                     cont = dff.read()
                     m = re.search("FROM ([^:]+):([^\n]+)\n", cont)
                     if m:
-                        systems.append({'name': m.group(1), 'version': m.group(2), 'dockerfile': image_path, 'system': system})
+                        tag = re.findall("(?im)^# tag: (.*)$", cont)[0].strip()
+                        systems.append({'name': m.group(1), 'version': m.group(2), 'dockerfile': image_path, 'system': system, 'tag': tag})
         return systems
 
     def generate_image(self, df):

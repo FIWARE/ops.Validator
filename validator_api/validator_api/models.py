@@ -18,6 +18,7 @@ class Image(models.Model):
     version = models.CharField(max_length=50, blank=False, default='Unknown')
     dockerfile = models.CharField(max_length=255, blank=False, default='Unknown')
     system = models.CharField(max_length=4, choices=SYSTEMS, default="chef")
+    tag = models.CharField(max_length=50, blank=False, default='Unknown')
 
     def __unicode__(self):
         return "%s:%s" % (self.name, self.version)
