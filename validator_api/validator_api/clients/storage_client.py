@@ -28,9 +28,9 @@ class LocalStorage:
         valid = []
         for cb in os.listdir(self.path):
             if self.check_chef_cookbook(cb):
-                valid.append(cb)
+                valid.append({'name': cb, 'system': 'chef'})
             elif self.check_puppet_module(cb):
-                valid.append(cb)
+                valid.append({'name': cb, 'system': 'pupp'})
         return valid
 
     def list_recipes(self, cb_path):
