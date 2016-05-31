@@ -99,15 +99,15 @@ def cookbooks_add(cookbooks, r):
     """
     l = LocalStorage(settings.LOCAL_STORAGE)
     for c in l.list_cookbooks():
-        if c not in cookbooks:
-            logging.info("Adding cookbook %s" % c)
+        if c['name'] not in cookbooks:
+            logging.info("Adding cookbook %s" % c['name'])
             cb = CookBook()
             cb.repo = r
-            cb.name = c
-            cb.system = r.system
-            cb.path = os.path.join(settings.LOCAL_STORAGE, c)
+            cb.name = c['name']
+            cb.system = c['system']
+            cb.path = os.path.join(settings.LOCAL_STORAGE, c['name'])
             cb.save()
-            cookbooks.add(c)
+            cookbooks.add(c['name'])
 
 
 def recipes_cleanup():
