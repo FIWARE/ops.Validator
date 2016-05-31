@@ -104,6 +104,7 @@ def cookbooks_add(cookbooks, r):
             cb = CookBook()
             cb.repo = r
             cb.name = c
+            cb.system = r.system
             cb.path = os.path.join(settings.LOCAL_STORAGE, c)
             cb.save()
             cookbooks.add(c)
@@ -128,6 +129,7 @@ def recipes_add():
             ro.name = r
             ro.cookbook = cb
             ro.version = cb.version
+            ro.system = cb.system
             ro.save()
 
 
@@ -136,12 +138,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     #permission_classes = (permissions.IsAuthenticated,)
 
+    @list_route()
     def refresh(self, request):
         """
         Update recipe list from local cookbooks
         """
         recipes_cleanup()
         recipes_add()
+        return self.list(None)
 
 
 class DeploymentViewSet(viewsets.ModelViewSet):
@@ -154,26 +158,32 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         Deploys the given recipe
         """
         instance = Deployment()
-        image_name, image_version = request.data['image'].split(":")
+        image = request.data['image']
+        image_name, image_version = image.split(":")
         image_tag = request.data['image'].lower()
+        cookbook = request.data['cookbook']
+        recipe = request.data['recipe'] or 'default'
+        system = request.data['system'].lower()
         try:
-            image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=request.data['system'].lower())
+            image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
             image_tag = image.tag
         except Image.DoesNotExist:
             # try to download image based on tag
             from clients.docker_client import DockerManager
-            DockerManager.download_image(image_tag)
-            # return Response({'detail': 'Image not found %s' % request.data['image']}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                DockerManager().download_image(image_tag)
+            except Image.DoesNotExist:
+                return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
         except Image.MultipleObjectsReturned:
-            return Response('Multiple images found %s' % request.data['image'], status=status.HTTP_404_NOT_FOUND)
-        if "chef" == request.data['system'].lower():
+            return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
+        if "chef" == system:
             from clients.chef_client import ChefClient
-            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_tag)
+            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
             instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
-        elif "puppet" == request.data.system.lower():
+        elif "puppet" == system:
             from clients.puppet_client import PuppetClient
-            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_tag)
+            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
             instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
         return Response(instance, status=status.HTTP_201_CREATED)

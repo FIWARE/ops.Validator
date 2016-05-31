@@ -27,7 +27,9 @@ class LocalStorage:
         """
         valid = []
         for cb in os.listdir(self.path):
-            if self.check_cookbook(cb):
+            if self.check_chef_cookbook(cb):
+                valid.append(cb)
+            elif self.check_puppet_module(cb):
                 valid.append(cb)
         return valid
 
@@ -37,14 +39,19 @@ class LocalStorage:
         """
         valid = []
         for rec in os.listdir(cb_path):
-            if self.check_recipe(rec):
+            if self.check_chef_recipe(rec):
+                valid.append(rec)
+            elif self.check_puppet_recipe(rec):
                 valid.append(rec)
         return valid
 
-    def check_recipe(self, rec):
+    def check_chef_recipe(self, rec):
         return rec.endswith(".rb")
 
-    def check_cookbook(self, cb):
+    def check_puppet_recipe(self, rec):
+        return rec.endswith(".pp")
+
+    def check_chef_cookbook(self, cb):
         """
         Test if a directory contains a cookbook
         :param cb: directory name
@@ -61,6 +68,25 @@ class LocalStorage:
                 logging.debug("Cookbook found: %s" % cb)
         if not check:
             logging.debug("Not a cookbook: %s" % cb)
+        return check
+
+    def check_puppet_module(self, cb):
+        """
+        Test if a directory contains a cookbook
+        :param cb: directory name
+        :return: test result
+        """
+        logging.info("checking %s" % cb)
+        check = False
+        # check if the item is a directory
+        cb_path = os.path.join(self.path, cb)
+        if os.path.isdir(cb_path):
+            # check if the item has a manifest directory
+            if os.path.isdir(os.path.join(cb_path, "manifest")):
+                check = True
+                logging.debug("Module found: %s" % cb)
+        if not check:
+            logging.debug("Not a module: %s" % cb)
         return check
 
 if __name__ == '__main__':
