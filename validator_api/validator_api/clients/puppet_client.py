@@ -16,11 +16,11 @@ from docker.errors import DockerException
 from oslo_log import log as logging
 from oslo_config import cfg
 
-from bork.common.exception import CookbookSyntaxException, \
+from validator_api.common.exception import CookbookSyntaxException, \
     CookbookDeploymentException, \
     CookbookInstallException
 
-from bork.common.i18n import _LW, _LE, _
+from validator_api.common.i18n import _LW, _LE, _
 
 from validator_api.clients.docker_client import DockerManager
 
