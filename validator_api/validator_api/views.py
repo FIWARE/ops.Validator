@@ -59,31 +59,44 @@ class CookBookViewSet(viewsets.ModelViewSet):
         """
         Update cookbook list from repos
         """
-        # Cleanup phase
-        logging.info("Cleanup old Cookbooks in %s" % settings.LOCAL_STORAGE)
+        cookbooks_cleanup()
         cookbooks = set()
-        CookBook.objects.all().delete()
-        if os.path.exists(settings.LOCAL_STORAGE):
-            import shutil
-            shutil.rmtree(settings.LOCAL_STORAGE)
-            os.mkdir(settings.LOCAL_STORAGE)
         for r in Repo.objects.all():
             if r.type == "svn":
                 logging.info("Downloading Cookbooks from %s" % r.location)
                 from clients.svn_client import SVNRepo
                 repo = SVNRepo(url=r.location, user=r.user, pwd=r.password)
                 repo.download_cookbooks()
-                generate_cookbooks(cookbooks, r)
+                cookbooks_add(cookbooks, r)
             elif r.type == "git":
                 from clients.repo_browse_client import GITRepo
                 logging.info("Downloading Cookbooks from %s" % r.location)
                 repo = GITRepo(r.location)
                 repo.checkout()
-                generate_cookbooks(cookbooks, r)
+                cookbooks_add(cookbooks, r)
         return self.list(None)
 
 
-def generate_cookbooks(cookbooks, r):
+def cookbooks_cleanup():
+    """
+    Cleanup previously downloaded cookbooks
+    :return:
+    """
+    logging.info("Cleanup old Cookbooks in %s" % settings.LOCAL_STORAGE)
+    CookBook.objects.all().delete()
+    if os.path.exists(settings.LOCAL_STORAGE):
+        import shutil
+        shutil.rmtree(settings.LOCAL_STORAGE)
+        os.mkdir(settings.LOCAL_STORAGE)
+
+
+def cookbooks_add(cookbooks, r):
+    """
+    Add local cookbooks to db
+    :param cookbooks: current cookbooks
+    :param r: current repository
+    :return:
+    """
     l = LocalStorage(settings.LOCAL_STORAGE)
     for c in l.list_cookbooks():
         if c not in cookbooks:
@@ -94,11 +107,28 @@ def generate_cookbooks(cookbooks, r):
             cb.path = os.path.join(settings.LOCAL_STORAGE, c)
             cb.save()
             cookbooks.add(c)
-            for r in l.list_recipes(c):
-                ro = Recipe()
-                ro.name = r
-                ro.cookbook = cb
-                ro.save()
+
+
+def recipes_cleanup():
+    """
+    Cleanup previous recipes
+    :return:
+    """
+    Recipe.objects.all().delete()
+
+
+def recipes_add():
+    """
+     Add detected recipes based on local cookbooks
+    """
+    l = LocalStorage(settings.LOCAL_STORAGE)
+    for cb in CookBook.objects.all():
+        for r in l.list_recipes(cb.path):
+            ro = Recipe()
+            ro.name = r
+            ro.cookbook = cb
+            ro.version = cb.version
+            ro.save()
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -110,14 +140,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
         """
         Update recipe list from local cookbooks
         """
-        l = LocalStorage(settings.LOCAL_STORAGE)
-        for cb in CookBook.objects.all():
-            for r in l.list_recipes(cb.path):
-                ro = Recipe()
-                ro.name = r
-                ro.cookbook = cb
-                ro.version = cb.version
-                ro.save()
+        recipes_cleanup()
+        recipes_add()
 
 
 class DeploymentViewSet(viewsets.ModelViewSet):
