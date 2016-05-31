@@ -155,21 +155,25 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """
         instance = Deployment()
         image_name, image_version = request.data['image'].split(":")
+        image_tag = request.data['image'].lower()
         try:
             image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=request.data['system'].lower())
-            image_path = image.dockerfile
+            image_tag = image.tag
         except Image.DoesNotExist:
-            return Response({'detail': 'Image not found %s' % request.data['image']}, status=status.HTTP_404_NOT_FOUND)
+            # try to download image based on tag
+            from clients.docker_client import DockerManager
+            DockerManager.download_image(image_tag)
+            # return Response({'detail': 'Image not found %s' % request.data['image']}, status=status.HTTP_404_NOT_FOUND)
         except Image.MultipleObjectsReturned:
             return Response('Multiple images found %s' % request.data['image'], status=status.HTTP_404_NOT_FOUND)
         if "chef" == request.data['system'].lower():
             from clients.chef_client import ChefClient
-            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_path)
+            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_tag)
             instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
         elif "puppet" == request.data.system.lower():
             from clients.puppet_client import PuppetClient
-            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_path)
+            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(request.data.cookbook, None, image_tag)
             instance.ok, instance.description = (res['success'], res['result'])
             instance.save()
         return Response(instance, status=status.HTTP_201_CREATED)
