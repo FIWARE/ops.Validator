@@ -45,7 +45,7 @@ class ChefClient(object):
             LOG.error(_LE("Docker client error: %s") % e)
             raise e
 
-    def cookbook_deployment_test(self, cookbook, recipe='default', image=CONF.clients_docker.image):
+    def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
         """
         Try to process a cookbook and return results
         :param cookbook: cookbook to deploy
