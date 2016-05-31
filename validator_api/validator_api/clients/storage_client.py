@@ -31,18 +31,18 @@ class LocalStorage:
                 valid.append(cb)
         return valid
 
-    def list_recipes(self, cb):
+    def list_recipes(self, cb_path):
         """
         :return: list of all recipes in the current cookbook
         """
         valid = []
-        for rec in os.listdir(os.path.join(self.path, cb)):
+        for rec in os.listdir(cb_path):
             if self.check_recipe(rec):
                 valid.append(rec)
         return valid
 
     def check_recipe(self, rec):
-        return True
+        return rec.endswith(".rb")
 
     def check_cookbook(self, cb):
         """
