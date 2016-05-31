@@ -13,16 +13,13 @@
 #  under the License.
 import os
 
-from docker.errors import DockerException, NotFound
+from docker.errors import DockerException
 import logging
 from oslo_config import cfg
-from docker import Client as DC
 
-from validator_api.exception import CookbookSyntaxException, \
-    CookbookDeploymentException, \
-    CookbookInstallException, \
-    DockerContainerException
-from validator_api.i18n import _LW, _LE, _, _LI
+from validator_api.clients.docker_client import DockerManager
+from validator_api.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
+from validator_api.i18n import _LW, _LE, _
 
 LOG = logging
 
@@ -43,7 +40,7 @@ class ChefClient(object):
         self._url = url
         self.container = None
         try:
-            self.dc = DC(base_url=self._url)
+            self.dc = DockerManager(url=self._url)
         except DockerException as e:
             LOG.error(_LE("Docker client error: %s") % e)
             raise e
@@ -59,11 +56,11 @@ class ChefClient(object):
         LOG.debug("Sending cookbook to docker server in %s" % self._url)
         b_success = True
         msg = {}
-        self.run_container(image)
+        self.dc.run_container(image)
         # inject custom solo.json/solo.rb file
         json_cont = CONF.clients_chef.cmd_config % (cookbook, recipe)
         cmd_inject = CONF.clients_chef.cmd_inject.format(json_cont)
-        self.execute_command(cmd_inject)
+        self.dc.execute_command(cmd_inject)
 
         msg['install'] = self.run_install(cookbook)
         b_success &= msg['install']['success']
@@ -84,7 +81,7 @@ class ChefClient(object):
                 'result': "Error deploying cookbook {}\n".format(cookbook)
             }
             LOG.error(_LW(msg))
-        self.remove_container()
+        self.dc.remove_container()
         return msg
 
     def run_deploy(self, cookbook, recipe):
@@ -95,7 +92,7 @@ class ChefClient(object):
         try:
             # launch execution
             cmd_launch = CONF.clients_chef.cmd_launch
-            resp_launch = self.execute_command(cmd_launch)
+            resp_launch = self.dc.execute_command(cmd_launch)
             msg = {
                 'success': True,
                 'response': resp_launch
@@ -104,7 +101,7 @@ class ChefClient(object):
             if resp_launch is None or "FATAL" in resp_launch:
                 msg['success'] = False
         except Exception as e:
-            self.remove_container(self.container)
+            self.dc.remove_container(self.container)
             LOG.error(_LW("Cookbook deployment exception %s" % e))
             raise CookbookDeploymentException(cookbook=cookbook)
         return msg
@@ -116,7 +113,7 @@ class ChefClient(object):
         """
         try:
             cmd_test = CONF.clients_chef.cmd_test.format(cookbook)
-            resp_test = self.execute_command(cmd_test)
+            resp_test = self.dc.execute_command(cmd_test)
             msg = {
                 'success': True,
                 'response': resp_test
@@ -126,7 +123,7 @@ class ChefClient(object):
                     msg['success'] = False
             LOG.debug(_("Test result: %s") % resp_test)
         except Exception as e:
-            self.remove_container(self.container)
+            self.dc.remove_container(self.container)
             LOG.error(_LW("Cookbook syntax exception %s" % e))
             raise CookbookSyntaxException(cookbook=cookbook)
         return msg
@@ -138,7 +135,7 @@ class ChefClient(object):
         """
         try:
             cmd_install = CONF.clients_chef.cmd_install.format(cookbook)
-            resp_install = self.execute_command(cmd_install)
+            resp_install = self.dc.execute_command(cmd_install)
             msg = {
                 'success': True,
                 'response': resp_install
@@ -148,56 +145,12 @@ class ChefClient(object):
                     msg['success'] = False
             LOG.debug(_("Install result: %s") % resp_install)
         except Exception as e:
-            self.remove_container(self.container)
+            self.dc.remove_container(self.container)
             LOG.error(_LW("Chef install exception: %s" % e))
             raise CookbookInstallException(cookbook=cookbook)
         return msg
 
-    def run_container(self, image_path):
-        """Run and start a container based on the given image
-        :param image: image to run
-        :return:
-        """
-        image_name = os.path.basename(image_path.replace(".dockerfile", ""))
-        contname = "{}-validate".format(image_name).replace("/", "_")
-        try:
-            try:
-                self.dc.remove_container(contname, force=True)
-                LOG.info(_LI('Removing old %s container' % contname))
-            except NotFound:
-                pass
-            self.container = self.dc.create_container(
-                image_name,
-                tty=True,
-                name=contname
-            ).get('Id')
-            self.dc.start(container=self.container)
-        except NotFound as e:
-            LOG.error(_LW("Image not found: %s" % image_name))
-        except AttributeError as e:
-            LOG.error(_LW("Error creating container: %s" % e))
-            raise DockerContainerException(image=image_name)
-
-    def remove_container(self, kill=True):
-        """destroy container on exit
-        :param kill: inhibits removal for testing purposes
-        """
-        self.dc.stop(self.container)
-        if kill:
-            self.dc.remove_container(self.container)
-
-    def execute_command(self, command):
-        """ Execute a command in the given container
-        :param command:  bash command to run
-        :return:  execution result
-        """
-        bash_txt = "/bin/bash -c \"{}\"".format(command.replace('"', '\\"'))
-        exec_txt = self.dc.exec_create(
-            container=self.container,
-            cmd=bash_txt
-        )
-        return self.dc.exec_start(exec_txt)
 
 if __name__ == '__main__':
     c = ChefClient("tcp://127.0.0.1:2375")
-    c.run_container("/etc/bork/chef-trusty.dockerfile")
+    c.dc.run_container("/etc/bork/chef-trusty.dockerfile")
