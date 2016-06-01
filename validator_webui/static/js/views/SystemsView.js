@@ -4,14 +4,12 @@
 define(function (require) {
     "use strict";
 
-    var CollectionView = require('collectionview'),
+    var Backbone = require('backbone'),
         SystemView = require('views/SystemView');
-    
-    return CollectionView.extend({
+
+    return Backbone.View.extend({
         el: "#syslist",
         modelView: SystemView,
-        selectable : true,
-        selectMultiple : true,
     });
     
 });

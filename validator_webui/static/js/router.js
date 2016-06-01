@@ -3,10 +3,10 @@
  */
 define(function (require) {
     "use strict";
+
     var Backbone = require('backbone'),
         RecipesView = require('views/RecipesView'),
-        SystemsView = require('views/SystemsView'),
-        dummy = require('models/dummy');
+        recipesModel = require('models/RecipesModel');
 
     return Backbone.Router.extend({
         routes: {
@@ -14,10 +14,10 @@ define(function (require) {
         },
 
         home: function () {
-            var cbookList = new RecipesView({collection: dummy.cbCol});
-            cbookList.render();
-            var sysList = new SystemsView({collection: dummy.sysCol})
-            sysList.render();
+            console.log("Booting...");
+            var recipesCollection = new recipesModel();
+            recipesCollection.fetch();
+            var recipesRows = new RecipesView({collection: recipesCollection});
         },
     })
 });
