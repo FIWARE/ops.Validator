@@ -58,7 +58,7 @@ ROOT_URLCONF = 'bork_webui.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, '/')]
+        'DIRS': [os.path.join(BASE_DIR, 'static')]
         ,
         'APP_DIRS': False,
         'OPTIONS': {
@@ -123,7 +123,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/'
+STATIC_URL = '/static/'
 
 # Keystone Auth
 OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Automated Recipe Validation</title>
-    <link rel="stylesheet" type="text/css" href="./css/application.css"/>
+    <link rel="stylesheet" type="text/css" href="css/application.css"/>
 </head>
 
 <body>
@@ -20,13 +20,14 @@
 <h2>Recipes
 </h2>
 <p>Select system and recipes to run</p>
-<table id="table_recipes">
-    <tr>
+<table>
+    <thead>
         <th>Selected</th>
         <th>System</th>
         <th>Cookbook</th>
         <th>Recipe</th>
-    </tr>
+    </thead>
+    <tbody id="table_recipes"></tbody>
 </table>
 </section>
 
@@ -76,6 +77,6 @@
     </tr>
 </table>
 </section>
-<script data-main="js/main" src="./js/lib/require.js" async></script>
+<script data-main="js/main" src="js/lib/require.js" async></script>
 </body>
 </html>
