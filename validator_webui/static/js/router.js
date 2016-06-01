@@ -6,7 +6,7 @@ define(function (require) {
 
     var Backbone = require('backbone'),
         RecipesView = require('views/RecipesView'),
-        RecipesModel = require('models/RecipesModel');
+        RecipesCollection = require('models/RecipeCollection');
 
     return Backbone.Router.extend({
         routes: {
@@ -15,7 +15,7 @@ define(function (require) {
 
         home: function () {
             console.log("Booting...");
-            var recipesCollection = new RecipesModel();
+            var recipesCollection = new RecipesCollection();
             var recipesRows = new RecipesView({collection: recipesCollection});
         },
     })

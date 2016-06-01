@@ -18,6 +18,7 @@ define(function (require) {
             },
         
             render: function () {
+                console.log(this.model.cookbook);
                 this.$el.html(this.template(this.model.attributes));
                 return this;
             }
