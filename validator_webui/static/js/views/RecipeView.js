@@ -5,7 +5,8 @@ define(function (require) {
     "use strict";
     var _ = require("underscore"),
         Backbone = require('backbone'),
-        Recipe = require('models/RecipeModel');
+        Recipe = require('models/RecipeModel'),
+        Cookbook = require('models/CookbookModel');
 
     return Backbone.View.extend({
             model: Recipe,
@@ -18,7 +19,9 @@ define(function (require) {
             },
         
             render: function () {
-                console.log(this.model.cookbook);
+                var cb = new Cookbook();
+                cb.fetch({url: this.model.get('cookbook'), async:false});
+                this.model.set('cookbook', cb.get('name'));
                 this.$el.html(this.template(this.model.attributes));
                 return this;
             }
