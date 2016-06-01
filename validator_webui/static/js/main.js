@@ -7,6 +7,7 @@ require.config({
         jquery: 'lib/jquery-2.2.3',
         underscore: 'lib/underscore',
         backbone: 'lib/backbone',
+        relational: 'lib/backbone-relational',
         config: 'config'
     }
 

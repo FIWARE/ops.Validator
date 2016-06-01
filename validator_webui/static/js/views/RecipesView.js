@@ -17,10 +17,7 @@ define(function (require) {
             },
 
             render: function () {
-                console.log("Rendering...");
-                console.log(this.collection);
                 this.collection.each(function (recipe) {
-                    console.log(recipe);
                     this.$el.append(new RecipeView({model: recipe}).el);
                 }, this);
                 return this;
