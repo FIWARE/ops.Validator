@@ -7,7 +7,7 @@ require.config({
         jquery: 'lib/jquery-2.2.3',
         underscore: 'lib/underscore',
         backbone: 'lib/backbone',
-        collectionview: 'lib/backbone.collectionview'
+        config: 'config'
     }
 
 });

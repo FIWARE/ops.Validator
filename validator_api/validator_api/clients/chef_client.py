@@ -18,8 +18,8 @@ import logging
 from oslo_config import cfg
 
 from validator_api.clients.docker_client import DockerManager
-from validator_api.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
-from validator_api.i18n import _LW, _LE, _
+from validator_api.common.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
+from validator_api.common.i18n import _LW, _LE, _
 
 LOG = logging
 

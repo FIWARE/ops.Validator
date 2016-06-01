@@ -13,12 +13,12 @@
 #  under the License.
 """Puppet client tests"""
 
-import mock
+import bork.tests.unit.base as tb
 import docker
+import mock
 from docker.errors import DockerException
 from oslo_config import cfg
-from validator_api.common.exception import DockerContainerException
-import bork.tests.unit.base as tb
+
 from validator_api.clients.puppet_client import PuppetClient
 
 CONF = cfg.CONF

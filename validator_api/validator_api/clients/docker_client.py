@@ -3,15 +3,15 @@
 Dockerfile Management
 """
 import logging
-import re
 import os
-from oslo_config import cfg
+import re
+
 from docker import Client as DC
 from docker.errors import NotFound
+from oslo_config import cfg
 
-
-from validator_api.exception import DockerContainerException
-from validator_api.i18n import _LW, _LI
+from validator_api.common.i18n import _LW, _LI
+from validator_api.common.exception import DockerContainerException
 
 CONF = cfg.CONF
 CONF.register_opt(cfg.StrOpt('config_dir', default="/etc/bork"))

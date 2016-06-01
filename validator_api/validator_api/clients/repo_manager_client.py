@@ -21,6 +21,7 @@ class RepoManager:
     """Repository manager for custom recipes"""
     def __init__(self, user):
         self.user = user
+        self.repo = Repo()
 
     def create(self, name):
         """Create a new repo from name"""

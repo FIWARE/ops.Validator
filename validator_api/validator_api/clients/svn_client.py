@@ -19,6 +19,8 @@ class SVNRepo:
         :param url: url
         """
         self.r = svn.remote.RemoteClient(url, username=user, password=pwd)
+        import pprint; pprint.pprint(self.r.run_command("info", [self.r.url, "--trust-server-cert"]))
+        self.version = self.get_version()
 
     def list_cookbooks(self, rp=None):
         """
@@ -56,6 +58,14 @@ class SVNRepo:
 
     def info(self, rel_path=None):
         return self.r.info(rel_path=rel_path)
+
+    def get_version(self):
+        vers = 'Unknown'
+        for l in self.r.run_command("info", [self.r.url, "--trust-server-cert"]):
+            if "Revision:" in l:
+                vers = l.split(":")[1].strip()
+        return vers
+
 
 if __name__ == '__main__':
     import sys
