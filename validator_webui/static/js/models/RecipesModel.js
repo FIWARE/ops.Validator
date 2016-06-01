@@ -11,6 +11,10 @@ define(function (require) {
     
     return Backbone.Collection.extend({
             url: config.api_url + '/recipes/',
-            model: Recipe
+            model: Recipe,
+            initialize: function(){
+                console.log("Fetching Recipes...");
+                this.fetch({reset: true});
+            }
         });
 });
