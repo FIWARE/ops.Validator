@@ -13,12 +13,11 @@
 #  under the License.
 """Chef client tests"""
 
+import bork.tests.unit.base as tb
 import mock
-import docker
 from docker.errors import DockerException
 from oslo_config import cfg
-from validator_api.common.exception import DockerContainerException
-import bork.tests.unit.base as tb
+
 from validator_api.clients.chef_client import ChefClient
 
 CONF = cfg.CONF

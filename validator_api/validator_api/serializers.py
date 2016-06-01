@@ -8,7 +8,7 @@ class ImageSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Image
-        fields = ('id', 'name', 'version', 'dockerfile', 'system')
+        fields = ('id', 'name', 'version', 'dockerfile', 'system', 'tag')
 
 
 class RepoSerializer(serializers.HyperlinkedModelSerializer):
@@ -29,7 +29,7 @@ class RecipeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cookbook')
+        fields = ('id', 'name', 'cookbook', 'system', 'version')
 
 
 class DeploymentSerializer(serializers.HyperlinkedModelSerializer):

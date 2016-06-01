@@ -13,16 +13,14 @@
 #  under the License.
 
 from docker.errors import DockerException
-from oslo_log import log as logging
 from oslo_config import cfg
+from oslo_log import log as logging
 
+from validator_api.clients.docker_client import DockerManager
 from validator_api.common.exception import CookbookSyntaxException, \
     CookbookDeploymentException, \
     CookbookInstallException
-
 from validator_api.common.i18n import _LW, _LE, _
-
-from validator_api.clients.docker_client import DockerManager
 
 LOG = logging.getLogger(__name__)
 

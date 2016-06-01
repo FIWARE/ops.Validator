@@ -14,21 +14,21 @@
 #  under the License.
 """Tests for bork.common.exception """
 
-from validator_api.common.exception import AuthorizationFailure
-from validator_api.common.exception import CookbookInstallException
-from validator_api.common.exception import OpenstackException
-from validator_api.common.exception import CookbookDeploymentException
-from validator_api.common.exception import MalformedRequestBody
-from validator_api.common.exception import HTTPExceptionDisguise
-from validator_api.common.exception import CookbookSyntaxException
-from validator_api.common.exception import SerialConnectException
-from validator_api.common.exception import NotAuthenticated
-from validator_api.common.exception import InvalidContentType
-from validator_api.common.exception import ImageNotFound
-from validator_api.common.exception import SshConnectException
-from validator_api.common.exception import DockerContainerException
 from validator_api.common.exception import AmbiguousNameException
+from validator_api.common.exception import AuthorizationFailure
+from validator_api.common.exception import CookbookDeploymentException
+from validator_api.common.exception import CookbookInstallException
+from validator_api.common.exception import CookbookSyntaxException
+from validator_api.common.exception import DockerContainerException
 from validator_api.common.exception import EntityNotFound
+from validator_api.common.exception import HTTPExceptionDisguise
+from validator_api.common.exception import ImageNotFound
+from validator_api.common.exception import InvalidContentType
+from validator_api.common.exception import MalformedRequestBody
+from validator_api.common.exception import NotAuthenticated
+from validator_api.common.exception import OpenstackException
+from validator_api.common.exception import SerialConnectException
+from validator_api.common.exception import SshConnectException
 from validator_api.tests.unit.base import ValidatorTestCase
 
 

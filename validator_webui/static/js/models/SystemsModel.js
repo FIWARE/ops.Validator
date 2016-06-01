@@ -4,10 +4,11 @@
 define(function (require) {
     "use strict";
     var Backbone = require('backbone'),
+        config = require('config')
         System = require('models/SystemModel');
 
     return Backbone.Collection.extend({
-        url: '/systems',
+        url: config + '/systems',
         model: System,
     });
 });

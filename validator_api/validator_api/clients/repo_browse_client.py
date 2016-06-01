@@ -22,7 +22,8 @@ class GITRepo:
         :param repo: RepoManager object
         """
         self.url = url
-        self.repo = Repo()
+        self.repo = Repo(url)
+        self.version = self.repo.head
 
     def browse_file(self, file):
         """Shows file contents"""

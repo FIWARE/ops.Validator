@@ -15,29 +15,21 @@
     <button>Refresh Cookbooks</button>
 </p>
 </header>
-<section id="cookbooks">
-<h2>Cookbooks
-    <button>Run Selected</button>
-    <button>Run All</button>
+
+<section id="recipes">
+<h2>Recipes
 </h2>
-<p>Select systems and cookbooks/recipes to run</p>
-<table>
+<p>Select system and recipes to run</p>
+<table id="table_recipes">
     <tr>
+        <th>Selected</th>
         <th>System</th>
-        <th>Cookbooks</th>
-    </tr>
-    <tr>
-        <td>
-            <ul id="syslist">
-            </ul>
-        </td>
-        <td>
-            <ul id="cblist">
-            </ul>
-        </td>
+        <th>Cookbook</th>
+        <th>Recipe</th>
     </tr>
 </table>
 </section>
+
 <section id="Results">
 <h2>Results
     <button>Export All</button>
@@ -84,6 +76,6 @@
     </tr>
 </table>
 </section>
-<script data-main="js/main" src="js/lib/require.js" async></script>
+<script data-main="js/main" src="./js/lib/require.js" async></script>
 </body>
 </html>

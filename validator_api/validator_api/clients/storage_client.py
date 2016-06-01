@@ -38,7 +38,7 @@ class LocalStorage:
         :return: list of all recipes in the current cookbook
         """
         valid = []
-        for rec in os.listdir(cb_path):
+        for rec in os.listdir(os.path.join(cb_path, "recipes")):
             if self.check_chef_recipe(rec):
                 valid.append(rec)
             elif self.check_puppet_recipe(rec):

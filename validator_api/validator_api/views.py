@@ -29,6 +29,7 @@ class ImageViewSet(viewsets.ModelViewSet):
             instance.version = s['version']
             instance.dockerfile = s['dockerfile']
             instance.system = s['system']
+            instance.tag = s['tag']
             instance.save()
         return self.list(None)
 
@@ -67,13 +68,13 @@ class CookBookViewSet(viewsets.ModelViewSet):
                 from clients.svn_client import SVNRepo
                 repo = SVNRepo(url=r.location, user=r.user, pwd=r.password)
                 repo.download_cookbooks()
-                cookbooks_add(cookbooks, r)
+                cookbooks_add(cookbooks, r, version=repo.version)
             elif r.type == "git":
                 from clients.repo_browse_client import GITRepo
                 logging.info("Downloading Cookbooks from %s" % r.location)
                 repo = GITRepo(r.location)
                 repo.checkout()
-                cookbooks_add(cookbooks, r)
+                cookbooks_add(cookbooks, r, version=repo.version)
         return self.list(None)
 
 
@@ -90,7 +91,7 @@ def cookbooks_cleanup():
         os.mkdir(settings.LOCAL_STORAGE)
 
 
-def cookbooks_add(cookbooks, r):
+def cookbooks_add(cookbooks, r, version='Unknown'):
     """
     Add local cookbooks to db
     :param cookbooks: current cookbooks
@@ -105,6 +106,7 @@ def cookbooks_add(cookbooks, r):
             cb.repo = r
             cb.name = c['name']
             cb.system = c['system']
+            cb.version = version
             cb.path = os.path.join(settings.LOCAL_STORAGE, c['name'])
             cb.save()
             cookbooks.add(c['name'])
