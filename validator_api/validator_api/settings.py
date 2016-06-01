@@ -133,3 +133,6 @@ AUTHENTICATION_BACKENDS = ('idm_auth.backend.KeystoneBackend', )
 LOCAL_STORAGE = "/tmp/cookbooks"
 
 DOCKER_URL = "tcp://127.0.0.1:2375"
+
+# CORS SUPPORT
+CORS_ORIGIN_ALLOW_ALL = True
