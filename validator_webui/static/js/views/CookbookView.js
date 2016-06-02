@@ -5,14 +5,13 @@ define(function (require) {
     "use strict";
     var _ = require("underscore"),
         Backbone = require('backbone'),
-        Recipe = require('models/RecipeModel'),
         Cookbook = require('models/CookbookModel');
 
     return Backbone.View.extend({
-        model: Recipe,
+        model: Cookbook,
 
         initialize: function () {
-            this.template = _.template('<option value="<%=id%>"><%= name %></option>');
+            this.template = _.template('<option value="<%=id%>"><%=system%>:<%= name %>:<%=version%></option>');
             this.render();
         },
 

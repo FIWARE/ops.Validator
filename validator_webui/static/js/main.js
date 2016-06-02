@@ -7,13 +7,15 @@ require.config({
         jquery: 'lib/jquery-2.2.3',
         underscore: 'lib/underscore',
         backbone: 'lib/backbone',
-        relational: 'lib/backbone-relational',
+        // relational: 'lib/backbone-relational',
+        bbbasicauth: 'lib/backbone.basicauth',
+        bbselect: 'lib/backbone.select',
         config: 'config'
     }
-
 });
 
-require(['app',], function(App){
-    App.initialize();
+define(function (require) {
+    "use strict";
+    var App = require("app");
+    return App.initialize();
 });
-

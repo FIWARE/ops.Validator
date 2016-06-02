@@ -7,13 +7,13 @@ define(function (require) {
 
     var Backbone = require('backbone'),
         config = require('config'),
-        Recipe = require('models/RecipeModel'),
+        Image = require('models/ImageModel'),
         basicauth = require('bbbasicauth'),
         bbsel = require('bbselect');
 
     return Backbone.Collection.extend({
-        url: config.api_url + '/recipes/',
-        model: Recipe,
+        url: config.api_url + '/images/',
+        model: Image,
 
         initialize: function (credentials, models, options) {
             this.get_remote(credentials);
@@ -21,7 +21,7 @@ define(function (require) {
         },
 
         get_remote: function (credentials) {
-            console.log("Fetching Recipes...");
+            console.log("Fetching Images...");
             this.credentials = credentials;
             this.fetch({reset: true});
         }

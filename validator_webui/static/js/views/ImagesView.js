@@ -5,13 +5,14 @@ define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
-        RecipeView = require('views/RecipeView');
+        ImageView = require('views/ImageView');
 
     return Backbone.View.extend({
         events: {
             "change": "toggleSelected"
         },
-        el: "#sel_recipes",
+
+        el: "#sel_images",
 
         initialize: function () {
             this.collection.bind('reset', this.render, this);
@@ -19,12 +20,13 @@ define(function (require) {
         },
 
         render: function () {
-            console.log("Rendering Recipes...");
-            this.collection.each(function (recipe) {
-                this.$el.append(new RecipeView({model: recipe}).el);
+            console.log("Rendering Images...");
+            this.collection.each(function (image) {
+                this.$el.append(new ImageView({model: image}).el);
             }, this);
             return this;
         },
+
         toggleSelected: function (event) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
@@ -33,7 +35,6 @@ define(function (require) {
                 this.collection.get(i).select();
             }, this);
         },
-
 
     });
 });

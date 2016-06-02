@@ -6,32 +6,63 @@
     <link rel="stylesheet" type="text/css" href="css/application.css"/>
 </head>
 
-<body>
+<body id="validator_app">
 <header id="header">
 <h1>Automated Recipe Validation</h1>
 <p>Enter user and pass for testbed svn</p>
 <p>
-    User<input></input>Pass<input></input>
-    <button>Refresh Cookbooks</button>
+  Username: <input type="text" id="username" value="***REMOVED***"><br>
+  Password: <input type="password" id="password" value="***REMOVED***"><br>
+    <button id="button_refresh">Refresh Remote Cookbooks</button>
 </p>
 </header>
-
-<section id="recipes">
-<h2>Recipes
-</h2>
-<p>Select system and recipes to run</p>
-<table>
+<section id="selections">
+    <h2>Selections</h2>
+    <p>Select system and recipes to run</p>
+            <table>
     <thead>
-        <th>Selected</th>
-        <th>System</th>
+        <th>Image</th>
         <th>Cookbook</th>
         <th>Recipe</th>
+        <th>Action</th>
     </thead>
-    <tbody id="table_recipes"></tbody>
-</table>
+<tbody>
+<tr>
+    <td>
+        <select multiple id="sel_images"></select>
+    </td>
+    <td>
+        <select multiple id="sel_cookbooks"></select>
+    </td>
+    <td>
+        <select multiple id="sel_recipes"></select>
+    </td>
+    <td>
+        <button id="button_add">Add</button>
+    </td>
+</tr>
+</tbody>
+            </table>
+</section>
+<section id="deployments">
+    <h2>Deployments
+    <button id="button_run">Run</button>
+    </h2>
+    <table>
+        <thead>
+        <th>Image</th>
+        <th>Cookbook</th>
+        <th>Recipe</th>
+        <th>Cookbook</th>
+        <th>Result</th>
+        </thead>
+        <tbody id="deployments">
+
+        </tbody>
+    </table>
 </section>
 
-<section id="Results">
+<section id="results">
 <h2>Results
     <button>Export All</button>
     <button>Export Selected</button>
