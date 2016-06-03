@@ -20,6 +20,7 @@ define(function (require) {
 
         render: function () {
             console.log("Rendering Cookbooks...");
+            this.collection.sort();
             this.collection.each(function (cb) {
                 this.$el.append(new CookbookView({model: cb}).el);
             }, this);

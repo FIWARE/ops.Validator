@@ -11,7 +11,7 @@ define(function (require) {
         model: Cookbook,
 
         initialize: function () {
-            this.template = _.template('<option value="<%=id%>"><%=system%>:<%= name %>:<%=version%></option>');
+            this.template = _.template('<option value="<%=id%>"><%= name %>:<%=version%>:<%=system%></option>');
             this.render();
         },
 
