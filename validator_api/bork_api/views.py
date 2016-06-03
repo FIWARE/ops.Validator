@@ -160,24 +160,29 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         Deploys the given recipe
         """
         instance = Deployment()
-        image = request.data['image']
-        image_name, image_version = image.split(":")
-        image_tag = request.data['image'].lower()
-        cookbook = request.data['cookbook']
-        recipe = request.data['recipe'] or 'default'
-        system = request.data['system'].lower()
-        try:
-            image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
-            image_tag = image.tag
-        except Image.DoesNotExist:
-            # try to download image based on tag
-            from clients.docker_client import DockerManager
+        image = request.body['image'].lower()
+        image_tag = image
+        cookbook = request.body['cookbook']
+        recipe = request.body['recipe'] or 'default'
+        system = request.body['system'].lower()
+
+        # Prepare image
+        if ":" in image:
+            image_name, image_version = image.split(":")
             try:
-                DockerManager().download_image(image_tag)
+                image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
+                image_tag = image.tag
             except Image.DoesNotExist:
-                return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
-        except Image.MultipleObjectsReturned:
-            return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
+                # try to download image based on tag
+                from clients.docker_client import DockerManager
+                try:
+                    DockerManager().download_image(image_tag)
+                except Image.DoesNotExist:
+                    return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
+            except Image.MultipleObjectsReturned:
+                return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
+
+        # Deploy image
         if "chef" == system:
             from clients.chef_client import ChefClient
             res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)

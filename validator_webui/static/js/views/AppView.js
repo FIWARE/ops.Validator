@@ -65,8 +65,9 @@ define(function (require) {
                     console.log("Creating new deployment");
                     var d = new DeploymentModel({
                         recipe: recipe.get('name'),
-                        image: image.get('name')+":"+image.get('version')+":"+image.get("system"),
-                        cookbook: self.cookbookscol.get(recipe.get('cookbook')).get('name')
+                        image: image.get('tag'),
+                        cookbook: self.cookbookscol.get(recipe.get('cookbook')).get('name'),
+                        system: image.get('system')
                     });
                     self.deploymentscol.add(d);
                 });
@@ -77,7 +78,8 @@ define(function (require) {
         run_deployments: function () {
             this.deploymentscol.each(function(d){
                console.log("Launching" + d.get('recipe'));
-            });
+                d.save_remote(this.get_credentials());
+            }, this);
         }
     });
 });
