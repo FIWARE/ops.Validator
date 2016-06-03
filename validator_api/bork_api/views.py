@@ -167,6 +167,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.body['system'].lower()
 
         # Prepare image
+        from clients.docker_client import DockerManager
         if ":" in image:
             image_name, image_version = image.split(":")
             try:
@@ -174,9 +175,9 @@ class DeploymentViewSet(viewsets.ModelViewSet):
                 image_tag = image.tag
             except Image.DoesNotExist:
                 # try to download image based on tag
-                from clients.docker_client import DockerManager
+
                 try:
-                    DockerManager().download_image(image_tag)
+                    DockerManager().prepare_image(image_tag)
                 except Image.DoesNotExist:
                     return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
             except Image.MultipleObjectsReturned:
