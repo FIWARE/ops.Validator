@@ -4,5 +4,12 @@
 define(function (require) {
     "use strict";
     var Backbone = require('backbone');
-    return Backbone.Model.extend({});
+    return Backbone.Model.extend({
+        save_remote: function (credentials) {
+            this.id = null;
+            this.credentials = credentials;
+            this.name = "test";
+            this.save();
+        }
+    });
 });

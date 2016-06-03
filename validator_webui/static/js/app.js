@@ -8,6 +8,7 @@ define(function (require) {
 
     return {
         initialize: function () {
+            //Backbone.emulateJSON = true;
             var appview = new AppView();
             Backbone.history.start();
         }
