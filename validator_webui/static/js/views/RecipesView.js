@@ -20,6 +20,7 @@ define(function (require) {
 
         render: function () {
             console.log("Rendering Recipes...");
+            this.collection.sort();
             this.collection.each(function (recipe) {
                 this.$el.append(new RecipeView({model: recipe}).el);
             }, this);

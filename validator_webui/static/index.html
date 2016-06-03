@@ -9,11 +9,12 @@
 <body id="validator_app">
 <header id="header">
 <h1>Automated Recipe Validation</h1>
-<p>Enter user and pass for testbed svn</p>
+    <h2>Login <button id="button_refresh">Refresh Remote Cookbooks</button></h2>
+<p>Enter user and pass for validator API</p>
 <p>
   Username: <input type="text" id="username" value="pmverdugo@dit.upm.es"><br>
   Password: <input type="password" id="password" value="fiwarelabF0rtun4"><br>
-    <button id="button_refresh">Refresh Remote Cookbooks</button>
+
 </p>
 </header>
 <section id="selections">
@@ -48,20 +49,19 @@
     <h2>Deployments
     <button id="button_run">Run</button>
     </h2>
+    <p>List of deployments to run</p>
     <table>
         <thead>
         <th>Image</th>
         <th>Cookbook</th>
         <th>Recipe</th>
-        <th>Cookbook</th>
-        <th>Result</th>
+        <th>Action</th>
         </thead>
-        <tbody id="deployments">
+        <tbody id="table_deployments">
 
         </tbody>
     </table>
 </section>
-
 <section id="results">
 <h2>Results
     <button>Export All</button>
@@ -70,6 +70,7 @@
 </h2>
 <p>Export results to json or open log file in new tab</p>
 <table>
+    <thead>
     <tr>
         <th>Selected</th>
         <th>System</th>
@@ -79,6 +80,8 @@
         <th>Deployment</th>
         <th>Full Log</th>
     </tr>
+    </thead>
+    <tbody id="table_results">
     <tr>
         <td><input type="checkbox"></input></td>
         <td>Ubuntu 14.04</td>
@@ -106,8 +109,10 @@
         <td><a href="#">Queued</a></td>
         <td><a href="#">Log</a></td>
     </tr>
+    </tbody>
 </table>
 </section>
+
 <script data-main="js/main" src="js/lib/require.js" async></script>
 </body>
 </html>

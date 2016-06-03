@@ -13,6 +13,7 @@ define(function (require) {
     return Backbone.Collection.extend({
         url: config.api_url + '/cookbooks/',
         model: Cookbook,
+        sort_key: 'name',
         initialize: function (credentials, models, options) {
             this.get_remote(credentials);
             Backbone.Select.Many.applyTo(this, models, options);
@@ -23,7 +24,9 @@ define(function (require) {
             this.credentials = credentials;
             this.fetch({reset: true});
         },
-
+        comparator: function(item) {
+                return item.get(this.sort_key);
+            },
         refresh: function (credentials) {
             this.credentials = credentials;
             console.log("Refreshing remote cookbooks");

@@ -21,6 +21,7 @@ define(function (require) {
 
         render: function () {
             console.log("Rendering Images...");
+            this.collection.sort();
             this.collection.each(function (image) {
                 this.$el.append(new ImageView({model: image}).el);
             }, this);
