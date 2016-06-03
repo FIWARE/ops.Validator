@@ -174,8 +174,6 @@ class DeploymentViewSet(viewsets.ModelViewSet):
                 image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
                 image_tag = image.tag
             except Image.DoesNotExist:
-                # try to download image based on tag
-
                 try:
                     DockerManager().prepare_image(image_tag)
                 except Image.DoesNotExist:

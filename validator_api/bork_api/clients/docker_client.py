@@ -52,13 +52,13 @@ class DockerManager:
     def generate_image(self, df):
         """generate docker image"""
         status = False
-        dc = DC(base_url=CONF.clients_docker.url)
-        dc.info()
+
+        self.dc.info()
         with open(df) as dockerfile:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
             LOG.debug("Generating %s from %s" % (tag, df))
         if tag:
-            resp = dc.build(
+            resp = self.dc.build(
                 path=CONF.config_dir,
                 dockerfile=df,
                 rm=True,
@@ -72,8 +72,7 @@ class DockerManager:
 
     def download_image(self, tag):
         status = True
-        dc = DC(base_url=CONF.clients_docker.url)
-        resp = dc.pull(tag)
+        resp = self.dc.pull(tag)
         for l in resp:
             if "error" in l.lower():
                 status = False
@@ -82,8 +81,10 @@ class DockerManager:
 
     def prepare_image(self, tag):
         status = True
-        dc = DC(base_url=CONF.clients_docker.url)
-        if tag not in [t.tag for t in dc.images()]:
+        if tag not in [t.tag for t in self.dc.images()]:
+            df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
+            status = self.generate_image(df)
+        if not status:
             status = self.download_image(tag)
         return status
 
