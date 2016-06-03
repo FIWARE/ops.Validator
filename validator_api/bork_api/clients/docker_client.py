@@ -80,6 +80,13 @@ class DockerManager:
             LOG.debug(l)
         return status
 
+    def prepare_image(self, tag):
+        status = True
+        dc = DC(base_url=CONF.clients_docker.url)
+        if tag not in [t.tag for t in dc.images()]:
+            status = self.download_image(tag)
+        return status
+
     def run_container(self, image_name):
         """Run and start a container based on the given image
         :param image: image to run
@@ -88,7 +95,7 @@ class DockerManager:
         contname = "{}-validate".format(image_name).replace("/", "_")
         try:
             try:
-                self.remove_container(contname, force=True)
+                self.dc.remove_container(contname, force=True)
                 LOG.info(_LI('Removing old %s container' % contname))
             except NotFound:
                 pass
@@ -110,7 +117,7 @@ class DockerManager:
         """
         self.dc.stop(self.container)
         if kill:
-            self.remove_container(self.container)
+            self.dc.remove_container(self.container)
 
     def execute_command(self, command):
         """ Execute a command in the given container
