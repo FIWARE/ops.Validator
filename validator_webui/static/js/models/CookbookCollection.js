@@ -9,13 +9,16 @@ define(function (require) {
         Cookbook = require('models/CookbookModel'),
         basicauth = require('bbbasicauth'),
         bbsel = require('bbselect');
+    var $ = require("jquery");
 
     return Backbone.Collection.extend({
         url: config.api_url + '/cookbooks/',
         model: Cookbook,
         sort_key: 'name',
         initialize: function (credentials, models, options) {
+            if (credentials) {
             this.get_remote(credentials);
+                }
             Backbone.Select.Many.applyTo(this, models, options);
         },
 
@@ -36,6 +39,11 @@ define(function (require) {
             this.url = config.api_url + '/recipes/refresh/';
             this.fetch();
             this.url = config.api_url + '/cookbooks/';
+        },
+        by_system: function (syss) {
+            return this.filter(function (rec) {
+                return $.inArray(rec.get('system'), syss) > -1;
+            });
         }
     });
 });
