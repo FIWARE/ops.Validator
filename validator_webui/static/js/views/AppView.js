@@ -21,7 +21,7 @@ define(function (require) {
         el: $("#validator_app"),
 
         events: {
-            "click #button_refresh": "refreshRecipes",
+            "click #button_refresh": "refresh_recipes",
             "click #button_add": "add_to_deployments",
             "click #button_run": "run_deployments",
         },
@@ -35,12 +35,14 @@ define(function (require) {
 
         render: function () {
             this.imagescol = new ImageCollection(this.get_credentials());
-            this.cookbookscol = new CookbookCollection(this.get_credentials());
-            this.recipescol = new RecipeCollection(this.get_credentials());
+            this.cookbookscol = new CookbookCollection();
+            this.cookbooksmaster = new CookbookCollection(this.get_credentials());
+            this.recipesmaster = new RecipeCollection(this.get_credentials());
+            this.recipescol = new RecipeCollection();
             this.deploymentscol = new DeploymentCollection();
-            var imagessel = new ImagesView({collection: this.imagescol});
-            var cookbookssel = new CookbooksView({collection: this.cookbookscol});
-            var recipessel = new RecipesView({collection: this.recipescol});
+            this.imagessel = new ImagesView({collection: this.imagescol});
+            this.cookbookssel = new CookbooksView({collection: this.cookbookscol, master: this.cookbooksmaster});
+            this.recipessel = new RecipesView({collection: this.recipescol, master:this.recipesmaster});
             this.deploymentsview = new DeploymentsView({collection:this.deploymentscol});
         },
 
@@ -51,7 +53,7 @@ define(function (require) {
             }
         },
 
-        refreshRecipes: function () {
+        refresh_recipes: function () {
             var creds = this.get_credentials();
             new CookbookCollection().refresh(creds);
             var recipesCollection = new RecipeCollection(creds);
@@ -60,8 +62,8 @@ define(function (require) {
 
         add_to_deployments: function () {
             var self = this;
-            $.each(this.imagescol.selected, function (key, image) {
-                $.each(self.recipescol.selected, function (key, recipe) {
+            $.each(self.imagessel.collection.selected, function (key, image) {
+                $.each(self.recipessel.collection.selected, function (key, recipe) {
                     console.log("Creating new deployment");
                     var d = new DeploymentModel({
                         recipe: recipe.get('name'),

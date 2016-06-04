@@ -9,7 +9,8 @@ define(function (require) {
         config = require('config'),
         Recipe = require('models/RecipeModel'),
         basicauth = require('bbbasicauth'),
-        bbsel = require('bbselect');
+        bbsel = require('bbselect'),
+        $ = require("jquery");
 
     return Backbone.Collection.extend({
         url: config.api_url + '/recipes/',
@@ -17,16 +18,23 @@ define(function (require) {
         sort_key: 'name',
 
         initialize: function (credentials, models, options) {
-            this.get_remote(credentials);
+            if (credentials) {
+                this.get_remote(credentials);
+            }
             Backbone.Select.Many.applyTo(this, models, options);
         },
-        comparator: function(item) {
-                return item.get(this.sort_key);
-            },
+        comparator: function (item) {
+            return item.get(this.sort_key);
+        },
         get_remote: function (credentials) {
             console.log("Fetching Recipes...");
             this.credentials = credentials;
             this.fetch({reset: true});
+        },
+        by_cb: function (cbs) {
+            return this.filter(function (rec) {
+                return $.inArray(rec.get('cookbook'), cbs) > -1;
+            });
         }
     });
 });

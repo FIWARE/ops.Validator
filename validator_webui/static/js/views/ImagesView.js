@@ -35,6 +35,7 @@ define(function (require) {
             id.forEach(function(i){
                 this.collection.get(i).select();
             }, this);
+            Backbone.trigger('EV_ImageSelected', this.collection.selected);
         },
 
     });

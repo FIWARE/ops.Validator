@@ -17,7 +17,6 @@ define(function (require) {
 
         render: function () {
             console.log("Rendering Deployments...");
-            console.log(this.collection);
             this.$el.html("");
             this.collection.each(function (deployment) {
                 this.$el.append(new DeploymentView({model: deployment}).el);
