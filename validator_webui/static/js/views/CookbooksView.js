@@ -5,8 +5,8 @@ define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
-        CookbookView = require('views/CookbookView');
-    var _ = require("underscore");
+        CookbookView = require('views/CookbookView'),
+        _ = require("underscore");
 
     return Backbone.View.extend({
         events: {
@@ -48,6 +48,7 @@ define(function (require) {
         chooseCookbooks: function (images) {
             var systems = _.pluck(_.pluck(images, "attributes"), "system");
             this.collection.reset(this.master.by_system(systems));
+            
         },
 
     });
