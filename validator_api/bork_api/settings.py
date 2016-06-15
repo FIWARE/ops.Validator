@@ -138,3 +138,9 @@ DOCKER_URL = "tcp://127.0.0.1:2375"
 
 # CORS SUPPORT
 CORS_ORIGIN_ALLOW_ALL = True
+
+# OSLO DEFAULT CONFIG
+OSLO_CFG_FILE = "/etc/bork/validator_api.conf"
+from common.config import load_config
+load_config(OSLO_CFG_FILE)
+

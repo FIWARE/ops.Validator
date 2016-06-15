@@ -1,0 +1,7 @@
+- model: validator_api.repo
+  pk: 1
+  fields:
+    type: svn
+    location: https://forge.fiware.org/scmrepos/svn/testbed/trunk/cookbooks/GESoftware/
+    user: pmverdugo@dit.upm.es
+    password: forgeF0rtun4

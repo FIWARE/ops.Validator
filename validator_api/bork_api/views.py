@@ -159,15 +159,16 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """
         Deploys the given recipe
         """
+
         instance = Deployment()
-        image = request.body['image'].lower()
+        image = request.data['image'].lower()
         image_tag = image
-        cookbook = request.body['cookbook']
-        recipe = request.body['recipe'] or 'default'
-        system = request.body['system'].lower()
+        cookbook = request.data['cookbook'].lower()
+        recipe = request.data['recipe'].lower() or 'default'
+        system = request.data['system'].lower()
 
         # Prepare image
-        from clients.docker_client import DockerManager
+        from bork_api.clients.docker_client import DockerManager
         if ":" in image:
             image_name, image_version = image.split(":")
             try:
@@ -185,11 +186,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         if "chef" == system:
             from clients.chef_client import ChefClient
             res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-            instance.ok, instance.description = (res['success'], res['result'])
+            instance.ok, instance.description = (res['result']['success'], res['result']['result'])
             instance.save()
         elif "puppet" == system:
             from clients.puppet_client import PuppetClient
             res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-            instance.ok, instance.description = (res['success'], res['result'])
+            instance.ok, instance.description = (res['result']['success'], res['result']['result'])
             instance.save()
         return Response(instance, status=status.HTTP_201_CREATED)

@@ -23,14 +23,16 @@ from bork_api.common.exception import CookbookSyntaxException, \
 from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
-
+LOG = logging
 opts = [
-    cfg.StrOpt('url'),
-    cfg.StrOpt('image'),
+    cfg.StrOpt('cmd_install'),
+    cfg.StrOpt('cmd_config'),
+    cfg.StrOpt('cmd_inject'),
+    cfg.StrOpt('cmd_test'),
+    cfg.StrOpt('cmd_launch')
 ]
 CONF = cfg.CONF
-CONF.register_opts(opts, group="clients_docker")
-
+CONF.register_opts(opts, group="clients_puppet")
 
 class PuppetClient(object):
     """

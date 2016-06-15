@@ -11,7 +11,6 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
-import os
 
 from docker.errors import DockerException
 import logging
@@ -22,13 +21,15 @@ from bork_api.common.exception import CookbookDeploymentException, CookbookSynta
 from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging
-
 opts = [
-    cfg.StrOpt('url'),
-    cfg.StrOpt('image'),
+    cfg.StrOpt('cmd_install'),
+    cfg.StrOpt('cmd_config'),
+    cfg.StrOpt('cmd_inject'),
+    cfg.StrOpt('cmd_test'),
+    cfg.StrOpt('cmd_launch')
 ]
 CONF = cfg.CONF
-CONF.register_opts(opts, group="clients_docker")
+CONF.register_opts(opts, group="clients_chef")
 
 
 class ChefClient(object):
@@ -45,7 +46,7 @@ class ChefClient(object):
             LOG.error(_LE("Docker client error: %s") % e)
             raise e
 
-    def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
+    def cookbook_deployment_test(self, cookbook, recipe='default.rb', image='default'):
         """
         Try to process a cookbook and return results
         :param cookbook: cookbook to deploy
@@ -58,7 +59,7 @@ class ChefClient(object):
         msg = {}
         self.dc.run_container(image)
         # inject custom solo.json/solo.rb file
-        json_cont = CONF.clients_chef.cmd_config % (cookbook, recipe)
+        json_cont = CONF.clients_chef.cmd_config % recipe
         cmd_inject = CONF.clients_chef.cmd_inject.format(json_cont)
         self.dc.execute_command(cmd_inject)
 
@@ -66,7 +67,7 @@ class ChefClient(object):
         b_success &= msg['install']['success']
         msg['test'] = self.run_test(cookbook)
         b_success &= msg['test']['success']
-        msg['deploy'] = self.run_deploy(cookbook)
+        msg['deploy'] = self.run_deploy(cookbook, recipe)
         b_success &= msg['deploy']['success']
 
         # check execution output
