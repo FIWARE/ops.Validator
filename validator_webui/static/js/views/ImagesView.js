@@ -16,15 +16,19 @@ define(function (require) {
 
         initialize: function () {
             this.collection.bind('reset', this.render, this);
-            //this.listenTo(this.collection, 'reset', this.render);
         },
 
         render: function () {
             console.log("Rendering Images...");
-            this.collection.sort();
-            this.collection.each(function (image) {
-                this.$el.append(new ImageView({model: image}).el);
-            }, this);
+            if (!this.collection.length) {
+                this.$el.html("<option>No Images Available</option>");
+            } else {
+                this.collection.sort();
+                this.$el.html("");
+                this.collection.each(function (image) {
+                    this.$el.append(new ImageView({model: image}).el);
+                }, this);
+            }
             return this;
         },
 

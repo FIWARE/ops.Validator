@@ -21,43 +21,50 @@ define(function (require) {
         el: $("#validator_app"),
 
         events: {
-            "click #button_refresh": "refresh_recipes",
+            "click #button_refresh_remote": "refresh_remote_recipes",
+            "click #button_refresh_local": "refresh_local_recipes",
             "click #button_add": "add_to_deployments",
             "click #button_run": "run_deployments",
         },
 
         initialize: function () {
             console.log("Booting...")
-            this.username = this.$("#username");
-            this.password = this.$("#password");
-            this.render();
-        },
-
-        render: function () {
-            this.imagescol = new ImageCollection(this.get_credentials());
+            this.imagescol = new ImageCollection();
             this.cookbookscol = new CookbookCollection();
-            this.cookbooksmaster = new CookbookCollection(this.get_credentials());
-            this.recipesmaster = new RecipeCollection(this.get_credentials());
             this.recipescol = new RecipeCollection();
             this.deploymentscol = new DeploymentCollection();
+            this.cookbooksmaster = new CookbookCollection();
+            this.recipesmaster = new RecipeCollection();
             this.imagessel = new ImagesView({collection: this.imagescol});
             this.cookbookssel = new CookbooksView({collection: this.cookbookscol, master: this.cookbooksmaster});
             this.recipessel = new RecipesView({collection: this.recipescol, master:this.recipesmaster});
             this.deploymentsview = new DeploymentsView({collection:this.deploymentscol});
         },
 
+        render: function () {
+            var creds = this.get_credentials();
+            this.imagessel.collection.get_remote(creds);
+            this.cookbookssel.master.get_remote(creds);
+            this.recipessel.master.get_remote(creds);
+        },
+
         get_credentials: function () {
             return {
-                username: this.username.val(),
-                password: this.password.val()
+                username: this.$("#username").val(),
+                password: this.$("#password").val()
             }
         },
 
-        refresh_recipes: function () {
+        refresh_remote_recipes: function () {
             var creds = this.get_credentials();
             new CookbookCollection().refresh(creds);
             var recipesCollection = new RecipeCollection(creds);
             var recipesRows = new RecipesView({collection: recipesCollection});
+            this.render();
+        },
+
+        refresh_local_recipes: function () {
+            this.render();
         },
 
         add_to_deployments: function () {

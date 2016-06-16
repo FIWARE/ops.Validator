@@ -4,11 +4,13 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from models import Repo, CookBook, Recipe, Deployment, Image
 from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 from bork_api import settings
 from bork_api.clients.storage_client import LocalStorage
+from clients.chef_client import ChefClient
+from clients.puppet_client import PuppetClient
 
 
 class ImageViewSet(viewsets.ModelViewSet):
@@ -159,37 +161,84 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """
         Deploys the given recipe
         """
+        import traceback
         instance = Deployment()
-        image = request.body['image'].lower()
-        image_tag = image
-        cookbook = request.body['cookbook']
-        recipe = request.body['recipe'] or 'default'
-        system = request.body['system'].lower()
+        try:
+            image = request.data['image'].lower()
+            image_tag = image
+            cookbook = request.data['cookbook']
+            recipe = request.data['recipe'] or 'default.rb'
+            system = request.data['system'].lower()
 
-        # Prepare image
-        from clients.docker_client import DockerManager
-        if ":" in image:
-            image_name, image_version = image.split(":")
-            try:
-                image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
-                image_tag = image.tag
-            except Image.DoesNotExist:
+            instance.cookbook = CookBook.objects.get(name=cookbook)
+            instance.recipe = Recipe.objects.get(name=recipe, cookbook=instance.cookbook)
+            # Prepare image
+            from clients.docker_client import DockerManager
+            if ":" in image:
+                image_name, image_version = image.split(":")
                 try:
-                    DockerManager().prepare_image(image_tag)
+                    image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
+                    image_tag = image.tag
                 except Image.DoesNotExist:
-                    return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
-            except Image.MultipleObjectsReturned:
-                return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
-
-        # Deploy image
-        if "chef" == system:
-            from clients.chef_client import ChefClient
-            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-            instance.ok, instance.description = (res['success'], res['result'])
+                    try:
+                        DockerManager().prepare_image(image_tag)
+                    except Image.DoesNotExist:
+                        return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
+                except Image.MultipleObjectsReturned:
+                    return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
             instance.save()
-        elif "puppet" == system:
-            from clients.puppet_client import PuppetClient
-            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-            instance.ok, instance.description = (res['success'], res['result'])
-            instance.save()
+        except Exception:
+            traceback.print_exc()
+        # # Deploy image
+        # if "chef" == system:
+        #     res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
+        #     instance.ok, instance.description = (res['success'], res['result'])
+        #     instance.save()
+        # elif "puppet" == system:
+        #     res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
+        #     instance.ok, instance.description = (res['success'], res['result'])
+        #     instance.save()
         return Response(instance, status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['get'])
+    def dependencies(self, request, pk=None):
+        print(pk)
+        d = Deployment.objects.get(pk=pk)
+        if "chef" == d.system.name:
+            cc = ChefClient(url=settings.DOCKER_URL)
+            res = cc.run_install(d.cookbook.name)
+            d.dependencies, d.dependencies_log = (res['success'], res['result'])
+        elif "puppet" == d.system.name:
+            pc = PuppetClient(url=settings.DOCKER_URL)
+            res = pc.run_install(d.cookbook.name)
+            d.dependencies, d.dependencies_log = (res['success'], res['result'])
+        d.save()
+        return Response(d)
+
+    @detail_route(methods=['get'])
+    def syntax(self, request, pk=None):
+        d = Deployment.objects.get(pk=pk)
+        if "chef" == d.system.name:
+            cc = ChefClient(url=settings.DOCKER_URL)
+            res = cc.run_test(d.cookbook.name)
+            d.syntax, d.syntax_log = (res['success'], res['result'])
+        elif "puppet" == d.system.name:
+            pc = PuppetClient(url=settings.DOCKER_URL)
+            res = pc.run_test(d.cookbook.name)
+            d.syntax, d.syntax_log = (res['success'], res['result'])
+        d.save()
+        return Response(d)
+
+    @detail_route(methods=['get'])
+    def deploy(self, request, pk=None):
+        d = Deployment.objects.get(pk=pk)
+        if "chef" == d.system.name:
+            cc = ChefClient(url=settings.DOCKER_URL)
+            res = cc.run_deploy(d.cookbook.name)
+            d.deployment, d.deployment_log = (res['success'], res['result'])
+        elif "puppet" == d.system.name:
+            pc = PuppetClient(url=settings.DOCKER_URL)
+            res = pc.run_deploy(d.cookbook.name)
+            d.deployment, d.deployment_log = (res['success'], res['result'])
+        d.save()
+        return Response(d)

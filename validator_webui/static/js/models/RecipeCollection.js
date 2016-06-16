@@ -18,7 +18,7 @@ define(function (require) {
         sort_key: 'name',
 
         initialize: function (credentials, models, options) {
-            if (credentials) {
+            if (credentials && !!credentials.username && !!credentials.password) {
                 this.get_remote(credentials);
             }
             Backbone.Select.Many.applyTo(this, models, options);

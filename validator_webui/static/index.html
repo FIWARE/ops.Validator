@@ -9,7 +9,7 @@
 <body id="validator_app">
 <header id="header">
 <h1>Automated Recipe Validation</h1>
-    <h2>Login <button id="button_refresh">Refresh Remote Cookbooks</button></h2>
+    <h2>Login <button id="button_refresh_local">Refresh Local Artifacts</button> <button id="button_refresh_remote">Refresh Remote Artifacts</button></h2>
 <p>Enter user and pass for validator API</p>
 <p>
   Username: <input type="text" id="username" value=""><br>
@@ -30,7 +30,9 @@
 <tbody>
 <tr>
     <td>
-        <select multiple id="sel_images"></select>
+        <select multiple id="sel_images">
+            <option>No Images Available</option>
+        </select>
     </td>
     <td>
         <select multiple id="sel_cookbooks">

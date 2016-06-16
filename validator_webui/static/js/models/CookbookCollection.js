@@ -9,16 +9,15 @@ define(function (require) {
         Cookbook = require('models/CookbookModel'),
         basicauth = require('bbbasicauth'),
         bbsel = require('bbselect');
-    var $ = require("jquery");
 
     return Backbone.Collection.extend({
         url: config.api_url + '/cookbooks/',
         model: Cookbook,
         sort_key: 'name',
         initialize: function (credentials, models, options) {
-            if (credentials) {
-            this.get_remote(credentials);
-                }
+            if (credentials && !!credentials.username && !!credentials.password) {
+                this.get_remote(credentials);
+            }
             Backbone.Select.Many.applyTo(this, models, options);
         },
 
