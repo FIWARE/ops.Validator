@@ -1,4 +1,5 @@
 import os
+from oslo_config import cfg
 import logging
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -12,6 +13,8 @@ from bork_api.clients.storage_client import LocalStorage
 from clients.chef_client import ChefClient
 from clients.puppet_client import PuppetClient
 
+CONF = cfg.CONF
+
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Image.objects.all()
@@ -19,11 +22,11 @@ class ImageViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
-    def refresh(self, request):
+    def refresh(self, request=None):
         """
         Update image list from local configuration
         """
-        Image.objects.all().delete()
+        images_cleanup()
         from clients.docker_client import DockerManager
         for s in DockerManager().list_systems():
             instance = Image()
@@ -58,11 +61,12 @@ class CookBookViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
-    def refresh(self, request):
+    def refresh(self, request=None):
         """
         Update cookbook list from repos
         """
         cookbooks_cleanup()
+        recipes_cleanup()
         cookbooks = set()
         for r in Repo.objects.all():
             if r.type == "svn":
@@ -80,24 +84,11 @@ class CookBookViewSet(viewsets.ModelViewSet):
         return self.list(None)
 
 
-def cookbooks_cleanup():
-    """
-    Cleanup previously downloaded cookbooks
-    :return:
-    """
-    logging.info("Cleanup old Cookbooks in %s" % settings.LOCAL_STORAGE)
-    CookBook.objects.all().delete()
-    if os.path.exists(settings.LOCAL_STORAGE):
-        import shutil
-        shutil.rmtree(settings.LOCAL_STORAGE)
-        os.mkdir(settings.LOCAL_STORAGE)
-
-
-def cookbooks_add(cookbooks, r, version='Unknown'):
+def cookbooks_add(cookbooks, repo, version='Unknown'):
     """
     Add local cookbooks to db
     :param cookbooks: current cookbooks
-    :param r: current repository
+    :param repo: current repository
     :return:
     """
     l = LocalStorage(settings.LOCAL_STORAGE)
@@ -105,7 +96,7 @@ def cookbooks_add(cookbooks, r, version='Unknown'):
         if c['name'] not in cookbooks:
             logging.info("Adding cookbook %s" % c['name'])
             cb = CookBook()
-            cb.repo = r
+            cb.repo = repo
             cb.name = c['name']
             cb.system = c['system']
             cb.version = version
@@ -114,18 +105,28 @@ def cookbooks_add(cookbooks, r, version='Unknown'):
             cookbooks.add(c['name'])
 
 
+def cookbooks_cleanup():
+    """ Cleanup previously downloaded cookbooks """
+    logging.info("Cleanup old Cookbooks in %s" % settings.LOCAL_STORAGE)
+    CookBook.objects.all().delete()
+    if os.path.exists(settings.LOCAL_STORAGE):
+        import shutil
+        shutil.rmtree(settings.LOCAL_STORAGE)
+        os.mkdir(settings.LOCAL_STORAGE)
+
+
+def images_cleanup():
+    """ Cleanup image db"""
+    Image.objects.all().delete()
+
+
 def recipes_cleanup():
-    """
-    Cleanup previous recipes
-    :return:
-    """
+    """ Cleanup previous recipes """
     Recipe.objects.all().delete()
 
 
 def recipes_add():
-    """
-     Add detected recipes based on local cookbooks
-    """
+    """ Add detected recipes based on local cookbooks """
     l = LocalStorage(settings.LOCAL_STORAGE)
     for cb in CookBook.objects.all():
         for r in l.list_recipes(cb.path):
@@ -161,8 +162,8 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """
         Deploys the given recipe
         """
-        import traceback
-        instance = Deployment()
+        d = Deployment()
+        s = DeploymentSerializer(d)
         try:
             image = request.data['image'].lower()
             image_tag = image
@@ -170,40 +171,45 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             recipe = request.data['recipe'] or 'default.rb'
             system = request.data['system'].lower()
 
-            instance.cookbook = CookBook.objects.get(name=cookbook)
-            instance.recipe = Recipe.objects.get(name=recipe, cookbook=instance.cookbook)
+            d.cookbook = CookBook.objects.get(name=cookbook)
+            d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
             # Prepare image
-            from clients.docker_client import DockerManager
+
             if ":" in image:
                 image_name, image_version = image.split(":")
                 try:
-                    image = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
-                    image_tag = image.tag
+                    i = Image.objects.get(name=image_name.lower(), version=image_version.lower(), system=system)
+                    image_tag = i.tag
                 except Image.DoesNotExist:
-                    try:
-                        DockerManager().prepare_image(image_tag)
-                    except Image.DoesNotExist:
-                        return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_404_NOT_FOUND)
+                    pass
                 except Image.MultipleObjectsReturned:
-                    return Response('Multiple images found %s' % image, status=status.HTTP_404_NOT_FOUND)
-            instance.save()
-        except Exception:
-            traceback.print_exc()
-        # # Deploy image
-        # if "chef" == system:
-        #     res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-        #     instance.ok, instance.description = (res['success'], res['result'])
-        #     instance.save()
-        # elif "puppet" == system:
-        #     res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(cookbook, recipe, image_tag)
-        #     instance.ok, instance.description = (res['success'], res['result'])
-        #     instance.save()
-        return Response(instance, status=status.HTTP_201_CREATED)
+                    return Response({'detail': 'Multiple images found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
+            try:
 
-    @detail_route(methods=['get'])
-    def dependencies(self, request, pk=None):
-        print(pk)
+                i = Image.objects.get(tag=image_tag)
+            except Image.DoesNotExist:
+                return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
+            d.image = i
+            d.save()
+            s = DeploymentSerializer(d)
+        except Exception:
+            import traceback
+            traceback.print_exc()
+        return Response(s.data, status=status.HTTP_201_CREATED)
+
+    @detail_route(methods=['put', 'get'])
+    def launch(self, request, pk=None):
         d = Deployment.objects.get(pk=pk)
+        s = DeploymentSerializer(d)
+        from clients.docker_client import DockerManager
+        d.launch = DockerManager().prepare_image(d.image.tag)
+        d.save()
+        return Response(s.data)
+
+    @detail_route(methods=['put', 'get'])
+    def dependencies(self, request, pk=None):
+        d = Deployment.objects.get(pk=pk)
+        s = DeploymentSerializer(d)
         if "chef" == d.system.name:
             cc = ChefClient(url=settings.DOCKER_URL)
             res = cc.run_install(d.cookbook.name)
@@ -213,11 +219,12 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             res = pc.run_install(d.cookbook.name)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
-        return Response(d)
+        return Response(s.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['put', 'get'])
     def syntax(self, request, pk=None):
         d = Deployment.objects.get(pk=pk)
+        s = DeploymentSerializer(d)
         if "chef" == d.system.name:
             cc = ChefClient(url=settings.DOCKER_URL)
             res = cc.run_test(d.cookbook.name)
@@ -227,11 +234,12 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             res = pc.run_test(d.cookbook.name)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
-        return Response(d)
+        return Response(s.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['put', 'get'])
     def deploy(self, request, pk=None):
         d = Deployment.objects.get(pk=pk)
+        s = DeploymentSerializer(d)
         if "chef" == d.system.name:
             cc = ChefClient(url=settings.DOCKER_URL)
             res = cc.run_deploy(d.cookbook.name)
@@ -241,4 +249,17 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             res = pc.run_deploy(d.cookbook.name)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
-        return Response(d)
+        return Response(s.data)
+
+    @detail_route(methods=['put', 'get'])
+    def full_deploy(self, request, pk=None):
+        d = Deployment.objects.get(pk=pk)
+        s = DeploymentSerializer(d)
+        if "chef" == d.system.name:
+            res = ChefClient(url=settings.DOCKER_URL).cookbook_deployment_test(d.cookbook.name, d.recipe.name, d.image.tag)
+            d.ok, d.description = (res['success'], res['result'])
+        elif "puppet" == d.system.name:
+            res = PuppetClient(url=settings.DOCKER_URL).cookbook_deployment_test(d.cookbook.name, d.recipe.name, d.image.tag)
+            d.ok, d.description = (res['success'], res['result'])
+        d.save()
+        return Response(s.data)

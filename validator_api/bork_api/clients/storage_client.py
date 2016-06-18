@@ -13,7 +13,9 @@
 #  under the License.
 
 import os
-import logging
+from oslo_log import log as logging
+
+LOG = logging.getLogger(__name__)
 
 
 class LocalStorage:

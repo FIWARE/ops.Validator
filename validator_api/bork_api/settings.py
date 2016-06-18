@@ -11,8 +11,18 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
+from oslo_config import cfg
+#from oslo_log import log as logging
 import logging
-logging.basicConfig()
+from common import config
+
+APPNAME = "bork_api"
+CONF = cfg.CONF
+#logging.register_options(CONF)
+config.setup_config(APPNAME)
+logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
+#logging.setup(CONF, APPNAME)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,6 +141,23 @@ REST_FRAMEWORK = {
 OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
 
 AUTHENTICATION_BACKENDS = ('idm_auth.backend.KeystoneBackend', )
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
 
 LOCAL_STORAGE = "/tmp/cookbooks"
 

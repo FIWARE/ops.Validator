@@ -2,8 +2,10 @@
 """
 Cookbook Repository Management
 """
-import logging
+from oslo_log import log as logging
 import svn.remote
+
+LOG = logging.getLogger(__name__)
 
 
 class SVNRepo:

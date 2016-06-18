@@ -31,6 +31,9 @@ define(function (require) {
             },
         refresh: function (credentials) {
             this.credentials = credentials;
+            console.log("Refreshing remote images");
+            this.url = config.api_url + '/images/refresh/';
+            this.fetch();
             console.log("Refreshing remote cookbooks");
             this.url = config.api_url + '/cookbooks/refresh/';
             this.fetch();

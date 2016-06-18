@@ -13,6 +13,9 @@
 #  under the License.
 
 from git import Repo
+from oslo_log import log as logging
+
+LOG = logging.getLogger(__name__)
 
 
 class GITRepo:

@@ -9,6 +9,7 @@ define(function (require) {
         ImagesView = require("views/ImagesView"),
         DeploymentsView = require("views/DeploymentsView"),
         CookbooksView = require("views/CookbooksView"),
+        ResultsView = require("views/ResultsView"),
         RecipeCollection = require("models/RecipeCollection"),
         CookbookCollection = require("models/CookbookCollection"),
         ImageCollection = require("models/ImageCollection"),
@@ -33,12 +34,16 @@ define(function (require) {
             this.cookbookscol = new CookbookCollection();
             this.recipescol = new RecipeCollection();
             this.deploymentscol = new DeploymentCollection();
+            this.resultscol = new DeploymentCollection();
             this.cookbooksmaster = new CookbookCollection();
             this.recipesmaster = new RecipeCollection();
-            this.imagessel = new ImagesView({collection: this.imagescol});
+            this.imagessel = new ImagesView({collection: new ImageCollection()});
             this.cookbookssel = new CookbooksView({collection: this.cookbookscol, master: this.cookbooksmaster});
             this.recipessel = new RecipesView({collection: this.recipescol, master:this.recipesmaster});
             this.deploymentsview = new DeploymentsView({collection:this.deploymentscol});
+            this.resultsview = new ResultsView({collection:this.resultscol});
+            // debug mode
+            this.render();
         },
 
         render: function () {
@@ -85,9 +90,17 @@ define(function (require) {
         },
 
         run_deployments: function () {
+            this.resultscol = new DeploymentCollection();
             this.deploymentscol.each(function(d){
-               console.log("Launching" + d.get('recipe'));
-                d.save_remote(this.get_credentials());
+               console.log("Generating " + d.get('recipe'));
+                var r = d.save_remote(this.get_credentials());
+                this.resultsview.collection.add(r);
+            }, this);
+            this.resultsview.collection.each(function(r){
+                r.launch();
+                r.syntax();
+                r.dependencies();
+                r.deployment();
             }, this);
         }
     });

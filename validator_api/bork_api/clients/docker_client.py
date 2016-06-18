@@ -2,22 +2,20 @@
 """
 Dockerfile Management
 """
-import logging
 import os
 import re
 
 from docker import Client as DC
 from docker.errors import NotFound
 from oslo_config import cfg
-
+import logging
 from bork_api.common.i18n import _LW, _LI
 from bork_api.common.exception import DockerContainerException
 
 CONF = cfg.CONF
-CONF.register_opt(cfg.StrOpt('config_dir', default="/etc/bork"))
 CONF.register_opt(cfg.StrOpt('url', default="tcp://127.0.0.1:2375"), group="clients_docker")
-LOG = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
+CONF.register_opt(cfg.StrOpt('build_dir', default="/etc/bork"), group="clients_docker")
+LOG = logging.getLogger(__name__)
 
 
 class DockerManager:
@@ -51,41 +49,43 @@ class DockerManager:
 
     def generate_image(self, df):
         """generate docker image"""
-        status = False
-
+        status = True
         self.dc.info()
         with open(df) as dockerfile:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
             LOG.debug("Generating %s from %s" % (tag, df))
         if tag:
             resp = self.dc.build(
-                path=CONF.config_dir,
+                path=CONF.clients_docker.build_dir,
                 dockerfile=df,
                 rm=True,
                 tag=tag
             )
-        for l in resp:
-            if "error" in l.lower():
-                status = False
-            LOG.debug(l)
+            for l in resp:
+                if "error" in l.lower():
+                    status = False
+                LOG.debug(l)
+        else:
+            status = False
         return status
 
     def download_image(self, tag):
         status = True
+        LOG.debug("Downloading image %s" % tag)
         resp = self.dc.pull(tag)
-        for l in resp:
-            if "error" in l.lower():
-                status = False
-            LOG.debug(l)
+        if "error" in resp.lower():
+            status = False
+        LOG.debug(resp)
         return status
 
     def prepare_image(self, tag):
-        status = True
-        if tag not in [t.tag for t in self.dc.images()]:
-            df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
-            status = self.generate_image(df)
-        if not status:
+        status = False
+        LOG.debug("Preparing Image %s" % tag)
+        if tag not in [t['RepoTags'][0] for t in self.dc.images()]:
             status = self.download_image(tag)
+            if not status:
+                df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
+                status = self.generate_image(df)
         return status
 
     def run_container(self, image_name):

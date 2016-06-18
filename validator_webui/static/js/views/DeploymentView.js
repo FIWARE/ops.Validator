@@ -26,7 +26,7 @@ define(function (require) {
         delete: function(){
             console.log("Removing item");
             this.remove();
-            this.model.destroy();
+            this.model.trigger('destroy', this.model, Deployment.collection, {});
         }
     })
 });

@@ -14,21 +14,20 @@
 import os
 
 from docker.errors import DockerException
-import logging
 from oslo_config import cfg
-
+from oslo_log import log as logging
 from bork_api.clients.docker_client import DockerManager
 from bork_api.common.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
 from bork_api.common.i18n import _LW, _LE, _
 
-LOG = logging
+LOG = logging.getLogger(__name__)
 
 opts = [
     cfg.StrOpt('url'),
     cfg.StrOpt('image'),
 ]
 CONF = cfg.CONF
-CONF.register_opts(opts, group="clients_docker")
+CONF.register_opts(opts, group="clients_chef")
 
 
 class ChefClient(object):
