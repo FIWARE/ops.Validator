@@ -26,9 +26,9 @@ define(function (require) {
             this.credentials = credentials;
             this.fetch({reset: true});
         },
-        comparator: function(item) {
-                return item.get(this.sort_key);
-            },
+        comparator: function (item) {
+            return item.get(this.sort_key);
+        },
         refresh: function (credentials) {
             this.credentials = credentials;
             console.log("Refreshing remote images");

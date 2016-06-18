@@ -14,12 +14,12 @@ define(function (require) {
         initialize: function () {
             this.collection.bind('reset', this.render, this);
             this.collection.bind('add', this.render, this);
-
+            this.render();
         },
 
         render: function () {
             console.log("Rendering Results...");
-           if (!this.collection.length) {
+            if (!this.collection.length) {
                 this.$el.html(
                     "<tr>" +
                     "<td>No Image Selected</td>" +
@@ -33,10 +33,12 @@ define(function (require) {
                     "</tr>"
                 );
             } else {
-                this.$el.html("");
+                this.$el.empty();
+                var container = document.createDocumentFragment();
                 this.collection.each(function (result) {
-                    this.$el.append(new ResultView({model: result}).el);
+                    container.appendChild(new ResultView({model: result}).el);
                 }, this);
+                this.$el.append(container);
             }
             return this;
         },

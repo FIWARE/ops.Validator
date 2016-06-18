@@ -30,18 +30,14 @@ define(function (require) {
 
         initialize: function () {
             console.log("Booting...")
-            this.imagescol = new ImageCollection();
-            this.cookbookscol = new CookbookCollection();
-            this.recipescol = new RecipeCollection();
-            this.deploymentscol = new DeploymentCollection();
-            this.resultscol = new DeploymentCollection();
-            this.cookbooksmaster = new CookbookCollection();
-            this.recipesmaster = new RecipeCollection();
             this.imagessel = new ImagesView({collection: new ImageCollection()});
-            this.cookbookssel = new CookbooksView({collection: this.cookbookscol, master: this.cookbooksmaster});
-            this.recipessel = new RecipesView({collection: this.recipescol, master:this.recipesmaster});
-            this.deploymentsview = new DeploymentsView({collection:this.deploymentscol});
-            this.resultsview = new ResultsView({collection:this.resultscol});
+            this.cookbookssel = new CookbooksView({
+                collection: new CookbookCollection(),
+                master: new CookbookCollection()
+            });
+            this.recipessel = new RecipesView({collection: new RecipeCollection(), master: new RecipeCollection()});
+            this.deploymentsview = new DeploymentsView({collection: new DeploymentCollection()});
+            this.resultsview = new ResultsView({collection: new DeploymentCollection()});
             // debug mode
             this.render();
         },
@@ -63,8 +59,7 @@ define(function (require) {
         refresh_remote_recipes: function () {
             var creds = this.get_credentials();
             new CookbookCollection().refresh(creds);
-            var recipesCollection = new RecipeCollection(creds);
-            var recipesRows = new RecipesView({collection: recipesCollection});
+            var recipesRows = new RecipesView({collection: new RecipeCollection(creds)});
             this.render();
         },
 
@@ -78,30 +73,33 @@ define(function (require) {
                 $.each(self.recipessel.collection.selected, function (key, recipe) {
                     console.log("Creating new deployment");
                     var d = new DeploymentModel({
-                        recipe: recipe.get('name'),
-                        image: image.get('tag'),
-                        cookbook: self.cookbookscol.get(recipe.get('cookbook')).get('name'),
+                        recipe_name: recipe.get('name'),
+                        image_name: image.get('tag'),
+                        cookbook: self.cookbookssel.collection.get(recipe.get('cookbook')).get('name'),
                         system: image.get('system')
                     });
-                    self.deploymentscol.add(d);
+                    self.deploymentsview.collection.add(d);
                 });
             });
             this.deploymentsview.render();
         },
 
         run_deployments: function () {
-            this.resultscol = new DeploymentCollection();
-            this.deploymentscol.each(function(d){
-               console.log("Generating " + d.get('recipe'));
-                var r = d.save_remote(this.get_credentials());
-                this.resultsview.collection.add(r);
+            this.resultsview.collection.reset();
+            this.deploymentsview.collection.each(function (d) {
+                this.resultsview.collection.add(d);
+                d.save_remote(this.get_credentials());
             }, this);
-            this.resultsview.collection.each(function(r){
-                r.launch();
-                r.syntax();
-                r.dependencies();
-                r.deployment();
-            }, this);
+            // this.resultsview.collection.each(function(d) {
+            //    console.log("Generating " + d.get('recipe'));
+            //    d.save_remote(this.get_credentials());
+            // }, this);
+            // this.resultsview.collection.each(function(r){
+            //     r.launch();
+            //     // r.syntax();
+            //     // r.dependencies();
+            //     // r.deployment();
+            // }, this);
         }
     });
 });

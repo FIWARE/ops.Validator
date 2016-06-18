@@ -12,7 +12,7 @@ define(function (require) {
         tagName: 'tbody',
 
         initialize: function () {
-            this.collection.bind('reset', this.render, this);
+            //this.collection.bind('change', this.render, this);
         },
 
         render: function () {

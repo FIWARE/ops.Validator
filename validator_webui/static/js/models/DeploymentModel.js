@@ -8,33 +8,82 @@ define(function (require) {
         save_remote: function (credentials) {
             this.id = null;
             this.credentials = credentials;
+            this.set('image', this.get('image_name'));
+            this.set('recipe', this.get('recipe_name'));
             this.save(this.model, {
-                async: false,
                 success: function (model, response) {
+                    model.launch();
                 },
                 error: function (model, response) {
-                    alert('wrong');
                     console.log(response);
+                }
+            }, this);
+            return this;
+        },
+        launch: function () {
+            var self = this;
+            console.log("Launching " + this.get("image_name"));
+            var resp = Backbone.sync("launch", self, {
+                type: 'PUT',
+                url: this.url() + "/launch/",
+                async: true,
+                success: function (model, response) {
+                    self.set('launch', model.launch);
+                    self.syntax();
+                },
+                error: function (model, response) {
+                    self.set('launch', 'ERROR')
                 }
             });
             return this;
         },
-        launch: function(){
-            console.log("Launching "+this.get("recipe"));
-            var resp = Backbone.sync("launch", this, {type: 'PUT', url: this.url()+"/launch/", async: false});
-            this.set("launch", resp.responseJSON.launch);
+        syntax: function () {
+            var self = this;
+            console.log("Syntax Checking for " + this.get("recipe_name"));
+            var resp = Backbone.sync("syntax", self, {
+                type: 'PUT', url: this.url() + "/syntax/", async: true,
+                success: function (model, response) {
+                    self.set('syntax', model.get('syntax'));
+                    self.dependencies();
+                },
+                error: function (model, response) {
+                    self.set('syntax', 'ERROR');
+                    self.dependencies();
+                }
+            });
         },
-        syntax: function(){
-            console.log("Syntax Checking for "+this.get("recipe"));
-            Backbone.sync("syntax", this, {type: 'PUT', url: this.url()+"/syntax/", async: false});
+        dependencies: function () {
+            var self = this;
+            console.log("Dependencies checking for " + this.get("recipe_name"));
+            var resp = Backbone.sync("dependencies", self, {
+                type: 'PUT',
+                url: this.url() + "/dependencies/",
+                async: true,
+                success: function (model, response) {
+                    self.set('dependencies', model.get('dependencies'));
+                    self.deploy();
+                },
+                error: function (model, response) {
+                    self.set('dependencies', 'ERROR');
+                    self.deploy();
+                }
+            });
         },
-        dependencies: function(){
-            console.log("Dependencies checking for "+this.get("recipe"));
-            Backbone.sync("dependencies", this, {type: 'PUT', url: this.url()+"/dependencies/", async: false});
-        },
-        deployment: function(){
-            console.log("Deployment checking for "+this.get("recipe"));
-            Backbone.sync("deployment", this, {type: 'PUT', url: this.url()+"/deployment/", async: false});
+        deploy: function () {
+            var self = this;
+            console.log("Deployment checking for " + this.get("recipe_name"));
+            var resp = Backbone.sync("deploy", self, {
+                type: 'PUT', url: this.url() + "/deploy/", async: true,
+                success: function (model, response) {
+                    self.set('deploy', model.get('deploy'));
+                    self.set('ok', model.get('ok'));
+                },
+                error: function (model, response) {
+                    self.set('deploy', 'ERROR');
+                    self.set('ok', 'ERROR');
+                }
+            });
+
         },
     });
 });

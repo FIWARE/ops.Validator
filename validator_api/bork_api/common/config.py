@@ -4,4 +4,5 @@ CONF = cfg.CONF
 
 
 def setup_config(app):
-    CONF(project=app, args=[], default_config_files=["/opt/fiware_validator/etc/bork/%s.conf" % app])
+    conf_file = "/opt/fiware_validator/etc/bork/%s.conf" % app
+    CONF(project=app, args=["--config-file=%s" % conf_file], default_config_files=[conf_file])

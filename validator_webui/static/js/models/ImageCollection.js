@@ -15,7 +15,7 @@ define(function (require) {
     return Backbone.Collection.extend({
         url: config.api_url + '/images/',
         model: Image,
-        sort_key: 'name',
+        sort_key: 'system',
 
         initialize: function (credentials, models, options) {
             if (credentials && !!credentials.username && !!credentials.password) {

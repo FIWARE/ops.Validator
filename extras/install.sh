@@ -11,4 +11,6 @@ cd ..
 pip install --upgrade pip setuptools
 pip install -r requirements.txt
 
-python setup.py install
+# python setup.py install
+python validator_api/manage.py makemigrations
+python validator_api/manage.py migrate

@@ -8,7 +8,7 @@ import re
 from docker import Client as DC
 from docker.errors import NotFound
 from oslo_config import cfg
-import logging
+from oslo_log import log as logging
 from bork_api.common.i18n import _LW, _LI
 from bork_api.common.exception import DockerContainerException
 
@@ -23,9 +23,9 @@ class DockerManager:
     Docker Manager Object Model
     """
 
-    def __init__(self, path="/etc/bork", url=CONF.clients_docker.url):
-        self._url = url
-        self.dockerfile_path = path
+    def __init__(self, path=None, url=None):
+        self._url = url or CONF.clients_docker.url
+        self.dockerfile_path = path or CONF.clients_docker.build_dir
         self.dc = DC(base_url=self._url)
 
     def list_systems(self):
@@ -50,7 +50,6 @@ class DockerManager:
     def generate_image(self, df):
         """generate docker image"""
         status = True
-        self.dc.info()
         with open(df) as dockerfile:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
             LOG.debug("Generating %s from %s" % (tag, df))
@@ -72,25 +71,28 @@ class DockerManager:
     def download_image(self, tag):
         status = True
         LOG.debug("Downloading image %s" % tag)
-        resp = self.dc.pull(tag)
-        if "error" in resp.lower():
+        try:
+            self.dc.pull(tag)
+        except Exception as e:
             status = False
-        LOG.debug(resp)
+            import traceback
+            traceback.print_exc()
         return status
 
     def prepare_image(self, tag):
-        status = False
+        status = True
         LOG.debug("Preparing Image %s" % tag)
-        if tag not in [t['RepoTags'][0] for t in self.dc.images()]:
-            status = self.download_image(tag)
+        available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
+        if tag not in available_images:
+            df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
+            status = self.generate_image(df)
             if not status:
-                df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
-                status = self.generate_image(df)
+                status = self.download_image(tag)
         return status
 
     def run_container(self, image_name):
         """Run and start a container based on the given image
-        :param image: image to run
+        :param image_name: image to run
         :return:
         """
         contname = "{}-validate".format(image_name).replace("/", "_")

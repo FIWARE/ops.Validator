@@ -13,14 +13,22 @@
 #  under the License.
 
 import os
+import shutil
 from oslo_log import log as logging
+from oslo_config import cfg
 
 LOG = logging.getLogger(__name__)
+opts = [
+    cfg.StrOpt('path'),
+]
+CONF = cfg.CONF
+CONF.register_opts(opts, group="clients_storage")
 
 
 class LocalStorage:
 
-    def __init__(self, path="/tmp/cookbooks"):
+    def __init__(self, path=None):
+        path = path or CONF.clients_storage.path
         self.path = os.path.abspath(path)
 
     def list_cookbooks(self):
@@ -59,7 +67,7 @@ class LocalStorage:
         :param cb: directory name
         :return: test result
         """
-        logging.info("checking %s" % cb)
+        LOG.info("checking %s" % cb)
         check = False
         # check if the item is a directory
         cb_path = os.path.join(self.path, cb)
@@ -67,9 +75,9 @@ class LocalStorage:
             # check if the item has a recipes directory
             if os.path.isdir(os.path.join(cb_path, "recipes")):
                 check = True
-                logging.debug("Cookbook found: %s" % cb)
+                LOG.debug("Cookbook found: %s" % cb)
         if not check:
-            logging.debug("Not a cookbook: %s" % cb)
+            LOG.debug("Not a cookbook: %s" % cb)
         return check
 
     def check_puppet_module(self, cb):
@@ -78,7 +86,7 @@ class LocalStorage:
         :param cb: directory name
         :return: test result
         """
-        logging.info("checking %s" % cb)
+        LOG.info("checking %s" % cb)
         check = False
         # check if the item is a directory
         cb_path = os.path.join(self.path, cb)
@@ -86,13 +94,12 @@ class LocalStorage:
             # check if the item has a manifest directory
             if os.path.isdir(os.path.join(cb_path, "manifest")):
                 check = True
-                logging.debug("Module found: %s" % cb)
+                LOG.debug("Module found: %s" % cb)
         if not check:
-            logging.debug("Not a module: %s" % cb)
+            LOG.debug("Not a module: %s" % cb)
         return check
-
-if __name__ == '__main__':
-    import sys
-    logging.basicConfig(level=logging.DEBUG)
-    c = LocalStorage(path=sys.argv[1])
-    print c.list_cookbooks()
+    
+    def reset(self):
+        if os.path.exists(self.path):
+            shutil.rmtree(self.path)
+            os.mkdir(self.path)

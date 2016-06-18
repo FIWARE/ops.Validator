@@ -13,9 +13,10 @@ define(function (require) {
         template: '',
         events: {
             "click .remove-btn": "delete"
-          },
+        },
         initialize: function () {
-            this.template = _.template('<td><%=image%></td><td><%=cookbook%></td><td><%=recipe%></td><td><button class="remove-btn">Remove</button></td>');
+            this.template = _.template('<td><%=image_name%></td><td><%=cookbook%></td><td><%=recipe_name%></td><td><button class="remove-btn">Remove</button></td>');
+            //this.model.bind('change', this.render, this);
             this.render();
         },
 
@@ -23,7 +24,7 @@ define(function (require) {
             this.$el.html(this.template(this.model.attributes));
             return this;
         },
-        delete: function(){
+        delete: function () {
             console.log("Removing item");
             this.remove();
             this.model.trigger('destroy', this.model, Deployment.collection, {});

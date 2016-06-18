@@ -181,6 +181,12 @@ class User(models.AbstractBaseUser, models.AnonymousUser):
 
     """
 
+    def get_full_name(self):
+        pass
+
+    def get_short_name(self):
+        pass
+
     keystone_user_id = db_models.CharField(primary_key=True, max_length=255)
     USERNAME_FIELD = 'keystone_user_id'
 

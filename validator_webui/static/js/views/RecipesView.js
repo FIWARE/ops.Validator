@@ -26,11 +26,13 @@ define(function (require) {
             if (!this.collection.length) {
                 this.$el.html("<option>No Recipes Available</option>");
             } else {
-            this.collection.sort();
-            this.$el.html("");
-            this.collection.each(function (recipe) {
-                this.$el.append(new RecipeView({model: recipe}).el);
-            }, this);
+                this.collection.sort();
+                this.$el.empty();
+                var container = document.createDocumentFragment();
+                this.collection.each(function (rec) {
+                    container.appendChild(new RecipeView({model: rec}).el);
+                });
+                this.$el.append(container);
             }
             return this;
         },
@@ -39,15 +41,17 @@ define(function (require) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
             this.collection.deselectAll();
-            id.forEach(function(i){
+            id.forEach(function (i) {
                 this.collection.select(this.collection.get(i));
             }, this);
-        },
+        }
+        ,
 
         chooseRecipes: function (cbs) {
             var ids = _.pluck(cbs, "id");
             this.collection.reset(this.master.by_cb(ids));
-        },
+        }
+        ,
 
 
     });

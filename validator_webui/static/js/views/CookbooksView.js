@@ -27,11 +27,12 @@ define(function (require) {
                 this.$el.html("<option>No Cookbooks available</option>");
             } else {
                 this.collection.sort();
-                this.$el.html("");
+                this.$el.empty();
+                var container = document.createDocumentFragment();
                 this.collection.each(function (cb) {
-                    this.$el.append(new CookbookView({model: cb}).el);
+                    container.appendChild(new CookbookView({model: cb}).el);
                 }, this);
-
+                this.$el.append(container);
             }
             return this;
         },
@@ -48,7 +49,7 @@ define(function (require) {
         chooseCookbooks: function (images) {
             var systems = _.pluck(_.pluck(images, "attributes"), "system");
             this.collection.reset(this.master.by_system(systems));
-            
+
         },
 
     });

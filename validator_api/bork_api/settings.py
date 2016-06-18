@@ -12,17 +12,15 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 from oslo_config import cfg
-#from oslo_log import log as logging
-import logging
+from oslo_log import log as logging
 from common import config
 
 APPNAME = "bork_api"
 CONF = cfg.CONF
-#logging.register_options(CONF)
+logging.register_options(CONF)
 config.setup_config(APPNAME)
-logging.getLogger(__name__)
-logging.basicConfig(level=logging.DEBUG)
-#logging.setup(CONF, APPNAME)
+logging.setup(CONF, APPNAME)
+LOG = logging.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -153,15 +151,11 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
 }
-
-LOCAL_STORAGE = "/tmp/cookbooks"
-
-DOCKER_URL = "tcp://127.0.0.1:2375"
 
 # CORS SUPPORT
 CORS_ORIGIN_ALLOW_ALL = True
