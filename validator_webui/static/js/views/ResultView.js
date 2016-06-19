@@ -16,8 +16,8 @@ define(function (require) {
             '<td><%=cookbook%></td>' +
             '<td><%=recipe_name%></td>' +
             '<td><%=launch_link%></td>' +
-            '<td><%=syntax_link%></td>' +
             '<td><%=dependencies_link%></td>' +
+            '<td><%=syntax_link%></td>' +
             '<td><%=deploy_link%></td>' +
             '<td><%=ok_link%></td>'
         ),
@@ -39,8 +39,8 @@ define(function (require) {
 
         render: function () {
             this.clean_view("launch");
-            this.clean_view("dependencies");
             this.clean_view("syntax");
+            this.clean_view("dependencies");
             this.clean_view("deploy");
             this.clean_view("ok");
             this.$el.html(this.template(this.model.attributes));

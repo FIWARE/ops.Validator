@@ -11,16 +11,15 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from oslo_config import cfg
-from oslo_log import log as logging
-from common import config
-
+from common import config, log
+from common import log
 APPNAME = "bork_api"
-CONF = cfg.CONF
-logging.register_options(CONF)
+
 config.setup_config(APPNAME)
-logging.setup(CONF, APPNAME)
-LOG = logging.getLogger(__name__)
+log.setup(APPNAME)
+
+CONF = config.CONF
+LOG = log.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,7 +31,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '6yj2&xqtb2-o^(!pi^44#2yl1%9-)nkg7zjq1%0+s#1vs&-5vs'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONF.debug
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '130.206.116.166']
 

@@ -31,7 +31,7 @@ class ImageViewSet(viewsets.ModelViewSet):
         """
         LOG.info("Refreshing image db")
         images_cleanup()
-        for s in DockerManager().list_systems():
+        for s in DockerManager().list_images():
             instance = Image()
             instance.name = s['name']
             instance.version = s['version']
@@ -108,9 +108,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
-        """
-        Deploys the given recipe
-        """
+        """ Generates db deployment object """
         d = Deployment()
         s = DeploymentSerializer(d)
         image = request.data['image'].lower()
@@ -120,7 +118,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
-        # Prepare image
+        # Detect image
         if ":" in image:
             image_name, image_version = image.split(":")
             try:
@@ -131,7 +129,6 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             except Image.MultipleObjectsReturned:
                 return Response({'detail': 'Multiple images found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
         try:
-
             i = Image.objects.get(tag=image_tag)
         except Image.DoesNotExist:
             return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
@@ -142,6 +139,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['put', 'get'])
     def launch(self, request, pk=None):
+        """Ensures launch image is ready for use"""
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
         d.launch = DockerManager().prepare_image(d.image.tag)
@@ -150,45 +148,48 @@ class DeploymentViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['put', 'get'])
     def dependencies(self, request, pk=None):
+        """Install package and dependencies"""
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        if "chef" == d.system.name:
+        if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_install(d.cookbook.name)
+            res = cc.run_install(d.recipe.cookbook.name)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
-        elif "puppet" == d.system.name:
+        elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_install(d.cookbook.name)
+            res = pc.run_install(d.recipe.cookbook.name)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])
     def syntax(self, request, pk=None):
+        """ Syntax checks package """
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        if "chef" == d.system.name:
+        if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_test(d.cookbook.name)
+            res = cc.run_test(d.recipe.cookbook.name)
             d.syntax, d.syntax_log = (res['success'], res['result'])
-        elif "puppet" == d.system.name:
+        elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_test(d.cookbook.name)
+            res = pc.run_test(d.recipe.cookbook.name)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])
     def deploy(self, request, pk=None):
+        """ Deploys package"""
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        if "chef" == d.system.name:
+        if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_deploy(d.cookbook.name)
+            res = cc.run_deploy(d.recipe.name)
             d.deployment, d.deployment_log = (res['success'], res['result'])
-        elif "puppet" == d.system.name:
+        elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_deploy(d.cookbook.name)
+            res = pc.run_deploy(d.recipe.name)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -197,11 +198,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
     def full_deploy(self, request, pk=None):
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        if "chef" == d.system.name:
-            res = ChefClient().cookbook_deployment_test(d.cookbook.name, d.recipe.name, d.image.tag)
+        if "chef" == d.recipe.system:
+            res = ChefClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
-        elif "puppet" == d.system.name:
-            res = PuppetClient().cookbook_deployment_test(d.cookbook.name, d.recipe.name, d.image.tag)
+        elif "puppet" == d.recipe.system:
+            res = PuppetClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
         d.save()
         return Response(s.data)

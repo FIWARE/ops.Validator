@@ -22,9 +22,13 @@ from bork_api.common.i18n import _LW, _LE, _
 LOG = logging.getLogger(__name__)
 
 opts = [
-    cfg.StrOpt('url'),
-    cfg.StrOpt('image'),
+    cfg.StrOpt('cmd_install', default='knife cookbook site install {}'),
+    cfg.StrOpt('cmd_config', default='{"run_list": [ "recipe[%s]"]}'),
+    cfg.StrOpt('cmd_inject', default="echo '{}' >/etc/chef/solo.json"),
+    cfg.StrOpt('cmd_syntax', default='knife cookbook test {}'),
+    cfg.StrOpt('cmd_deploy', default='chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json'),
 ]
+
 CONF = cfg.CONF
 CONF.register_opts(opts, group="clients_chef")
 
@@ -34,14 +38,9 @@ class ChefClient(object):
     Wrapper for Docker client
     """
 
-    def __init__(self, url=CONF.clients_docker.url):
-        self._url = url
+    def __init__(self):
         self.container = None
-        try:
-            self.dc = DockerManager(url=self._url)
-        except DockerException as e:
-            LOG.error(_LE("Docker client error: %s") % e)
-            raise e
+        self.dc = DockerManager()
 
     def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
         """
@@ -89,8 +88,8 @@ class ChefClient(object):
         """
         try:
             # launch execution
-            cmd_launch = CONF.clients_chef.cmd_launch
-            resp_launch = self.dc.execute_command(cmd_launch)
+            cmd_deploy = CONF.clients_chef.cmd_deploy
+            resp_launch = self.dc.execute_command(cmd_deploy)
             msg = {
                 'success': True,
                 'response': resp_launch
@@ -110,8 +109,8 @@ class ChefClient(object):
         :return msg: dictionary with results and state
         """
         try:
-            cmd_test = CONF.clients_chef.cmd_test.format(cookbook)
-            resp_test = self.dc.execute_command(cmd_test)
+            cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
+            resp_test = self.dc.execute_command(cmd_syntax)
             msg = {
                 'success': True,
                 'response': resp_test

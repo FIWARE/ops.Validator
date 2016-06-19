@@ -29,28 +29,13 @@ define(function (require) {
                 async: true,
                 success: function (model, response) {
                     self.set('launch', model.launch);
-                    self.syntax();
+                    self.dependencies();
                 },
                 error: function (model, response) {
                     self.set('launch', 'ERROR')
                 }
             });
             return this;
-        },
-        syntax: function () {
-            var self = this;
-            console.log("Syntax Checking for " + this.get("recipe_name"));
-            var resp = Backbone.sync("syntax", self, {
-                type: 'PUT', url: this.url() + "/syntax/", async: true,
-                success: function (model, response) {
-                    self.set('syntax', model.get('syntax'));
-                    self.dependencies();
-                },
-                error: function (model, response) {
-                    self.set('syntax', 'ERROR');
-                    self.dependencies();
-                }
-            });
         },
         dependencies: function () {
             var self = this;
@@ -61,10 +46,25 @@ define(function (require) {
                 async: true,
                 success: function (model, response) {
                     self.set('dependencies', model.get('dependencies'));
-                    self.deploy();
+                    self.syntax();
                 },
                 error: function (model, response) {
                     self.set('dependencies', 'ERROR');
+                    self.syntax();
+                }
+            });
+        },
+        syntax: function () {
+            var self = this;
+            console.log("Syntax Checking for " + this.get("recipe_name"));
+            var resp = Backbone.sync("syntax", self, {
+                type: 'PUT', url: this.url() + "/syntax/", async: true,
+                success: function (model, response) {
+                    self.set('syntax', model.get('syntax'));
+                    self.deploy();
+                },
+                error: function (model, response) {
+                    self.set('syntax', 'ERROR');
                     self.deploy();
                 }
             });

@@ -28,7 +28,7 @@ class DockerManager:
         self.dockerfile_path = path or CONF.clients_docker.build_dir
         self.dc = DC(base_url=self._url)
 
-    def list_systems(self):
+    def list_images(self):
         """
         List current supported systems
         :return:
@@ -54,12 +54,7 @@ class DockerManager:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
             LOG.debug("Generating %s from %s" % (tag, df))
         if tag:
-            resp = self.dc.build(
-                path=CONF.clients_docker.build_dir,
-                dockerfile=df,
-                rm=True,
-                tag=tag
-            )
+            resp = self.dc.build(path=CONF.clients_docker.build_dir, dockerfile=df, rm=True, tag=tag)
             for l in resp:
                 if "error" in l.lower():
                     status = False
@@ -84,10 +79,11 @@ class DockerManager:
         LOG.debug("Preparing Image %s" % tag)
         available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
         if tag not in available_images:
-            df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
+            df = [d['dockerfile'] for d in self.list_images() if d['tag'] == tag][0]
             status = self.generate_image(df)
             if not status:
                 status = self.download_image(tag)
+
         return status
 
     def run_container(self, image_name):
@@ -97,11 +93,7 @@ class DockerManager:
         """
         contname = "{}-validate".format(image_name).replace("/", "_")
         try:
-            try:
-                self.dc.remove_container(contname, force=True)
-                LOG.info(_LI('Removing old %s container' % contname))
-            except NotFound:
-                pass
+            self.dc.remove_container(contname, kill=True)
             self.container = self.dc.create_container(
                 image_name,
                 tty=True,
@@ -114,13 +106,15 @@ class DockerManager:
             LOG.error(_LW("Error creating container: %s" % e))
             raise DockerContainerException(image=image_name)
 
-    def remove_container(self, kill=True):
+    def remove_container(self, contname, kill=True):
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        self.dc.stop(self.container)
-        if kill:
-            self.dc.remove_container(self.container)
+        if self.container:
+            LOG.info(_LI('Removing old container %s' % contname))
+            self.dc.stop(self.container)
+            if kill:
+                self.dc.remove_container(self.container)
 
     def execute_command(self, command):
         """ Execute a command in the given container
