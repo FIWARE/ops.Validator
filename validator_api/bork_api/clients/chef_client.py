@@ -81,13 +81,14 @@ class ChefClient(object):
         self.dc.remove_container()
         return msg
 
-    def run_deploy(self, cookbook, recipe):
+    def run_deploy(self, cookbook, recipe, image):
         """ Run cookbook deployment
         :param cookbook: cookbook to deploy
         :return msg: dictionary with results and state
         """
         try:
             # launch execution
+            self.dc.container = self.dc.run_container(image)
             cmd_deploy = CONF.clients_chef.cmd_deploy
             resp_launch = self.dc.execute_command(cmd_deploy)
             msg = {
@@ -103,12 +104,13 @@ class ChefClient(object):
             raise CookbookDeploymentException(cookbook=cookbook)
         return msg
 
-    def run_test(self, cookbook):
+    def run_test(self, cookbook, image):
         """ Test cookbook syntax
         :param cookbook: cookbook to test
         :return msg: dictionary with results and state
         """
         try:
+            self.dc.container = self.dc.run_container(image)
             cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
             resp_test = self.dc.execute_command(cmd_syntax)
             msg = {
@@ -125,12 +127,13 @@ class ChefClient(object):
             raise CookbookSyntaxException(cookbook=cookbook)
         return msg
 
-    def run_install(self, cookbook):
+    def run_install(self, cookbook, image):
         """Run download and install command
         :param cookbook: cookbook to process
         :return msg: operation result
         """
         try:
+            self.dc.container = self.dc.run_container(image)
             cmd_install = CONF.clients_chef.cmd_install.format(cookbook)
             resp_install = self.dc.execute_command(cmd_install)
             msg = {

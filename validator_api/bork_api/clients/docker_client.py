@@ -34,7 +34,7 @@ class DockerManager:
         :return:
         """
         systems = []
-        LOG.debug("Searching supported systems in %s" % self.dockerfile_path)
+        LOG.info("Searching supported systems in %s" % self.dockerfile_path)
         for df in os.listdir(self.dockerfile_path):
             image_path = os.path.join(self.dockerfile_path, df)
             system = df.split("-")[0]
@@ -52,7 +52,7 @@ class DockerManager:
         status = True
         with open(df) as dockerfile:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
-            LOG.debug("Generating %s from %s" % (tag, df))
+            LOG.info("Generating %s from %s" % (tag, df))
         if tag:
             resp = self.dc.build(path=CONF.clients_docker.build_dir, dockerfile=df, rm=True, tag=tag)
             for l in resp:
@@ -65,9 +65,11 @@ class DockerManager:
 
     def download_image(self, tag):
         status = True
-        LOG.debug("Downloading image %s" % tag)
+        LOG.info("Downloading image %s" % tag)
         try:
-            self.dc.pull(tag)
+            res = self.dc.pull(tag)
+            for l in res:
+                LOG.debug(l)
         except Exception as e:
             status = False
             import traceback
@@ -76,14 +78,13 @@ class DockerManager:
 
     def prepare_image(self, tag):
         status = True
-        LOG.debug("Preparing Image %s" % tag)
+        LOG.info("Preparing Image %s" % tag)
         available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
         if tag not in available_images:
-            df = [d['dockerfile'] for d in self.list_images() if d['tag'] == tag][0]
-            status = self.generate_image(df)
+            status = self.download_image(tag)
             if not status:
-                status = self.download_image(tag)
-
+                df = [d['dockerfile'] for d in self.list_images() if d['tag'] == tag][0]
+                status = self.generate_image(df)
         return status
 
     def run_container(self, image_name):

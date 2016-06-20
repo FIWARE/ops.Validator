@@ -26,9 +26,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 
     @list_route()
     def refresh(self, request=None):
-        """
-        Update image list from local configuration
-        """
+        """ Update image list from local configuration """
         LOG.info("Refreshing image db")
         images_cleanup()
         for s in DockerManager().list_images():
@@ -42,13 +40,11 @@ class ImageViewSet(viewsets.ModelViewSet):
         return self.list(None)
 
     @list_route()
-    def generate(self, request):
-        """
-        Update image list from local configuration
-        """
+    def generate(self, request=None):
+        """ Generate images from local configuration """
         from clients.docker_client import DockerManager
         for s in Image.objects.all():
-            DockerManager().generate_image(s.dockerfile)
+            DockerManager().prepare_image(s.tag)
         return self.list(None)
 
 
@@ -153,11 +149,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_install(d.recipe.cookbook.name)
+            res = cc.run_install(d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_install(d.recipe.cookbook.name)
+            res = pc.run_install(d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -169,11 +165,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_test(d.recipe.cookbook.name)
+            res = cc.run_test(d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_test(d.recipe.cookbook.name)
+            res = pc.run_test(d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -185,11 +181,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_deploy(d.recipe.name)
+            res = cc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_deploy(d.recipe.name)
+            res = pc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
