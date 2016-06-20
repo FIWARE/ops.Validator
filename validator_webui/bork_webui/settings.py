@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'idm_auth',
     'bork_webui'
 ]
 
@@ -50,7 +49,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'validator_api.middleware.KeystoneAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'bork_webui.urls'
@@ -124,8 +122,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
-
-# Keystone Auth
-OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
-
-AUTHENTICATION_BACKENDS = ('openstack_auth.backend.KeystoneBackend',)
