@@ -132,7 +132,7 @@ log_opts = [
                        '%(instance)s%(message)s',
                help='Format string to use for log messages with context.'),
     cfg.StrOpt('logging_default_format_string',
-               default='%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+               default='%(color)s%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
                        '%(name)s [-] %(instance)s%(message)s',
                help='Format string to use for log messages without context.'),
     cfg.StrOpt('logging_debug_format_suffix',

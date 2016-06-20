@@ -23,30 +23,24 @@ from bork_api.common.exception import CookbookSyntaxException, \
 from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
-LOG = logging
+
 opts = [
-    cfg.StrOpt('cmd_install'),
-    cfg.StrOpt('cmd_config'),
-    cfg.StrOpt('cmd_inject'),
-    cfg.StrOpt('cmd_test'),
-    cfg.StrOpt('cmd_launch')
+    cfg.StrOpt('cmd_install', default='puppet module install {}'),
+    cfg.StrOpt('cmd_syntax', default='puppet parser validate {}'),
+    cfg.StrOpt('cmd_deploy', default='puppet apply --modulepath=./modules -e "class { \'%s\':}" --debug'),
 ]
 CONF = cfg.CONF
 CONF.register_opts(opts, group="clients_puppet")
+
 
 class PuppetClient(object):
     """
     Wrapper for Docker client
     """
 
-    def __init__(self, url=CONF.clients_docker.url):
-        self._url = url
+    def __init__(self):
         self.container = None
-        try:
-            self.dc = DockerManager(url=self._url)
-        except DockerException as e:
-            LOG.error(_LE("Docker client error: %s") % e)
-            raise e
+        self.dc = DockerManager()
 
     def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
         """
@@ -56,7 +50,7 @@ class PuppetClient(object):
         :param image: image to deploy to
         :return: dictionary with results
         """
-        LOG.debug("Sending cookbook to docker server in %s" % self._url)
+        LOG.debug("Sending cookbook to docker server at %s" % self.dc._url)
         b_success = True
         msg = {}
         self.dc.run_container(image)
@@ -87,56 +81,13 @@ class PuppetClient(object):
         self.dc.remove_container()
         return msg
 
-    def run_deploy(self, cookbook):
-        """ Run cookbook deployment
-        :param cookbook: cookbook to deploy
-        :return msg: dictionary with results and state
-        """
-        try:
-            # launch execution
-            cmd_launch = CONF.clients_puppet.cmd_launch
-            resp_launch = self.dc.execute_command(cmd_launch)
-            msg = {
-                'success': True,
-                'response': resp_launch
-            }
-            LOG.debug(_("Launch result: %s") % resp_launch)
-            if resp_launch is None or "FATAL" in resp_launch:
-                msg['success'] = False
-        except Exception as e:
-            self.dc.remove_container(self.container)
-            LOG.error(_LW("Cookbook deployment exception %s" % e))
-            raise CookbookDeploymentException(cookbook=cookbook)
-        return msg
-
-    def run_test(self, cookbook):
-        """ Test cookbook syntax
-        :param cookbook: cookbook to test
-        :return msg: dictionary with results and state
-        """
-        try:
-            cmd_test = CONF.clients_puppet.cmd_test.format(cookbook)
-            resp_test = self.dc.execute_command(cmd_test)
-            msg = {
-                'success': True,
-                'response': resp_test
-            }
-            for line in resp_test.splitlines():
-                if "ERROR" in line:
-                    msg['success'] = False
-            LOG.debug(_("Test result: %s") % resp_test)
-        except Exception as e:
-            self.dc.remove_container(self.container)
-            LOG.error(_LW("Cookbook syntax exception %s" % e))
-            raise CookbookSyntaxException(cookbook=cookbook)
-        return msg
-
-    def run_install(self, cookbook):
+    def run_install(self, cookbook, image):
         """Run download and install command
         :param cookbook: cookbook to process
         :return msg: operation result
         """
         try:
+            self.dc.container = self.dc.run_container(image)
             cmd_install = CONF.clients_puppet.cmd_install.format(cookbook)
             resp_install = self.dc.execute_command(cmd_install)
             msg = {
@@ -151,4 +102,50 @@ class PuppetClient(object):
             self.dc.remove_container(self.container)
             LOG.error(_LW("Chef install exception: %s" % e))
             raise CookbookInstallException(cookbook=cookbook)
+        return msg
+
+    def run_test(self, cookbook, image):
+        """ Test cookbook syntax
+        :param cookbook: cookbook to test
+        :return msg: dictionary with results and state
+        """
+        try:
+            self.dc.container = self.dc.run_container(image)
+            cmd_syntax = CONF.clients_puppet.cmd_syntax.format(cookbook)
+            resp_test = self.dc.execute_command(cmd_syntax)
+            msg = {
+                'success': True,
+                'response': resp_test
+            }
+            for line in resp_test.splitlines():
+                if "ERROR" in line:
+                    msg['success'] = False
+            LOG.debug(_("Test result: %s") % resp_test)
+        except Exception as e:
+            self.dc.remove_container(self.container)
+            LOG.error(_LW("Cookbook syntax exception %s" % e))
+            raise CookbookSyntaxException(cookbook=cookbook)
+        return msg
+
+    def run_deploy(self, cookbook, recipe, image):
+        """ Run cookbook deployment
+        :param cookbook: cookbook to deploy
+        :return msg: dictionary with results and state
+        """
+        try:
+            # launch execution
+            self.dc.container = self.dc.run_container(image)
+            cmd_deploy = CONF.clients_puppet.cmd_deploy
+            resp_launch = self.dc.execute_command(cmd_deploy)
+            msg = {
+                'success': True,
+                'response': resp_launch
+            }
+            LOG.debug(_("Launch result: %s") % resp_launch)
+            if resp_launch is None or "FATAL" in resp_launch:
+                msg['success'] = False
+        except Exception as e:
+            self.dc.remove_container(self.container)
+            LOG.error(_LW("Cookbook deployment exception %s" % e))
+            raise CookbookDeploymentException(cookbook=cookbook)
         return msg

@@ -9,16 +9,15 @@ define(function (require) {
         Cookbook = require('models/CookbookModel'),
         basicauth = require('bbbasicauth'),
         bbsel = require('bbselect');
-    var $ = require("jquery");
 
     return Backbone.Collection.extend({
         url: config.api_url + '/cookbooks/',
         model: Cookbook,
         sort_key: 'name',
         initialize: function (credentials, models, options) {
-            if (credentials) {
-            this.get_remote(credentials);
-                }
+            if (credentials && !!credentials.username && !!credentials.password) {
+                this.get_remote(credentials);
+            }
             Backbone.Select.Many.applyTo(this, models, options);
         },
 
@@ -27,11 +26,14 @@ define(function (require) {
             this.credentials = credentials;
             this.fetch({reset: true});
         },
-        comparator: function(item) {
-                return item.get(this.sort_key);
-            },
+        comparator: function (item) {
+            return item.get(this.sort_key);
+        },
         refresh: function (credentials) {
             this.credentials = credentials;
+            console.log("Refreshing remote images");
+            this.url = config.api_url + '/images/refresh/';
+            this.fetch();
             console.log("Refreshing remote cookbooks");
             this.url = config.api_url + '/cookbooks/refresh/';
             this.fetch();

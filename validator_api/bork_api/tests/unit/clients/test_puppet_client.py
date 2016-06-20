@@ -33,7 +33,7 @@ class DockerClientTestCase(tb.ValidatorTestCase):
         super(DockerClientTestCase, self).setUp()
         self.client = PuppetClient()
         CONF.set_override(
-            'cmd_test',
+            'cmd_syntax',
             "knife cookbook test {cookbook_name}",
             group='clients_chef')
         CONF.set_override(
@@ -41,7 +41,7 @@ class DockerClientTestCase(tb.ValidatorTestCase):
             " knife cookbook site install {cookbook_name}",
             group='clients_chef')
         CONF.set_override('cmd_inject', "cmdinject {}", group='clients_chef')
-        CONF.set_override('cmd_launch', "cmdlaunch {}", group='clients_chef')
+        CONF.set_override('cmd_deploy', "cmdlaunch {}", group='clients_chef')
 
     def test_create_client(self):
         """Test client creation"""

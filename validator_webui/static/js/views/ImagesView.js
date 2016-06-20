@@ -16,15 +16,21 @@ define(function (require) {
 
         initialize: function () {
             this.collection.bind('reset', this.render, this);
-            //this.listenTo(this.collection, 'reset', this.render);
         },
 
         render: function () {
             console.log("Rendering Images...");
-            this.collection.sort();
-            this.collection.each(function (image) {
-                this.$el.append(new ImageView({model: image}).el);
-            }, this);
+            if (!this.collection.length) {
+                this.$el.html("<option>No Images Available</option>");
+            } else {
+                this.collection.sort();
+                this.$el.empty();
+                var container = document.createDocumentFragment();
+                this.collection.each(function (image) {
+                    container.appendChild(new ImageView({model: image}).el);
+                }, this);
+                this.$el.append(container);
+            }
             return this;
         },
 
@@ -32,7 +38,7 @@ define(function (require) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
             this.collection.deselectAll();
-            id.forEach(function(i){
+            id.forEach(function (i) {
                 this.collection.get(i).select();
             }, this);
             Backbone.trigger('EV_ImageSelected', this.collection.selected);

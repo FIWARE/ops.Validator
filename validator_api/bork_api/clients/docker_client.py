@@ -2,21 +2,20 @@
 """
 Dockerfile Management
 """
-import logging
 import os
 import re
 
 from docker import Client as DC
 from docker.errors import NotFound
 from oslo_config import cfg
-
+from oslo_log import log as logging
 from bork_api.common.i18n import _LW, _LI
 from bork_api.common.exception import DockerContainerException
 
 CONF = cfg.CONF
 CONF.register_opt(cfg.StrOpt('url', default="tcp://127.0.0.1:2375"), group="clients_docker")
-LOG = logging.getLogger()
-logging.basicConfig(level=logging.DEBUG)
+CONF.register_opt(cfg.StrOpt('build_dir', default="/etc/bork"), group="clients_docker")
+LOG = logging.getLogger(__name__)
 
 
 class DockerManager:
@@ -24,18 +23,18 @@ class DockerManager:
     Docker Manager Object Model
     """
 
-    def __init__(self, path="/etc/bork", url=CONF.clients_docker.url):
-        self._url = url
-        self.dockerfile_path = path
+    def __init__(self, path=None, url=None):
+        self._url = url or CONF.clients_docker.url
+        self.dockerfile_path = path or CONF.clients_docker.build_dir
         self.dc = DC(base_url=self._url)
 
-    def list_systems(self):
+    def list_images(self):
         """
         List current supported systems
         :return:
         """
         systems = []
-        LOG.debug("Searching supported systems in %s" % self.dockerfile_path)
+        LOG.info("Searching supported systems in %s" % self.dockerfile_path)
         for df in os.listdir(self.dockerfile_path):
             image_path = os.path.join(self.dockerfile_path, df)
             system = df.split("-")[0]
@@ -50,79 +49,73 @@ class DockerManager:
 
     def generate_image(self, df):
         """generate docker image"""
-        status = False
-
-        self.dc.info()
+        status = True
         with open(df) as dockerfile:
             tag = re.findall("(?im)^# tag: (.*)$", dockerfile.read())[0].strip()
-            LOG.debug("Generating %s from %s" % (tag, df))
+            LOG.info("Generating %s from %s" % (tag, df))
         if tag:
-            resp = self.dc.build(
-                path=CONF.config_dir,
-                dockerfile=df,
-                rm=True,
-                tag=tag
-            )
+            resp = self.dc.build(path=CONF.clients_docker.build_dir, dockerfile=df, rm=True, tag=tag)
             for l in resp:
                 if "error" in l.lower():
                     status = False
                 LOG.debug(l)
+        else:
+            status = False
         return status
 
     def download_image(self, tag):
         status = True
-        LOG.debug("Downloading %s" % tag)
-        resp = self.dc.pull(tag)
-        for l in resp:
-            if "error" in l.lower():
-                status = False
-            LOG.debug(l)
+        LOG.info("Downloading image %s" % tag)
+        try:
+            res = self.dc.pull(tag)
+            for l in res:
+                LOG.debug(l)
+        except Exception as e:
+            status = False
+            import traceback
+            traceback.print_exc()
         return status
 
     def prepare_image(self, tag):
         status = True
-        if tag not in [t.tag for t in self.dc.images()]:
-            df = [d['dockerfile'] for d in self.list_systems() if d['tag'] == tag][0]
-            status = self.generate_image(df)
-        if not status:
+        LOG.info("Preparing Image %s" % tag)
+        available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
+        if tag not in available_images:
             status = self.download_image(tag)
+            if not status:
+                df = [d['dockerfile'] for d in self.list_images() if d['tag'] == tag][0]
+                status = self.generate_image(df)
         return status
 
-    def run_container(self, image_tag):
+    def run_container(self, image_name):
         """Run and start a container based on the given image
-        :param image: image to run
+        :param image_name: image to run
         :return:
         """
-        contname = "{}-validate".format(image_tag).replace("/", "_")
+        contname = "{}-validate".format(image_name).replace("/", "_")
         try:
-            try:
-                self.dc.remove_container(contname, force=True)
-                LOG.info(_LI('Removing old %s container' % contname))
-            except NotFound:
-                pass
+            self.dc.remove_container(contname, kill=True)
             self.container = self.dc.create_container(
-                image_tag,
+                image_name,
                 tty=True,
                 name=contname
             ).get('Id')
             self.dc.start(container=self.container)
         except NotFound as e:
-            try:
-                self.prepare_image(image_tag)
-            except Exception as e:
-                LOG.error(_LW("Image deployment error: %s" % e))
-                raise DockerContainerException(image=image_tag)
+            LOG.error(_LW("Image not found: %s" % image_name))
         except AttributeError as e:
             LOG.error(_LW("Error creating container: %s" % e))
-            raise DockerContainerException(image=image_tag)
+            raise DockerContainerException(image=image_name)
 
-    def remove_container(self, kill=True):
+    def remove_container(self, contname, kill=True):
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        self.dc.stop(self.container)
-        if kill:
-            self.dc.remove_container(self.container)
+        if self.container:
+            LOG.info(_LI('Removing old container %s' % contname))
+            self.dc.stop(self.container)
+            if kill:
+                self.dc.remove_container(self.container)
 
     def execute_command(self, command):
         """ Execute a command in the given container

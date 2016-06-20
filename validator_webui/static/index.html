@@ -9,12 +9,12 @@
 <body id="validator_app">
 <header id="header">
 <h1>Automated Recipe Validation</h1>
-    <h2>Login <button id="button_refresh">Refresh Remote Cookbooks</button></h2>
+    <h2>Login</h2>
 <p>Enter user and pass for validator API</p>
 <p>
-  Username: <input type="text" id="username" value="pmverdugo@dit.upm.es"><br>
-  Password: <input type="password" id="password" value="fiwarelabF0rtun4"><br>
-
+  Username: <input type="text" id="username" value=""><br>
+  Password: <input type="password" id="password" value=""><br>
+    <button id="button_refresh_local">Refresh Local Artifacts</button> <button id="button_refresh_remote">Refresh Remote Artifacts</button>
 </p>
 </header>
 <section id="selections">
@@ -30,7 +30,9 @@
 <tbody>
 <tr>
     <td>
-        <select multiple id="sel_images"></select>
+        <select multiple id="sel_images">
+            <option>No Images Available</option>
+        </select>
     </td>
     <td>
         <select multiple id="sel_cookbooks">
@@ -50,9 +52,7 @@
             </table>
 </section>
 <section id="deployments">
-    <h2>Deployments
-    <button id="button_run">Run</button>
-    </h2>
+    <h2>Deployments</h2>
     <p>List of deployments to run</p>
     <table>
         <thead>
@@ -62,23 +62,26 @@
         <th>Action</th>
         </thead>
         <tbody id="table_deployments">
-
+<tr>
+    <td>No Image Selected</td>
+    <td>No Cookbook Selected</td>
+    <td>No Recipe Selected</td>
+    <td></td>
+</tr>
         </tbody>
     </table>
+    <button id="button_run">Run All</button>
 </section>
 <section id="results">
-<h2>Results
-    <button>Export All</button>
-    <button>Export Selected</button>
-    <button>Unselect All</button>
-</h2>
+<h2>Results</h2>
 <p>Export results to json or open log file in new tab</p>
 <table>
     <thead>
     <tr>
-        <th>Selected</th>
-        <th>System</th>
-        <th>Cookbooks</th>
+        <th>Image</th>
+        <th>Cookbook</th>
+        <th>Recipe</th>
+        <th>Launch</th>
         <th>Dependencies</th>
         <th>Syntax</th>
         <th>Deployment</th>
@@ -86,33 +89,14 @@
     </tr>
     </thead>
     <tbody id="table_results">
-    <tr>
-        <td><input type="checkbox"></input></td>
-        <td>Ubuntu 14.04</td>
-        <td>TestCbook1</td>
-        <td><a href="#">OK</a></td>
-        <td><a href="#">OK</a></td>
-        <td><a href="#">Fail</a></td>
-        <td><a href="#">Log</a></td>
-    </tr>
-    <tr>
-        <td><input type="checkbox"></input></td>
-        <td>Ubuntu 12.04</td>
-        <td>TestCbook2</td>
-        <td><a href="#">OK</a></td>
-        <td><a href="#">Fail</a></td>
-        <td><a href="#">Processing</a></td>
-        <td><a href="#">Log</a></td>
-    </tr>
-    <tr>
-        <td><input type="checkbox"></input></td>
-        <td>CentOs 7</td>
-        <td>TestCbook3</td>
-        <td><a href="#">Queued</a></td>
-        <td><a href="#">Queued</a></td>
-        <td><a href="#">Queued</a></td>
-        <td><a href="#">Log</a></td>
-    </tr>
+    <td>No Image Selected</td>
+    <td>No Cookbook Selected</td>
+    <td>No Recipe Selected</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
+    <td>NA</td>
     </tbody>
 </table>
 </section>

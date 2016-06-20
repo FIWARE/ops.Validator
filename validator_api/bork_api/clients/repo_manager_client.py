@@ -13,8 +13,10 @@
 #  under the License.
 import os
 import shutil
-import logging
+from oslo_log import log as logging
 from git import Repo
+
+LOG = logging.getLogger(__name__)
 
 
 class RepoManager:

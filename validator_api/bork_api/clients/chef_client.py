@@ -13,21 +13,22 @@
 #  under the License.
 
 from docker.errors import DockerException
-import logging
 from oslo_config import cfg
-
+from oslo_log import log as logging
 from bork_api.clients.docker_client import DockerManager
 from bork_api.common.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
 from bork_api.common.i18n import _LW, _LE, _
 
-LOG = logging
+LOG = logging.getLogger(__name__)
+
 opts = [
-    cfg.StrOpt('cmd_install'),
-    cfg.StrOpt('cmd_config'),
-    cfg.StrOpt('cmd_inject'),
-    cfg.StrOpt('cmd_test'),
-    cfg.StrOpt('cmd_launch')
+    cfg.StrOpt('cmd_install', default='knife cookbook site install {}'),
+    cfg.StrOpt('cmd_config', default='{"run_list": [ "recipe[%s]"]}'),
+    cfg.StrOpt('cmd_inject', default="echo '{}' >/etc/chef/solo.json"),
+    cfg.StrOpt('cmd_syntax', default='knife cookbook test {}'),
+    cfg.StrOpt('cmd_deploy', default='chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json'),
 ]
+
 CONF = cfg.CONF
 CONF.register_opts(opts, group="clients_chef")
 
@@ -37,16 +38,11 @@ class ChefClient(object):
     Wrapper for Docker client
     """
 
-    def __init__(self, url=CONF.clients_docker.url):
-        self._url = url
+    def __init__(self):
         self.container = None
-        try:
-            self.dc = DockerManager(url=self._url)
-        except DockerException as e:
-            LOG.error(_LE("Docker client error: %s") % e)
-            raise e
+        self.dc = DockerManager()
 
-    def cookbook_deployment_test(self, cookbook, recipe='default.rb', image='default'):
+    def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
         """
         Try to process a cookbook and return results
         :param cookbook: cookbook to deploy
@@ -59,7 +55,7 @@ class ChefClient(object):
         msg = {}
         self.dc.run_container(image)
         # inject custom solo.json/solo.rb file
-        json_cont = CONF.clients_chef.cmd_config % recipe
+        json_cont = CONF.clients_chef.cmd_config % (cookbook, recipe)
         cmd_inject = CONF.clients_chef.cmd_inject.format(json_cont)
         self.dc.execute_command(cmd_inject)
 
@@ -67,7 +63,7 @@ class ChefClient(object):
         b_success &= msg['install']['success']
         msg['test'] = self.run_test(cookbook)
         b_success &= msg['test']['success']
-        msg['deploy'] = self.run_deploy(cookbook, recipe)
+        msg['deploy'] = self.run_deploy(cookbook)
         b_success &= msg['deploy']['success']
 
         # check execution output
@@ -85,15 +81,16 @@ class ChefClient(object):
         self.dc.remove_container()
         return msg
 
-    def run_deploy(self, cookbook, recipe):
+    def run_deploy(self, cookbook, recipe, image):
         """ Run cookbook deployment
         :param cookbook: cookbook to deploy
         :return msg: dictionary with results and state
         """
         try:
             # launch execution
-            cmd_launch = CONF.clients_chef.cmd_launch
-            resp_launch = self.dc.execute_command(cmd_launch)
+            self.dc.container = self.dc.run_container(image)
+            cmd_deploy = CONF.clients_chef.cmd_deploy
+            resp_launch = self.dc.execute_command(cmd_deploy)
             msg = {
                 'success': True,
                 'response': resp_launch
@@ -107,14 +104,15 @@ class ChefClient(object):
             raise CookbookDeploymentException(cookbook=cookbook)
         return msg
 
-    def run_test(self, cookbook):
+    def run_test(self, cookbook, image):
         """ Test cookbook syntax
         :param cookbook: cookbook to test
         :return msg: dictionary with results and state
         """
         try:
-            cmd_test = CONF.clients_chef.cmd_test.format(cookbook)
-            resp_test = self.dc.execute_command(cmd_test)
+            self.dc.container = self.dc.run_container(image)
+            cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
+            resp_test = self.dc.execute_command(cmd_syntax)
             msg = {
                 'success': True,
                 'response': resp_test
@@ -129,12 +127,13 @@ class ChefClient(object):
             raise CookbookSyntaxException(cookbook=cookbook)
         return msg
 
-    def run_install(self, cookbook):
+    def run_install(self, cookbook, image):
         """Run download and install command
         :param cookbook: cookbook to process
         :return msg: operation result
         """
         try:
+            self.dc.container = self.dc.run_container(image)
             cmd_install = CONF.clients_chef.cmd_install.format(cookbook)
             resp_install = self.dc.execute_command(cmd_install)
             msg = {

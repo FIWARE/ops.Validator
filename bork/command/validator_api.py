@@ -34,11 +34,11 @@ LOG = logging.getLogger()
 def main():
     """Launch validator API """
     try:
-
+        config_dir = "/etc/bork"
         app_name = os.path.splitext(os.path.basename(__file__))[0]
         # default path
         i18n.enable_lazy()
-        config_dir = "/etc/bork"
+
         config.parse_args()
         if 'config_dir' not in cfg.CONF:
             sys.argv.append('--config-dir=%s' % config_dir)

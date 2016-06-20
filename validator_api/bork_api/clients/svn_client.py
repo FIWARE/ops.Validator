@@ -2,8 +2,10 @@
 """
 Cookbook Repository Management
 """
-import logging
+from oslo_log import log as logging
 import svn.remote
+
+LOG = logging.getLogger(__name__)
 
 
 class SVNRepo:
@@ -19,7 +21,6 @@ class SVNRepo:
         :param url: url
         """
         self.r = svn.remote.RemoteClient(url, username=user, password=pwd)
-        import pprint; pprint.pprint(self.r.run_command("info", [self.r.url, "--trust-server-cert"]))
         self.version = self.get_version()
 
     def list_cookbooks(self, rp=None):
@@ -35,7 +36,7 @@ class SVNRepo:
 
     def check_cookbook(self, name):
         """check if the item is a cookbook"""
-        logging.info("checking %s" % name)
+        LOG.info("checking %s" % name)
         check = False
         # check if the item is a directory
         res = self.info(rel_path=name)
@@ -43,9 +44,9 @@ class SVNRepo:
             # check if the item has a recipes directory
             if "recipes/" in self.r.list(rel_path=name):
                 check = True
-                logging.debug("Cookbook found: %s" % name)
+                LOG.debug("Cookbook found: %s" % name)
         if not check:
-            logging.debug("Not a cookbook: %s" % name)
+            LOG.debug("Not a cookbook: %s" % name)
         return check
 
     def download_cookbooks(self, local_path='/tmp/cookbooks'):
@@ -65,12 +66,4 @@ class SVNRepo:
             if "Revision:" in l:
                 vers = l.split(":")[1].strip()
         return vers
-
-
-if __name__ == '__main__':
-    import sys
-    logging.basicConfig(level=logging.DEBUG)
-    c = SVNRepo(*sys.argv[1:])
-    print c.list_cookbooks()
-    c.download_cookbooks()
 

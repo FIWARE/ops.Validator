@@ -10,21 +10,24 @@ define(function (require) {
         Image = require('models/ImageModel'),
         basicauth = require('bbbasicauth'),
         bbsel = require('bbselect');
+    var $ = require("jquery");
 
     return Backbone.Collection.extend({
         url: config.api_url + '/images/',
         model: Image,
-        sort_key: 'name',
+        sort_key: 'system',
 
         initialize: function (credentials, models, options) {
-            this.get_remote(credentials);
+            if (credentials && !!credentials.username && !!credentials.password) {
+                this.get_remote(credentials);
+            }
             Backbone.Select.Many.applyTo(this, models, options);
         },
 
-        comparator: function(item) {
-                return item.get(this.sort_key);
-            },
-        
+        comparator: function (item) {
+            return item.get(this.sort_key);
+        },
+
         get_remote: function (credentials) {
             console.log("Fetching Images...");
             this.credentials = credentials;
