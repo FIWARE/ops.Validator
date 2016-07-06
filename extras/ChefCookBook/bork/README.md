@@ -1,7 +1,7 @@
 Description
 ===========
 
-Installs FIWARE Validator.
+Installs FI-ware Pep-Proxy.
 
 Requirements
 ============
@@ -22,3 +22,4 @@ With chef-solo:
     sudo chef-solo -c solo.rb -j node.json
 
 You can find a solo.rb and node.json samples at the root of the recipe.
+For the system to work the internal config.js must be properly filled.

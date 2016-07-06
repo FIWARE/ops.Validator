@@ -16,6 +16,8 @@ dist/
 downloads/
 eggs/
 .eggs/
+lib/
+lib64/
 parts/
 sdist/
 var/
@@ -52,6 +54,9 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# PyBuilder
+target/
+
 ### JetBrains template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion
 
@@ -61,7 +66,7 @@ docs/_build/
 .idea/
 
 # local configuration
-etc/bork/*.conf
+etc/chef_validator/*.conf
 
 # Runtime Built Documentation
 doc/make.bat
@@ -70,12 +75,3 @@ doc/build
 
 # Test Environment
 .testrepository
-
-Changelog
-
-# Initial Database Objects
-validator_api/initial_data.yaml
-
-# Database
-validator_api/*.sqlite3
-validator_webui/*.sqlite3

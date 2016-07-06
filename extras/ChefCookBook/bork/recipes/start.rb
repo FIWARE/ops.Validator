@@ -18,13 +18,13 @@
 #
 
 INSTALL_DIR = node['bork'][:install_dir]
-ENV['PYTHONPATH'] = "#{ENV['PYTHONPATH']}:#{INSTALL_DIR}/bork"
+ENV['PYTHONPATH'] = "#{ENV['PYTHONPATH']}:#{INSTALL_DIR}/chef_validator"
 
-bash 'start validator' do
-  environment 'PYTHONPATH' => "#{INSTALL_DIR}/validator:#{ENV['PYTHONPATH']}"
+bash 'start chef_validator' do
+  environment 'PYTHONPATH' => "#{INSTALL_DIR}/chef_validator:#{ENV['PYTHONPATH']}"
   cwd "#{INSTALL_DIR}"
   user 'root'
   code <<-EOH
-    python ./bork/command/validator-api.py --config-dir=etc/bork &
+    python ./chef_validator/cmd/chef-validator-api.py --config-dir=etc/chef_validator &
   EOH
 end

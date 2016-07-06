@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# fi-ware-validator documentation build configuration file, created by
+# fi-ware-chef_validator documentation build configuration file, created by
 # sphinx-quickstart on Wed Jul 15 12:28:39 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -51,7 +51,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'fi-ware-validator'
+project = u'fi-ware-chef_validator'
 copyright = u'2015, Pedro Verdugo'
 author = u'Pedro Verdugo'
 
@@ -60,7 +60,7 @@ author = u'Pedro Verdugo'
 # built documents.
 #
 
-from bork.version import version_info
+from chef_validator.tests.unit.version import version_info
 # The short X.Y version.
 version = version_info.version_string()
 
@@ -211,7 +211,7 @@ html_static_path = ['_static']
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'fi-ware-validatordoc'
+htmlhelp_basename = 'fi-ware-chef_validatordoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -233,7 +233,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'fi-ware-validator.tex',
+    (master_doc, 'fi-ware-chef_validator.tex',
      u'fi-ware-chef\\_validator Documentation',
      u'Pedro Verdugo', 'manual'),
 ]
@@ -264,8 +264,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'fi-ware-validator',
-     u'fi-ware-validator Documentation',
+    (master_doc, 'fi-ware-chef_validator',
+     u'fi-ware-chef_validator Documentation',
      [author], 1)
 ]
 
@@ -279,9 +279,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'fi-ware-validator',
-     u'fi-ware-validator Documentation',
-     author, 'fi-ware-validator', 'One line description of project.',
+    (master_doc, 'fi-ware-chef_validator',
+     u'fi-ware-chef_validator Documentation',
+     author, 'fi-ware-chef_validator', 'One line description of project.',
      'Miscellaneous'),
 ]
 

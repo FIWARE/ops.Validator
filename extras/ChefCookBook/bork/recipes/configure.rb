@@ -21,10 +21,10 @@ INSTALL_DIR = node['bork'][:install_dir]
 
 ## Creating bork config file
 remote_file "Copy service file" do
-  path "#{INSTALL_DIR}/etc/bork/validator.conf"
-  source "file://#{INSTALL_DIR}/etc/bork/validator.conf.sample"
+  path "#{INSTALL_DIR}/etc/chef_validator/chef_validator.conf"
+  source "file://#{INSTALL_DIR}/etc/chef_validator/chef_validator.conf.sample"
   owner 'root'
   group 'root'
   mode 0755
-  not_if { ::File.exists?("#{INSTALL_DIR}/etc/bork/validator.conf") }
+  not_if { ::File.exists?("#{INSTALL_DIR}/etc/chef_validator/chef_validator.conf") }
 end

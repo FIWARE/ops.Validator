@@ -19,10 +19,10 @@
 
 INSTALL_DIR = node['bork'][:install_dir]
 
-execute 'stop validator' do
+execute 'stop chef_validator' do
   user 'root'
   ignore_failure true
   code <<-EOH
-    pkill -f "python #{INSTALL_DIR}/bork/command/validator-api.py"
+    pkill -f "python #{INSTALL_DIR}/chef_validator/cmd/chef-validator-api.py"
   EOH
 end

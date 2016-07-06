@@ -1,9 +1,5 @@
-FIWARE Validator
+FI-Ware Chef Validator
 ======================
-
-[![License](http://img.shields.io/:license-apache-blue.svg?style=flat-square)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Documentation badge](https://img.shields.io/badge/docs-stable-brightgreen.svg?style=flat)](doc/source/adminmanual.rst)
-[![StackOverflow](https://img.shields.io/badge/support-sof-yellowgreen.svg)](https://stackoverflow.com/questions/tagged/fiware-validator)
 
 **Table of Contents**
 
@@ -20,18 +16,18 @@ FIWARE Validator
 - [External Dependencies](#external-dependencies)
 - [Validation Process](#validation-process)
 - [Example Client](#example-client)
-- [Image generation](#image-generation)
-
+- [Chef Image generation](#chef-image-generation)
+	
 Description
 -----------
 This project is part of [FIWARE] (http://fiware.org).
 
-A FIWARE validator for testing deployment artifacts implemented as
+A FIWARE validator for the deployment of chef cookbooks implemented as
 a service with an OpenStack-native Rest API
 
 Features Implemented
 --------------------
-A RESTful API for deployment artifacts validation
+A RESTful API for chef cookbook validation
 
 Installation Manual
 -------------------
@@ -48,7 +44,7 @@ The user manual is provided in rst format in the [User and Programmers manual](d
 API Documentation
 -----------------
 
-The API definition can be found at <http://docs.validatorapi2.apiary.io/#>
+The API definition can be found at <http://docs.chefvalidatorapi.apiary.io/#>
 
 License
 -------
@@ -60,7 +56,7 @@ Getting Started
 
 To run the code you can clone the git repo with:
 
-    git clone git@github.com:ging/fiware-validator.git
+    git clone git@github.com:ging/fi-ware-chef_validator.git
 
 Installing Dependencies
 -----------------------
@@ -74,7 +70,7 @@ Executing the listener API
 
 The listener api can be manually launched with the following command:
 
-    bork/command/validator-api.py --config-dir etc/bork
+    chef_validator/cmd/chef-validator-api.py --config-dir etc/chef_validator
 
 
 External Dependencies
@@ -108,16 +104,13 @@ The cookbook validation process consists on the following steps:
 
 Example Client
 ---------------
-An example client is provided in command/validator-client. It can be run with the following command:
+An example client is provided in cmd/chef-validator-client. It can be run with the following command:
 
-    bork/command/validator-client.py --validator_url=${url_of_the_validator_api} --username=${username} --password=${password} --image=${author/image_name} --cookbook=${cookbook_name}
+    chef_validator/cmd/chef-validator-client.py --validator_url=${url_of_the_validator_api} --username=${username} --password=${password} --image=${author/image_name} --cookbook=${cookbook_name}
 
-Image generation
+Chef Image generation
 ---------------------
 A default chef-solo image can be automatically generated and uploaded to the glance server with the following command:
 
-    bork/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
+    chef_validator/cmd/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}
 
-Identically, a default puppet-standalone image can be automatically generated and uploaded to the glance server with the following command:
-
-    bork/command/generate_image.py --username=${username} --password=${password} --auth_url={$auth_url} --tag=${author/image_tag} --config-dir {configuration_dir}

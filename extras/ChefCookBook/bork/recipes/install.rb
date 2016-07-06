@@ -27,7 +27,7 @@ python_runtime '2' do
   options :system, dev_package: true
 end
 
-# Checking OS compatibility for validator
+# Checking OS compatibility for chef_validator
 if node['platform'] != 'ubuntu'
   log '*** Sorry, but the chef validator requires a ubuntu OS ***'
 end
@@ -37,7 +37,7 @@ return if node['platform'] != 'ubuntu'
 include_recipe 'apt'
 
 pkg_depends = value_for_platform_family(
-                  'default' => %w(git curl nano wget dialog net-tools build-essential subversion)
+                  'default' => %w(git curl nano wget dialog net-tools build-essential)
 )
 
 pkg_depends.each do |pkg|
@@ -45,6 +45,14 @@ pkg_depends.each do |pkg|
     action :install
   end
 end
+
+# Git resource seems to fail on master testbed server
+#
+# git INSTALL_DIR do
+#   repository 'https://github.com/ging/bork'
+#   action :sync
+#   timeout 3600
+# end
 
 directory INSTALL_DIR do
   owner 'root'
@@ -56,7 +64,7 @@ execute 'github_download' do
   cwd INSTALL_DIR
   user 'root'
   action :run
-  command 'git clone https://github.com/ging/fiware-validator.git .'
+  command 'git clone https://github.com/ging/fiware-chef_validator.git .'
 end
 
 pip_requirements INSTALL_DIR+'/requirements.txt'

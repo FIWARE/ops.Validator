@@ -11,7 +11,7 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-Welcome to Validator's documentation!
+Welcome to Chef Validator's documentation!
 ==========================================
 
 Contents:

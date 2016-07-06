@@ -22,7 +22,7 @@ To run the code you can clone the git repo with:
 
 ::
 
-    git clone git@github.com:ging/fi-ware-validator.git
+    git clone git@github.com:ging/fi-ware-chef_validator.git
 
 
 Installing Dependencies
@@ -41,8 +41,8 @@ Docker Container Install
 As an alternative, if you have access to a docker server, you can pull and run the latest dev build from dockerhub with:
 ::
 
-    docker pull pmverdugo/fiware-validator:dev
-    docker run pmverdugo/fiware-validator:latest
+    docker pull pmverdugo/fi-ware-chef_validator:dev
+    docker run pmverdugo/fi-ware-chef_validator:dev
 
 
 Sanity Check Procedures
@@ -64,7 +64,7 @@ Running processes
 The only running process should be
 ::
 
-    /usr/bin/python validator-api.py
+    /usr/bin/python chef-validator-api.py
 
 Network Interfaces Up and Open
 ------------------------------
@@ -96,6 +96,12 @@ The dependency list reads as follows:
 
 - OpenStack Keystone server:
     Used for issuing user tokens for several OpenStack services
+
+- OpenStack Nova server/Docker server:
+    Used for deploying the selected virtual machine
+
+- Chef server:
+    Used to coordinate chef activities
 
 Resource consumption
 --------------------
