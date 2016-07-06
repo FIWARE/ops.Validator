@@ -2,8 +2,32 @@
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
 
-# API
--r validator_api/requirements.txt
+# Infrastructure
+oslo.utils == 3.4.0
+oslo.messaging == 2.2.0
+oslo.config == 3.2.0
+oslo.i18n == 2.3.0
+oslo.log == 1.8.0
+oslo.service == 0.6.0
+oslo.concurrency == 2.4.0 # posix-ipc breaks windows build
+oslo.middleware == 2.5.0
+
+pbr == 1.6.0
+Babel == 2.0
+eventlet == 0.17.4
+Paste == 2.0.2
+PasteDeploy == 1.5.2
+webob == 1.4.1
+Routes == 2.2
+
+# 1st step Authentication
+keystonemiddleware == 2.1.0
+
+# Openstack Client APIs
+python-novaclient == 2.26.0
+
+# Image Generation
+docker-py == 1.3.1
 
 # web ui
-#-r validator_webui/requirements.txt
+-r webui/requirements.txt

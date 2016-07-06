@@ -21,8 +21,6 @@ from bork.common import wsgi
 from bork.common.i18n import _LI, _
 import bork.common.utils
 from bork.engine.validate import ValidateEngine
-from bork.engine.CookBook import CookBookEngine
-from bork.engine.System import SystemEngine
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -82,42 +80,9 @@ class ChefController(object):
         return res
 
 
-class CookBooksController(object):
-    """
-    Cookbook Controller Object
-    Implements Application logic
-    """
-
-    @staticmethod
-    def list():
-        """ List available cookbooks
-
-        :return : a json file with process results
-        """
-        LOG.info(_LI('Processing Request for list cookbooks'))
-        res = CookBookEngine().list()
-        return res
-
-
-class SystemsController(object):
-    """
-    Cookbook Controller Object
-    Implements Application logic
-    """
-
-    @staticmethod
-    def list():
-        """ List available systems
-        :return : a json file with process results
-        """
-        LOG.info(_LI('Processing Request for list systems'))
-        res = SystemEngine().list()
-        return res
-
-
 def create_chef_resource():
     """
-    Actions chef factory method.
+    Actions action factory method.
     """
     deserializer = bork.common.utils.JSONDeserializer()
     serializer = bork.common.utils.JSONSerializer()
@@ -126,18 +91,8 @@ def create_chef_resource():
 
 def create_puppet_resource():
     """
-    Actions puppet factory method.
+    Actions action factory method.
     """
     deserializer = bork.common.utils.JSONDeserializer()
     serializer = bork.common.utils.JSONSerializer()
     return wsgi.Resource(PuppetController(), deserializer, serializer)
-
-
-def create_cookbooks_resource():
-    deserializer = bork.common.utils.JSONDeserializer()
-    serializer = bork.common.utils.JSONSerializer()
-    return wsgi.Resource(CookBooksController(), deserializer, serializer)
-
-
-def create_systems_resource():
-    return wsgi.Resource(SystemsController())

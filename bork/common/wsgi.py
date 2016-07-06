@@ -250,11 +250,10 @@ class Resource(object):
         """WSGI method that controls (de)serialization and method dispatch."""
 
         try:
-            action, action_args, accept = self.deserialize_request(request)
-            # action_args = self.get_action_args(request.environ)
-            # action = action_args.pop('action', None)
-            # deserialized_request = self.deserialize_request(request)
-            # action_args.update(deserialized_request)
+            action_args = self.get_action_args(request.environ)
+            action = action_args.pop('action', None)
+            deserialized_request = self.deserialize_request(request)
+            action_args.update(deserialized_request)
         except exception.InvalidContentType:
             msg = _("Unsupported Content-Type")
             return webob.exc.HTTPUnsupportedMediaType(explanation=msg)
