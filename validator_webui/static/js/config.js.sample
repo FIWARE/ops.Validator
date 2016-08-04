@@ -1,0 +1,10 @@
+/**
+ * Created by Administrator on 01/06/2016.
+ */
+define(function (require) {
+    "use strict";
+
+    return {
+        api_url: "http://localhost:4042",
+    };
+});

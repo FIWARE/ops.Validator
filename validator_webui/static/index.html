@@ -7,53 +7,64 @@
 </head>
 
 <body id="validator_app">
-<header id="header">
-<h1>Automated Recipe Validation</h1>
-    <h2>Login</h2>
-<p>Enter user and pass for validator API</p>
-<p>
-  Username: <input type="text" id="username" value=""><br>
-  Password: <input type="password" id="password" value=""><br>
-    <button id="button_refresh_local">Refresh Local Artifacts</button> <button id="button_refresh_remote">Refresh Remote Artifacts</button>
-</p>
+<header>
+    <img src="images/lablogo.png"/>
+    <div id="login">
+    <ul>
+        <li> Username: <input type="text" id="username" value=""></li>
+        <li>Password: <input type="password" id="password" value=""></li>
+    </ul>
+    </div>
+    <h1>Automated Recipe Validation</h1>
 </header>
+<section id="upload">
+    <h2>Upload Recipe</h2>
+    <p>Please choose a method and recipe for upload</p>
+    <form enctype="multipart/form-data">
+        Git repo url <input type="text" id="upload_url" value=""/>
+        <br/>
+        Local File (.zip) <input id='upload_file' type='file' />
+        <br/>
+        <input type="submit" value="Upload">
+    </form>
+</section>
 <section id="selections">
-    <h2>Selections</h2>
-    <p>Select system and recipes to run</p>
-            <table>
-    <thead>
+    <h2>Choose Recipes</h2>
+    <p>Select system and recipes to test</p>
+    <table>
+        <thead>
         <th>Image</th>
         <th>Cookbook</th>
         <th>Recipe</th>
         <th>Action</th>
-    </thead>
-<tbody>
-<tr>
-    <td>
-        <select multiple id="sel_images">
-            <option>No Images Available</option>
-        </select>
-    </td>
-    <td>
-        <select multiple id="sel_cookbooks">
-            <option>No Cookbooks Available</option>
-        </select>
-    </td>
-    <td>
-        <select multiple id="sel_recipes">
-            <option>No Recipes Available</option>
-        </select>
-    </td>
-    <td>
-        <button id="button_add">Add</button>
-    </td>
-</tr>
-</tbody>
-            </table>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <select multiple id="sel_images">
+                    <option>No Images Available</option>
+                </select>
+            </td>
+            <td>
+                <select multiple id="sel_cookbooks">
+                    <option>No Cookbooks Available</option>
+                </select>
+            </td>
+            <td>
+                <select multiple id="sel_recipes">
+                    <option>No Recipes Available</option>
+                </select>
+            </td>
+            <td>
+                <button id="button_add">Add</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </section>
 <section id="deployments">
-    <h2>Deployments</h2>
-    <p>List of deployments to run</p>
+    <h2>Deployment Queue</h2>
+    <p>List of current deployments to run</p>
     <table>
         <thead>
         <th>Image</th>
@@ -62,45 +73,53 @@
         <th>Action</th>
         </thead>
         <tbody id="table_deployments">
-<tr>
-    <td>No Image Selected</td>
-    <td>No Cookbook Selected</td>
-    <td>No Recipe Selected</td>
-    <td></td>
-</tr>
+        <tr>
+            <td>No Image Selected</td>
+            <td>No Cookbook Selected</td>
+            <td>No Recipe Selected</td>
+            <td></td>
+        </tr>
         </tbody>
     </table>
     <button id="button_run">Run All</button>
 </section>
 <section id="results">
-<h2>Results</h2>
-<p>Export results to json or open log file in new tab</p>
-<table>
-    <thead>
-    <tr>
-        <th>Image</th>
-        <th>Cookbook</th>
-        <th>Recipe</th>
-        <th>Launch</th>
-        <th>Dependencies</th>
-        <th>Syntax</th>
-        <th>Deployment</th>
-        <th>Full Log</th>
-    </tr>
-    </thead>
-    <tbody id="table_results">
-    <td>No Image Selected</td>
-    <td>No Cookbook Selected</td>
-    <td>No Recipe Selected</td>
-    <td>NA</td>
-    <td>NA</td>
-    <td>NA</td>
-    <td>NA</td>
-    <td>NA</td>
-    </tbody>
-</table>
+    <h2>Results</h2>
+    <p>Export results to json or open log file in new tab</p>
+    <table>
+        <thead>
+        <tr>
+            <th>Image</th>
+            <th>Cookbook</th>
+            <th>Recipe</th>
+            <th>Launch</th>
+            <th>Dependencies</th>
+            <th>Syntax</th>
+            <th>Deployment</th>
+            <th>Full Log</th>
+        </tr>
+        </thead>
+        <tbody id="table_results">
+        <td>No Image Selected</td>
+        <td>No Cookbook Selected</td>
+        <td>No Recipe Selected</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        <td>NA</td>
+        </tbody>
+    </table>
 </section>
-
+<footer>
+    2016 ©&nbsp;<a href="http://fiware.org">FIWARE.</a>
+    &nbsp;The use of FIWARE Lab services is subject to the acceptance of the&nbsp;
+    <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FIWARE_LAB_Terms_and_Conditions">Terms and Conditions,</a>
+    &nbsp;
+    <a href="https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/FIWARE_Lab_Personal_Data_Protection_Policy">Personal Data Protection Policy</a>
+    &nbsp;and&nbsp;
+    <a href="http://forge.fi-ware.org/plugins/mediawiki/wiki/fiware/index.php/Cookies_Policy_FIWARE_Lab"> Cookies Policy</a>
+</footer>
 <script data-main="js/main" src="js/lib/require.js" async></script>
 </body>
 </html>

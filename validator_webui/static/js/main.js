@@ -5,9 +5,10 @@ require.config({
     baseUrl: './js',
     paths: {
         jquery: 'lib/jquery-2.2.3',
+        jqueryift: 'lib/jquery.iframe-transport',
         underscore: 'lib/underscore',
         backbone: 'lib/backbone',
-        // relational: 'lib/backbone-relational',
+        bbfileupload: 'lib/backbone.file-upload',
         bbbasicauth: 'lib/backbone.basicauth',
         bbselect: 'lib/backbone.select',
         config: 'config'
