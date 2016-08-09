@@ -122,14 +122,14 @@ def register_pep_proxy(request, application_id, password=None):
         pep_group = keystone.groups.find(name=pep_proxies_group)
     except ks_exceptions.NotFound:
         LOG.debug('Creating PEP Proxies group in Keystone')
-        pep_group = keystone.groups.create(name=pep_proxies_group, domain=domain)
+        pep_group = keystone.groups.create(request=pep_proxies_group, domain=domain)
 
     # asign a role in the domain to the group
     try:
         pep_role = keystone.roles.find(name=pep_proxies_role)
     except ks_exceptions.NotFound:
         LOG.debug('Creating PEP Proxies role in Keystone')
-        pep_role = keystone.roles.create(name=pep_proxies_role, domain=domain)
+        pep_role = keystone.roles.create(request=pep_proxies_role, domain=domain)
         keystone.roles.grant(pep_role, group=pep_group, domain=domain)
 
     keystone.users.add_to_group(user=pep, group=pep_group)
@@ -261,10 +261,7 @@ def role_list(request, user=None, organization=None, application=None):
 
 def role_create(request, name, is_internal=False, application=None, **kwargs):
     manager = internal_keystoneclient(request).fiware_roles.roles
-    return manager.create(name=name,
-                          is_internal=is_internal,
-                          application=application,
-                          **kwargs)
+    return manager.create(request=name, is_internal=is_internal, application=application)
 
 
 def role_update(request, role, name=None, is_internal=False,
@@ -400,10 +397,7 @@ def permission_list(request, role=None, application=None):
 
 def permission_create(request, name, is_internal=False, application=None, **kwargs):
     manager = internal_keystoneclient(request).fiware_roles.permissions
-    return manager.create(name=name,
-                          is_internal=is_internal,
-                          application=application,
-                          **kwargs)
+    return manager.create(request=name, is_internal=is_internal, application=application)
 
 
 def permission_update(request, permission, name=None, is_internal=False,
@@ -440,13 +434,8 @@ def application_create(request, name, redirect_uris, scopes=['all_info'],
     In FIWARE applications is the name OAuth2 consumers/clients receive.
     """
     manager = keystone.keystoneclient(request, admin=True).oauth2.consumers
-    return manager.create(name=name,
-                          redirect_uris=redirect_uris,
-                          description=description,
-                          scopes=scopes,
-                          client_type=client_type,
-                          grant_type=grant_type,
-                          **kwargs)
+    return manager.create(request=name, redirect_uris=redirect_uris, description=description, scopes=scopes,
+                          client_type=client_type, grant_type=grant_type)
 
 
 def application_list(request, user=None):
@@ -549,9 +538,7 @@ def obtain_access_token(request, consumer_id, consumer_secret, code,
     # convenient to simply forward the request, see forward_access_token_request method
     LOG.debug('Exchanging code: {0} by application: {1}'.format(code, consumer_id))
     manager = internal_keystoneclient(request).oauth2.access_tokens
-    access_token = manager.create(consumer_id=consumer_id,
-                                  consumer_secret=consumer_secret,
-                                  authorization_code=code,
+    access_token = manager.create(request=consumer_id, consumer_secret=consumer_secret, authorization_code=code,
                                   redirect_uri=redirect_uri)
     return access_token
 
@@ -714,9 +701,7 @@ def project_list(request, domain=None, user=None, filters=None):
 def project_create(request, name, description=None, enabled=None,
                    domain=None, **kwargs):
     manager = internal_keystoneclient(request).projects
-    return manager.create(name, domain,
-                          description=description,
-                          enabled=enabled, **kwargs)
+    return manager.create(name, description=description, enabled=enabled)
 
 
 def project_update(request, project, name=None, description=None,

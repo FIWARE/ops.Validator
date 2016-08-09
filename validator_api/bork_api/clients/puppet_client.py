@@ -23,14 +23,7 @@ from bork_api.common.exception import CookbookSyntaxException, \
 from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
-
-opts = [
-    cfg.StrOpt('cmd_install', default='puppet module install {}'),
-    cfg.StrOpt('cmd_syntax', default='puppet parser validate {}'),
-    cfg.StrOpt('cmd_deploy', default='puppet apply --modulepath=./modules -e "class { \'%s\':}" --debug'),
-]
 CONF = cfg.CONF
-CONF.register_opts(opts, group="clients_puppet")
 
 
 class PuppetClient(object):

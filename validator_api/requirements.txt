@@ -11,7 +11,7 @@ django-cors-headers == 1.1.0
 -e git+https://github.com/ging/python-keystoneclient.git#egg=python-keystoneclient
 pbr>=1.6 # Apache-2.0
 cryptography
-oslo.config>=3.9.0 # Apache-2.0
+oslo.config == 3.13 # Apache-2.0
 oslo.policy>=0.5.0 # Apache-2.0
 oslo.log >= 1.8.0
 python-keystoneclient!=1.8.0,!=2.1.0,>=1.7.0 # Apache-2.0
@@ -20,7 +20,7 @@ six>=1.9.0 # MIT
 
 # Version Control
 svn == 0.3.36
-GitPython == 2.0.2
+GitPython == 2.0.8
 
 # Image Management
 docker-py == 1.8.1

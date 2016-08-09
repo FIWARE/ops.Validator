@@ -13,8 +13,6 @@ from bork_api.common.i18n import _LW, _LI
 from bork_api.common.exception import DockerContainerException
 
 CONF = cfg.CONF
-CONF.register_opt(cfg.StrOpt('url', default="tcp://127.0.0.1:2375"), group="clients_docker")
-CONF.register_opt(cfg.StrOpt('build_dir', default="/etc/bork"), group="clients_docker")
 LOG = logging.getLogger(__name__)
 
 

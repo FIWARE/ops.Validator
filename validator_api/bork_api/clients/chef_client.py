@@ -20,17 +20,7 @@ from bork_api.common.exception import CookbookDeploymentException, CookbookSynta
 from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
-
-opts = [
-    cfg.StrOpt('cmd_install', default='knife cookbook site install {}'),
-    cfg.StrOpt('cmd_config', default='{"run_list": [ "recipe[%s]"]}'),
-    cfg.StrOpt('cmd_inject', default="echo '{}' >/etc/chef/solo.json"),
-    cfg.StrOpt('cmd_syntax', default='knife cookbook test {}'),
-    cfg.StrOpt('cmd_deploy', default='chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json'),
-]
-
 CONF = cfg.CONF
-CONF.register_opts(opts, group="clients_chef")
 
 
 class ChefClient(object):

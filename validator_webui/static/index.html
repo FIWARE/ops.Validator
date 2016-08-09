@@ -11,22 +11,18 @@
     <img src="images/lablogo.png"/>
     <div id="login">
     <ul>
-        <li> Username: <input type="text" id="username" value=""></li>
-        <li>Password: <input type="password" id="password" value=""></li>
+        <li><strong>Username:</strong> <input type="text" id="username" value=""></li>
+        <li><strong>Password:</strong> <input type="password" id="password" value=""></li>
     </ul>
     </div>
     <h1>Automated Recipe Validation</h1>
 </header>
+<div id="message"></div>
 <section id="upload">
-    <h2>Upload Recipe</h2>
-    <p>Please choose a method and recipe for upload</p>
-    <form enctype="multipart/form-data">
-        Git repo url <input type="text" id="upload_url" value=""/>
-        <br/>
-        Local File (.zip) <input id='upload_file' type='file' />
-        <br/>
-        <input type="submit" value="Upload">
-    </form>
+    <h2>Upload Cookbook</h2>
+    <p>Please choose a cookbook for upload</p>
+        <p><strong>Git repo url:</strong> <input type="text" id="upload_url" value="https://github.com/USER/PROJECT/tree/BRANCH/COOKBOOK_SUBPATH"/>
+    <button id="button_upload">Upload</button></p>
 </section>
 <section id="selections">
     <h2>Choose Recipes</h2>
@@ -39,7 +35,7 @@
         <th>Action</th>
         </thead>
         <tbody>
-        <tr>
+        <tr class="odd">
             <td>
                 <select multiple id="sel_images">
                     <option>No Images Available</option>
@@ -56,7 +52,7 @@
                 </select>
             </td>
             <td>
-                <button id="button_add">Add</button>
+                None
             </td>
         </tr>
         </tbody>
@@ -73,11 +69,11 @@
         <th>Action</th>
         </thead>
         <tbody id="table_deployments">
-        <tr>
+        <tr class="odd">
             <td>No Image Selected</td>
             <td>No Cookbook Selected</td>
             <td>No Recipe Selected</td>
-            <td></td>
+            <td>None</td>
         </tr>
         </tbody>
     </table>
@@ -100,6 +96,7 @@
         </tr>
         </thead>
         <tbody id="table_results">
+        <tr class="odd">
         <td>No Image Selected</td>
         <td>No Cookbook Selected</td>
         <td>No Recipe Selected</td>
@@ -108,6 +105,7 @@
         <td>NA</td>
         <td>NA</td>
         <td>NA</td>
+        </tr>
         </tbody>
     </table>
 </section>

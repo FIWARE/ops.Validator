@@ -8,9 +8,8 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import list_route, detail_route
-from models import Repo, CookBook, Recipe, Deployment, Image
-from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
-from clients.storage_client import LocalStorage
+from models import CookBook, Recipe, Deployment, Image
+from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 from clients.chef_client import ChefClient
 from clients.puppet_client import PuppetClient
 from clients.docker_client import DockerManager
@@ -48,16 +47,52 @@ class ImageViewSet(viewsets.ModelViewSet):
         return self.list(None)
 
 
-class RepoViewSet(viewsets.ModelViewSet):
-    queryset = Repo.objects.all()
-    serializer_class = RepoSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-
 class CookBookViewSet(viewsets.ModelViewSet):
     queryset = CookBook.objects.all()
     serializer_class = CookBookSerializer
     permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, **kwargs):
+        """
+        Creates a cookbook db object from a remote url
+        :param request: dict with request values
+        :param kwargs: additional arguments
+        :return: json response with operation status
+        """
+        # Check data validity
+        if 'upload_url' in request.data.keys():
+            url = request.data['upload_url']
+            user = request.user.get_username()
+            LOG.info("Creating Cookbook from %s" % url)
+        else:
+            return Response({'detail': 'Insufficient payload'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Download contents to temporary local storage
+        from clients.storage_client import LocalStorage
+        name, path = LocalStorage().download(url)
+        if not name:
+            return Response('Error downloading %s' % url,
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Parse downloaded contents
+        system = LocalStorage().find_system(path)
+        if not system:
+            return Response({'detail': 'No valid cookbook detected for %s' % url},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Add valid cookbook to user repo
+        from clients.git_client import RepoManager
+        m = RepoManager(user)
+        version = m.add_cookbook(path)
+        # Generate valid cookbook
+        cb = CookBook(user=request.user.id, name=name, path=path, version=version, system=system)
+        cb.save()
+        cbs = CookBookSerializer(cb)
+        resp = Response(cbs.data, status=status.HTTP_201_CREATED)
+
+        return resp
+
 
     @list_route()
     def refresh(self, request=None):

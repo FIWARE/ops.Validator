@@ -5,6 +5,7 @@ define(function (require) {
     "use strict";
 
     var Backbone = require('backbone'),
+        notification = require("views/NotificationView"),
         RecipesView = require("views/RecipesView"),
         ImagesView = require("views/ImagesView"),
         DeploymentsView = require("views/DeploymentsView"),
@@ -15,17 +16,21 @@ define(function (require) {
         ImageCollection = require("models/ImageCollection"),
         DeploymentCollection = require("models/DeploymentCollection"),
         DeploymentModel = require("models/DeploymentModel"),
-        $ = require("jquery");
+        $ = require("jquery"),
+        CookbookModel = require("models/CookbookModel"),
+        config = require("config");
 
     return Backbone.View.extend({
 
         el: $("#validator_app"),
 
         events: {
+            "click #button_upload": "upload_cookbook",
             "click #button_refresh_remote": "refresh_remote_recipes",
             "click #button_refresh_local": "refresh_local_recipes",
             "click #button_add": "add_to_deployments",
             "click #button_run": "run_deployments",
+
         },
 
         initialize: function () {
@@ -38,7 +43,9 @@ define(function (require) {
             this.recipessel = new RecipesView({collection: new RecipeCollection(), master: new RecipeCollection()});
             this.deploymentsview = new DeploymentsView({collection: new DeploymentCollection()});
             this.resultsview = new ResultsView({collection: new DeploymentCollection()});
+            notification().render({text: 'Please insert your FIWARE Lab credentials' });
             // debug mode
+            this.set_values();
             this.render();
         },
 
@@ -54,6 +61,12 @@ define(function (require) {
                 username: this.$("#username").val(),
                 password: this.$("#password").val()
             }
+        },
+        set_values: function () {
+            this.$("#username").val(config.username);
+            this.$("#password").val(config.password);
+            this.$("#upload_url").val(config.upload_url);
+
         },
 
         refresh_remote_recipes: function () {
@@ -100,6 +113,13 @@ define(function (require) {
             //     // r.dependencies();
             //     // r.deployment();
             // }, this);
+        },
+
+        upload_cookbook: function () {
+            var cb = new CookbookModel({
+                upload_url: this.$("#upload_url").val()
+            });
+            cb.save_remote(this.get_credentials());
         }
     });
 });

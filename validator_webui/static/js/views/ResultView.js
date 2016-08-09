@@ -11,6 +11,7 @@ define(function (require) {
     return Backbone.View.extend({
         model: Deployment,
         tagName: 'tr',
+        className: 'odd',
         template: _.template(
             '<td><%=image_name%></td>' +
             '<td><%=cookbook%></td>' +

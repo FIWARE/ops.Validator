@@ -9,6 +9,7 @@ define(function (require) {
         config = require('config'),
         Image = require('models/ImageModel'),
         basicauth = require('bbbasicauth'),
+        notification = require('views/NotificationView'),
         bbsel = require('bbselect');
     var $ = require("jquery");
 
@@ -30,8 +31,17 @@ define(function (require) {
 
         get_remote: function (credentials) {
             console.log("Fetching Images...");
+            notification().render({ text: 'Retrieving images...' });
             this.credentials = credentials;
-            this.fetch({reset: true});
+            this.fetch({reset: true,
+                success: function (model, response) {
+                    notification().render({type:"success", text:"Images successfully retrieved"});
+                },
+                error: function (model, response) {
+                    console.log(response);
+                    notification().render({type:"error", text:"Error retrieving Images"});
+                }
+            });
         }
     });
 });

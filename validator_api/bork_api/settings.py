@@ -11,15 +11,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from common import config, log
-from common import log
-APPNAME = "bork_api"
-
-config.setup_config(APPNAME)
-log.setup(APPNAME)
+from common import config
 
 CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -134,10 +128,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
-# Keystone Auth
-OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
 
 AUTHENTICATION_BACKENDS = ('idm_auth.backend.KeystoneBackend', )
+
+# Keystone Auth
+OPENSTACK_KEYSTONE_URL = CONF.keystone_authtoken.auth_uri
 
 LOGGING = {
     'version': 1,

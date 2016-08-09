@@ -180,9 +180,7 @@ def keystoneclient(request, admin=False):
 
 def domain_create(request, name, description=None, enabled=None):
     manager = keystoneclient(request, admin=True).domains
-    return manager.create(name,
-                          description=description,
-                          enabled=enabled)
+    return manager.create(name, description=description, enabled=enabled)
 
 
 def domain_get(request, domain_id):
@@ -210,11 +208,9 @@ def tenant_create(request, name, description=None, enabled=None,
                   domain=None, **kwargs):
     manager = VERSIONS.get_project_manager(request, admin=True)
     if VERSIONS.active < 3:
-        return manager.create(name, description, enabled, **kwargs)
+        return manager.create(name)
     else:
-        return manager.create(name, domain,
-                              description=description,
-                              enabled=enabled, **kwargs)
+        return manager.create(name, description=description, enabled=enabled)
 
 
 def get_default_domain(request):
@@ -314,11 +310,10 @@ def user_create(request, name=None, email=None, password=None, project=None,
                 enabled=None, domain=None):
     manager = keystoneclient(request, admin=True).users
     if VERSIONS.active < 3:
-        user = manager.create(name, password, email, project, enabled)
+        user = manager.create(name)
         return VERSIONS.upgrade_v2_user(user)
     else:
-        return manager.create(name, password=password, email=email,
-                              project=project, enabled=enabled, domain=domain)
+        return manager.create(name, password=password, email=email, project=project, enabled=enabled, domain=domain)
 
 
 def user_delete(request, user_id):
@@ -427,9 +422,7 @@ def user_update_tenant(request, user, project, admin=True):
 
 def group_create(request, domain_id, name, description=None):
     manager = keystoneclient(request, admin=True).groups
-    return manager.create(domain=domain_id,
-                          name=name,
-                          description=description)
+    return manager.create(request=domain_id, name=name, description=description)
 
 
 def group_get(request, group_id, admin=True):
