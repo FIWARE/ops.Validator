@@ -38,6 +38,15 @@ opts = [
 ]
 CONF.register_opts(opts, group="clients_puppet")
 
+# Murano options
+opts = [
+    cfg.StrOpt('cmd_install', default='murano package import {blueprint}'),
+    cfg.StrOpt('cmd_config', default='murano environment create {environment}'),
+    cfg.StrOpt('cmd_syntax', default='murano environment-action-call {environment} --action syntax-check'),
+    cfg.StrOpt('cmd_deploy', default='murano environment deploy {environment}'),
+]
+CONF.register_opts(opts, group="clients_murano")
+
 # Local storage options
 opts = [
     cfg.StrOpt('local_path', default=r"/tmp/cookbooks"),

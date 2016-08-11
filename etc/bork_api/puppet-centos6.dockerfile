@@ -1,4 +1,4 @@
-# Dockerfile to deploy a valid chef-solo container
+# Dockerfile to deploy a valid puppet self-service container
 # tag: pmverdugo/puppet-centos6
 
 FROM centos:centos6

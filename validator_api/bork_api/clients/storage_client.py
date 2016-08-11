@@ -20,6 +20,8 @@ import urllib2
 from oslo_log import log as logging
 from oslo_config import cfg
 
+from bork_api.clients import chef_client, puppet_client, murano_client
+
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
 
@@ -30,85 +32,58 @@ class LocalStorage:
         path = path or CONF.clients_storage.local_path
         self.path = os.path.abspath(path)
 
-    def list_cookbooks(self):
+    def list_users(self):
         """
-        :return: list of all cookbooks in the current path
+        :return: list of all users in the storage path
+        """
+        users = []
+        for us in os.listdir(self.path):
+            us = os.path.join(self.path, us)
+            users.append(us)
+        return users
+
+    def list_cookbooks(self, user):
+        """
+        :return: list of all cookbooks in the storage path
         """
         valid = []
-        for cb in os.listdir(self.path):
-            if self.check_chef_cookbook(cb):
-                valid.append({'name': cb, 'system': 'chef'})
-            if self.check_puppet_module(cb):
-                valid.append({'name': cb, 'system': 'pupp'})
+        for cb in os.listdir(os.path.join(self.path, user)):
+            cb = os.path.join(self.path, cb)
+            system = self.find_system(cb)
+            if system:
+                valid.append(cb)
         return valid
 
-    def list_recipes(self, cb_path):
+    def list_recipes(self, cb):
         """
-        :return: list of all recipes in the current cookbook
+        Lists available recipes in given cookbook
+        :param cb: cookbook path
+        :return: list of recipes
         """
         valid = []
-        for rec in os.listdir(os.path.join(cb_path, "recipes")):
-            if self.check_chef_recipe(rec):
-                valid.append(rec)
-            elif self.check_puppet_recipe(rec):
-                valid.append(rec)
+        system = self.find_system(cb)
+        if system == "chef":
+            valid = chef_client.list_recipes(cb)
+        elif system == "puppet":
+            valid = puppet_client.list_classes(cb)
+        elif system == "murano":
+            valid == murano_client.list_specs(cb)
         return valid
 
-    def check_chef_recipe(self, rec):
-        return rec.endswith(".rb")
-
-    def check_puppet_recipe(self, rec):
-        return rec.endswith(".pp")
-
-    def check_chef_cookbook(self, cb):
-        """
-        Test if a directory contains a cookbook
-        :param cb: directory name
-        :return: test result
-        """
-        LOG.info("checking %s" % cb)
-        check = False
-        # check if the item is a directory
-        cb_path = os.path.join(self.path, cb)
-        if os.path.isdir(cb_path):
-            # check if the item has a recipes directory
-            if os.path.isdir(os.path.join(cb_path, "recipes")):
-                check = True
-                LOG.debug("Cookbook found: %s" % cb)
-        if not check:
-            LOG.debug("Not a cookbook: %s" % cb)
-        return check
-
-    def check_puppet_module(self, cb):
-        """
-        Test if a directory contains a cookbook
-        :param cb: directory name
-        :return: test result
-        """
-        LOG.info("checking %s" % cb)
-        check = False
-        # check if the item is a directory
-        cb_path = os.path.join(self.path, cb)
-        if os.path.isdir(cb_path):
-            # check if the item has a manifest directory
-            if os.path.isdir(os.path.join(cb_path, "manifest")):
-                check = True
-                LOG.debug("Module found: %s" % cb)
-        if not check:
-            LOG.debug("Not a module: %s" % cb)
-        return check
-
-    def find_system(self,cb_path):
+    @staticmethod
+    def find_system(cb_path):
         """
         Discovers cookbook format from a given path
         :param cb_path: path to the cookbook
         :return: system type
         """
-        system = "Unknown"
-        if self.check_puppet_module(cb_path):
+        system = None
+        if puppet_client.check_puppet_module(cb_path):
             system = "puppet"
-        elif self.check_chef_cookbook(cb_path):
+        elif chef_client.check_chef_cookbook(cb_path):
             system = "chef"
+        elif murano_client.check_murano_blueprint(cb_path):
+            system = "murano"
         return system
 
     def reset(self):

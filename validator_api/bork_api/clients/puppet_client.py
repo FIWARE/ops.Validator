@@ -11,8 +11,8 @@
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations
 #  under the License.
+import os
 
-from docker.errors import DockerException
 from oslo_config import cfg
 from oslo_log import log as logging
 
@@ -24,6 +24,45 @@ from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
+
+
+def check_puppet_class(rec):
+    """
+    Checks if the given file is a puppet class
+    :param rec: file path
+    :return: check result
+    """
+    return rec.lower().endswith(".pp")
+
+
+def list_classes(cb_path):
+    """
+    :return: list of all classes in the current module
+    """
+    valid = []
+    for rec in os.listdir(os.path.join(cb_path, "manifest")):
+        if check_puppet_class(rec):
+            valid.append(rec)
+    return valid
+
+
+def check_puppet_module(cb_path):
+    """
+    Test if a directory contains a module
+    :param cb_path: directory name
+    :return: test result
+    """
+    LOG.info("checking %s" % cb_path)
+    check = False
+    # check if the item is a directory
+    if os.path.isdir(cb_path):
+        # check if the item has a manifest directory
+        if os.path.isdir(os.path.join(cb_path, "manifest")):
+            check = True
+            LOG.debug("Module found: %s" % cb_path)
+    if not check:
+        LOG.debug("Not a module: %s" % cb_path)
+    return check
 
 
 class PuppetClient(object):

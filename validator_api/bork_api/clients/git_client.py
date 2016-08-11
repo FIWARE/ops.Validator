@@ -36,6 +36,7 @@ class RepoManager:
             self.repo = Repo(path=self.full_path)
         except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError):
             self.repo = self.create()
+            self.version = self.repo.version
 
     def create(self):
         """Create a new repo from name"""

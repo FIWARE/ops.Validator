@@ -1,18 +1,20 @@
 # coding=utf-8
 
-import os
 from oslo_config import cfg
 from oslo_log import log as logging
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework import status
-from rest_framework.response import Response
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import list_route, detail_route
-from models import CookBook, Recipe, Deployment, Image
-from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
+from rest_framework.response import Response
+
+from manager import images_cleanup, recipes_cleanup, recipes_add, cookbooks_cleanup, cookbooks_add
+from clients.git_client import RepoManager
+from clients.docker_client import DockerManager
+from clients.storage_client import LocalStorage
 from clients.chef_client import ChefClient
 from clients.puppet_client import PuppetClient
-from clients.docker_client import DockerManager
+from clients.murano_client import MuranoClient
+from models import CookBook, Recipe, Deployment, Image
+from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
@@ -41,7 +43,6 @@ class ImageViewSet(viewsets.ModelViewSet):
     @list_route()
     def generate(self, request=None):
         """ Generate images from local configuration """
-        from clients.docker_client import DockerManager
         for s in Image.objects.all():
             DockerManager().prepare_image(s.tag)
         return self.list(None)
@@ -69,7 +70,6 @@ class CookBookViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Download contents to temporary local storage
-        from clients.storage_client import LocalStorage
         name, path = LocalStorage().download(url)
         if not name:
             return Response('Error downloading %s' % url,
@@ -82,9 +82,9 @@ class CookBookViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Add valid cookbook to user repo
-        from clients.git_client import RepoManager
         m = RepoManager(user)
         version = m.add_cookbook(path)
+
         # Generate valid cookbook
         cb = CookBook(user=request.user.id, name=name, path=path, version=version, system=system)
         cb.save()
@@ -93,28 +93,19 @@ class CookBookViewSet(viewsets.ModelViewSet):
 
         return resp
 
-
     @list_route()
     def refresh(self, request=None):
         """
-        Update cookbook list from repos
+        Update cookbook list from local repo
+        :param request: request data
+        :return: list of db cookbooks
         """
+        # Remove current cookbooks
         cookbooks_cleanup()
+        # Remove current recipes
         recipes_cleanup()
-        cookbooks = set()
-        for r in Repo.objects.all():
-            if r.type == "svn":
-                LOG.info("Downloading Cookbooks from %s" % r.location)
-                from clients.svn_client import SVNRepo
-                repo = SVNRepo(url=r.location, user=r.user, pwd=r.password)
-                repo.download_cookbooks()
-                cookbooks_add(cookbooks, r, version=repo.version)
-            elif r.type == "git":
-                from clients.repo_browse_client import GITRepo
-                LOG.info("Downloading Cookbooks from %s" % r.location)
-                repo = GITRepo(r.location)
-                repo.checkout()
-                cookbooks_add(cookbooks, r, version=repo.version)
+        # Add local cookbooks
+        cookbooks_add()
         return self.list(None)
 
 
@@ -127,8 +118,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def refresh(self, request):
         """
         Update recipe list from local cookbooks
+        :param request: request data
+        :return: list of db recipes
         """
+        # Remove current cookbooks
+        cookbooks_cleanup()
+        # Remove current recipes
         recipes_cleanup()
+        # Add local cookbooks
+        cookbooks_add()
+        # Add local recipes
         recipes_add()
         return self.list(None)
 
@@ -149,6 +148,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
+        d.user = request.user.id
         # Detect image
         if ":" in image:
             image_name, image_version = image.split(":")
@@ -190,6 +190,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             pc = PuppetClient()
             res = pc.run_install(d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_install(d.recipe.cookbook.name, d.image.tag)
+            d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
@@ -205,6 +209,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
             res = pc.run_test(d.recipe.cookbook.name, d.image.tag)
+            d.syntax, d.syntax_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_test(d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -222,6 +230,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             pc = PuppetClient()
             res = pc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
@@ -235,64 +247,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         elif "puppet" == d.recipe.system:
             res = PuppetClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            res = MuranoClient().blueprint_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.ok, d.description = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
 
-def cookbooks_cleanup():
-    """ Cleanup previously downloaded cookbooks """
-    LOG.info("Cleanup old Cookbooks")
-    CookBook.objects.all().delete()
-    LocalStorage().reset()
-
-
-def images_cleanup():
-    """ Cleanup image db"""
-    LOG.debug("Cleanup old Images")
-    Image.objects.all().delete()
-
-
-def recipes_cleanup():
-    """ Cleanup previous recipes """
-    LOG.info("Cleanup old Recipes")
-    Recipe.objects.all().delete()
-
-
-def deployments_cleanup():
-    """ Cleanup previous deployments """
-    LOG.info("Cleanup old Deployments")
-    Deployment.objects.all().delete()
-
-
-def cookbooks_add(cookbooks, repo, version='Unknown'):
-    """
-    Add local cookbooks to db
-    :param cookbooks: current cookbooks
-    :param repo: current repository
-    :return:
-    """
-    l = LocalStorage()
-    for c in l.list_cookbooks():
-        if c['name'] not in cookbooks:
-            LOG.info("Adding cookbook %s" % c['name'])
-            cb = CookBook()
-            cb.repo = repo
-            cb.name = c['name']
-            cb.system = c['system']
-            cb.version = version
-            cb.path = os.path.join(l.path, c['name'])
-            cb.save()
-            cookbooks.add(c['name'])
-
-
-def recipes_add():
-    """ Add detected recipes based on local cookbooks """
-    l = LocalStorage()
-    for cb in CookBook.objects.all():
-        for r in l.list_recipes(cb.path):
-            ro = Recipe()
-            ro.name = r
-            ro.cookbook = cb
-            ro.version = cb.version
-            ro.system = cb.system
-            ro.save()

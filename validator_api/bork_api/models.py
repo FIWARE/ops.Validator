@@ -1,14 +1,15 @@
 # coding=utf-8
 from __future__ import unicode_literals
-from django.contrib.auth.models import User
+
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 
 SYSTEMS = (
     ("chef", "chef"),
-    ("pupp", "puppet"),
-    ("mura", "murano"),
+    ("puppet", "puppet"),
+    ("murano", "murano"),
 )
 
 
@@ -20,7 +21,7 @@ class Image(models.Model):
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     version = models.CharField(max_length=50, blank=False, default='Unknown')
     dockerfile = models.CharField(max_length=255, blank=False, default='Unknown')
-    system = models.CharField(max_length=4, choices=SYSTEMS, default="chef")
+    system = models.CharField(max_length=6, choices=SYSTEMS, default="chef")
     tag = models.CharField(max_length=50, blank=False, default='Unknown')
 
     def __unicode__(self):
@@ -36,7 +37,7 @@ class CookBook(models.Model):
     version = models.CharField(max_length=50, blank=False, default='Unknown')
     user = models.ForeignKey(User, blank=True, null=True)
     path = models.CharField(max_length=255, blank=False, default='/tmp/cookbooks')
-    system = models.CharField(max_length=4, choices=SYSTEMS, default="chef")
+    system = models.CharField(max_length=6, choices=SYSTEMS, default="chef")
 
     def __unicode__(self):
         return self.name
