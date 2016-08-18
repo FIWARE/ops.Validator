@@ -26,7 +26,8 @@ define(function (require) {
                 error: function (model, response) {
                     console.log(response);
                     notification().render({type:"error", text:response.responseJSON || "Error downloading Cookbook"});
-                }
+                }, 
+                async: false,
             }, this);
             return this;
         },

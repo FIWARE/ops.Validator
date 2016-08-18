@@ -12,16 +12,15 @@
 #  License for the specific language governing permissions and limitations
 #  under the License.
 
-import base64
-import json
 import os
 import shutil
-import urllib2
 
-import git
+from git import exc as GitException
 from oslo_config import cfg
 from oslo_log import log as logging
 from git import Repo
+
+from bork_api.clients import chef_client, puppet_client, murano_client
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -34,12 +33,12 @@ class RepoManager:
         self.full_path = os.path.join(CONF.clients_git.repo_path, user)
         try:
             self.repo = Repo(path=self.full_path)
-        except (git.exc.InvalidGitRepositoryError, git.exc.NoSuchPathError):
+        except (GitException.InvalidGitRepositoryError, GitException.NoSuchPathError):
             self.repo = self.create()
-            self.version = self.repo.version
 
     def create(self):
         """Create a new repo from name"""
+        LOG.info("Creating new repo in %s" % self.full_path)
         if not os.path.exists(self.full_path):
             os.makedirs(self.full_path)
         return Repo.init(self.full_path)
@@ -72,9 +71,14 @@ class RepoManager:
         :param path: local path to add from
         :return: current head version
         """
-        shutil.copytree(path, self.full_path)
+        cb_path = os.path.join(self.full_path, os.path.basename(path))
+        if os.path.exists(cb_path):
+         shutil.rmtree(cb_path)
+        shutil.copytree(path, cb_path)
         self.repo.git.add(A=True)
         self.repo.index.commit("Updated %s" % path)
+        self.version = self.repo.head.commit.tree.hexsha
+        LOG.info("Commited at version %s" % self.version)
         return self.repo.index.version
 
     def browse_file(self, file):
@@ -120,9 +124,33 @@ class RepoManager:
         message += u"Current head: %s" % self.repo.heads.master
         return message
 
+    def upload_coobook(self, path):
+        """
+        Uploads a validated cookbook to the official Github repo
+        :param path: cookbook path
+        :return: status message
+        """
+        dest_url = None
+        if chef_client.check_chef_cookbook(path):
+            dest_url = CONF.clients_chef.github_url
+        elif puppet_client.check_puppet_module(path):
+            dest_url = CONF.clients_puppet.github_url
+        elif murano_client.check_murano_blueprint(path):
+            dest_url = CONF.clients_murano.github_url
+        if dest_url:
+            LOG.info("Pushing cookbook to %s" % dest_url)
+            dest = self.repo.create_remote(self.user, dest_url)
+            self.repo.create_head('remote', dest.refs.master).set_tracking_branch(dest.refs.master)
+            message = dest.push()
+        else:
+            LOG.warning("Error detecting cookbook type for %s" % path)
+            message = "Error"
+        return message
 
 if __name__ == '__main__':
     import logging; logging.basicConfig(); LOG.logger.setLevel(logging.DEBUG)
-    m = RepoManager("testuser")
+    from bork_api.common import config
+    m = RepoManager("pmverdugo")
+    print(m.add_cookbook(r"/tmp/cookbooks/wilma"))
 
 

@@ -120,6 +120,7 @@ define(function (require) {
                 upload_url: this.$("#upload_url").val()
             });
             cb.save_remote(this.get_credentials());
+            this.refresh_remote_recipes();
         }
     });
 });

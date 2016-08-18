@@ -17,6 +17,7 @@ opts = [
     cfg.StrOpt('cmd_inject', default="echo '{}' >/etc/chef/solo.json"),
     cfg.StrOpt('cmd_syntax', default='knife cookbook test {}'),
     cfg.StrOpt('cmd_deploy', default='chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json'),
+    cfg.StrOpt('github_url', default='https://github.com/telefonicaid/fiware-enablers/tree/develop/chef-recipes'),
 ]
 CONF.register_opts(opts, group="clients_chef")
 
@@ -35,6 +36,7 @@ opts = [
     cfg.StrOpt('cmd_install', default='puppet module install {}'),
     cfg.StrOpt('cmd_syntax', default='puppet parser validate {}'),
     cfg.StrOpt('cmd_deploy', default='puppet apply --modulepath=./modules -e "class { \'%s\':}" --debug'),
+    cfg.StrOpt('github_url', default='https://github.com/telefonicaid/fiware-enablers/tree/develop/puppet-modules'),
 ]
 CONF.register_opts(opts, group="clients_puppet")
 
@@ -44,6 +46,7 @@ opts = [
     cfg.StrOpt('cmd_config', default='murano environment create {environment}'),
     cfg.StrOpt('cmd_syntax', default='murano environment-action-call {environment} --action syntax-check'),
     cfg.StrOpt('cmd_deploy', default='murano environment deploy {environment}'),
+    cfg.StrOpt('github_url', default='https://github.com/telefonicaid/fiware-enablers/tree/develop/murano-blueprints'),
 ]
 CONF.register_opts(opts, group="clients_murano")
 

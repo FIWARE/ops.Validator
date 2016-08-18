@@ -72,7 +72,7 @@ class CookBookViewSet(viewsets.ModelViewSet):
         # Download contents to temporary local storage
         name, path = LocalStorage().download(url)
         if not name:
-            return Response('Error downloading %s' % url,
+            return Response('Error downloading %s. Quota exceeded?' % url,
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Parse downloaded contents
@@ -86,7 +86,8 @@ class CookBookViewSet(viewsets.ModelViewSet):
         version = m.add_cookbook(path)
 
         # Generate valid cookbook
-        cb = CookBook(user=request.user.id, name=name, path=path, version=version, system=system)
+        LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
+        cb = CookBook(user=request.user, name=name, path=path, version=version, system=system)
         cb.save()
         cbs = CookBookSerializer(cb)
         resp = Response(cbs.data, status=status.HTTP_201_CREATED)
