@@ -75,6 +75,11 @@ class DockerManager:
         return status
 
     def prepare_image(self, tag):
+        """
+        Generate image from local file or download if necessary
+        :param tag: image tag
+        :return: operation status
+        """
         status = True
         LOG.info("Preparing Image %s" % tag)
         available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
@@ -87,6 +92,7 @@ class DockerManager:
 
     def run_container(self, image_name):
         """Run and start a container based on the given image
+        mounts local cookbook storage path
         :param image_name: image to run
         :return:
         """
@@ -96,6 +102,7 @@ class DockerManager:
             self.container = self.dc.create_container(
                 image_name,
                 tty=True,
+                volumes=[CONF.clients_git.repo_path],
                 name=contname
             ).get('Id')
             self.dc.start(container=self.container)
