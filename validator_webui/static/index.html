@@ -29,18 +29,13 @@
     <p>Select system and recipes to test</p>
     <table>
         <thead>
-        <th>Image</th>
         <th>Cookbook</th>
         <th>Recipe</th>
+        <th>Image</th>
         <th>Action</th>
         </thead>
         <tbody>
         <tr class="odd">
-            <td>
-                <select multiple id="sel_images">
-                    <option>No Images Available</option>
-                </select>
-            </td>
             <td>
                 <select multiple id="sel_cookbooks">
                     <option>No Cookbooks Available</option>
@@ -52,7 +47,12 @@
                 </select>
             </td>
             <td>
-                None
+                <select multiple id="sel_images">
+                    <option>No Images Available</option>
+                </select>
+            </td>
+            <td>
+                <button id="button_add" disabled="disabled">Add</button>
             </td>
         </tr>
         </tbody>

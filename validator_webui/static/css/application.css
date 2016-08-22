@@ -76,6 +76,9 @@ button {
     white-space: nowrap;
     -webkit-appearance: button;
 }
+:disabled {
+    background-color: #e6e6e6;
+}
 table {
     width: 100%;
 }

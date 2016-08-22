@@ -116,7 +116,7 @@ class DockerManager:
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        if self.container:
+        if hasattr("container", self):
             LOG.info(_LI('Removing old container %s' % contname))
             self.dc.stop(self.container)
             if kill:

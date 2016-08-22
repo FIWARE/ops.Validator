@@ -14,11 +14,10 @@ define(function (require) {
         },
         el: "#sel_recipes",
 
-        initialize: function (data) {
-            this.collection.bind('reset', this.render, this);
+        initialize: function () {
+            //this.collection.bind('reset', this.render, this);
             Backbone.on("EV_CookbookSelected", this.chooseRecipes, this);
-            Backbone.on("EV_ImageSelected", this.chooseRecipes, this);
-            this.master = data.master;
+            // Backbone.on("EV_ImageSelected", this.chooseRecipes, this);
         },
 
         render: function () {
@@ -40,18 +39,17 @@ define(function (require) {
         toggleSelected: function (event) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
-            this.collection.deselectAll();
-            id.forEach(function (i) {
-                this.collection.select(this.collection.get(i));
-            }, this);
-        }
-        ,
-
-        chooseRecipes: function (cbs) {
-            var ids = _.pluck(cbs, "id");
-            this.collection.reset(this.master.by_cb(ids));
-        }
-        ,
+            this.collection.get(id).select();
+            // this.collection.deselectAll();
+            // id.forEach(function (i) {
+            //     this.collection.select(this.collection.get(i));
+            // }, this);
+        },
+        chooseRecipes: function (cookbook) {
+            var id = cookbook.id;
+            this.collection.reset(this.collection.by_cb(id));
+            this.render();
+        },
 
 
     });

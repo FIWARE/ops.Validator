@@ -13,6 +13,7 @@ define(function (require) {
         initialize: function () {
             Backbone.Select.Me.applyTo(this);
         },
+
         save_remote: function (credentials) {
             notification().render({text:"Retrieving cookbook..."});
             this.id = null;
