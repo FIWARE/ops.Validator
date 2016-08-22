@@ -5,6 +5,7 @@
 Django<1.9,>=1.8 # BSD
 djangorestframework == 3.3.3
 django-cors-headers == 1.1.0
+django-filter == 0.14.0
 
 # User Authentication
 -e git+https://github.com/ging/django-openstack-auth.git#egg=django-openstack-auth

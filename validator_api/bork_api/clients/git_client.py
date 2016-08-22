@@ -69,22 +69,27 @@ class RepoManager:
         """
         Adds files from path to user repo
         :param path: local path to add from
-        :return: current head version
+        :return: current path and head version
         """
         cb_path = os.path.join(self.full_path, os.path.basename(path))
         if os.path.exists(cb_path):
          shutil.rmtree(cb_path)
         shutil.copytree(path, cb_path)
-        self.repo.git.add(A=True)
+        com = self.repo.git.add(A=True)
+        self.repo.index.add(com)
         self.repo.index.commit("Updated %s" % path)
         self.version = self.repo.head.commit.tree.hexsha
         LOG.info("Commited at version %s" % self.version)
-        return self.repo.index.version
+        return cb_path, self.repo.index.version
 
     def browse_file(self, file):
-        """Shows file contents"""
+        """
+        Returns sha1 index of file in repo
+        :param file: file path
+        :return: current file version id
+        """
         item = None
-        tree = self.repo.commit.tree
+        tree = self.repo.head.commit.tree
         for item in tree.traverse():
             if item.type == 'blob' and item.name == file:
                 break
@@ -150,7 +155,7 @@ class RepoManager:
 if __name__ == '__main__':
     import logging; logging.basicConfig(); LOG.logger.setLevel(logging.DEBUG)
     from bork_api.common import config
-    m = RepoManager("pmverdugo")
-    print(m.add_cookbook(r"/tmp/cookbooks/wilma"))
+
+
 
 

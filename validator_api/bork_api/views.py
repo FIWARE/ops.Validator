@@ -6,6 +6,7 @@ from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.response import Response
 
+from bork_api import filters
 from manager import images_cleanup, recipes_cleanup, recipes_add, cookbooks_cleanup, cookbooks_add
 from clients.git_client import RepoManager
 from clients.docker_client import DockerManager
@@ -51,6 +52,7 @@ class ImageViewSet(viewsets.ModelViewSet):
 class CookBookViewSet(viewsets.ModelViewSet):
     queryset = CookBook.objects.all()
     serializer_class = CookBookSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
     permission_classes = (permissions.IsAuthenticated,)
 
     def create(self, request, **kwargs):
@@ -63,13 +65,14 @@ class CookBookViewSet(viewsets.ModelViewSet):
         # Check data validity
         if 'upload_url' in request.data.keys():
             url = request.data['upload_url']
-            user = request.user.get_username()
+            user = request.user.username
             LOG.info("Creating Cookbook from %s" % url)
         else:
             return Response({'detail': 'Insufficient payload'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         # Download contents to temporary local storage
+        # TODO: better github quota management
         name, path = LocalStorage().download(url)
         if not name:
             return Response('Error downloading %s. Quota exceeded?' % url,
@@ -83,12 +86,20 @@ class CookBookViewSet(viewsets.ModelViewSet):
 
         # Add valid cookbook to user repo
         m = RepoManager(user)
-        version = m.add_cookbook(path)
+        cb_path, version = m.add_cookbook(path)
 
         # Generate valid cookbook
         LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
-        cb = CookBook(user=request.user, name=name, path=path, version=version, system=system)
+        cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)
         cb.save()
+        for r in LocalStorage().list_recipes(cb.path):
+            ro = Recipe()
+            ro.name = r
+            ro.cookbook = cb
+            ro.version = RepoManager(user).browse_file(r)
+            ro.system = system
+            ro.user = user
+            ro.save()
         cbs = CookBookSerializer(cb)
         resp = Response(cbs.data, status=status.HTTP_201_CREATED)
 
@@ -113,6 +124,7 @@ class CookBookViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()

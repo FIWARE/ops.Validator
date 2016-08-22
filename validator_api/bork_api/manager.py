@@ -63,7 +63,16 @@ def cookbooks_add():
             cb.system = system
             cb.version = repo.version
             cb.path = os.path.join(l.path, cb)
+            cb.user = user
             cb.save()
+            for r in l.list_recipes(cb.path):
+                ro = Recipe()
+                ro.name = r
+                ro.cookbook = cb
+                ro.version = repo.browse_file(r)
+                ro.system = system
+                ro.user = user
+                ro.save()
 
 
 def recipes_add():
@@ -77,6 +86,7 @@ def recipes_add():
                 ro = Recipe()
                 ro.name = r
                 ro.cookbook = cb
-                ro.version = repo.browse_file(r).version
+                ro.version = repo.browse_file(r)
                 ro.system = system
+                ro.user = user
                 ro.save()

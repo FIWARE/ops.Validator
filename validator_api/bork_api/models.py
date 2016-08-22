@@ -1,11 +1,8 @@
 # coding=utf-8
 from __future__ import unicode_literals
-
 import uuid
 
-from django.contrib.auth.models import User
 from django.db import models
-
 SYSTEMS = (
     ("chef", "chef"),
     ("puppet", "puppet"),
@@ -35,7 +32,7 @@ class CookBook(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     version = models.CharField(max_length=50, blank=False, default='Unknown')
-    user = models.ForeignKey(User, blank=True, null=True)
+    user = models.CharField(max_length=255, blank=False, default='Unknown')
     path = models.CharField(max_length=255, blank=False, default='/tmp/cookbooks')
     system = models.CharField(max_length=6, choices=SYSTEMS, default="chef")
 
@@ -50,7 +47,9 @@ class Recipe(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50, blank=False, default='Unknown')
     cookbook = models.ForeignKey(CookBook, blank=True, null=True)
-
+    user = models.CharField(max_length=255, blank=False, default='Unknown')
+    system = models.CharField(max_length=6, choices=SYSTEMS, default="chef")
+    version = models.CharField(max_length=50, blank=False, default='Unknown')
     def __unicode__(self):
         return self.name
 
@@ -60,7 +59,7 @@ class Deployment(models.Model):
     The deployment of a recipe in a system image
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, blank=True, null=True)
+    user = models.CharField(max_length=255, blank=False, default='Unknown')
     recipe = models.ForeignKey(Recipe, blank=True, null=True)
     image = models.ForeignKey(Image, blank=True, null=True)
     launch = models.NullBooleanField(blank=True, null=True)
