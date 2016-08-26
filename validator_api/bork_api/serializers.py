@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from rest_framework import serializers
-from models import Recipe, CookBook, Deployment, Image
+from models import Recipe, CookBook, Deployment, Image, Repo
 
 
 class ImageSerializer(serializers.ModelSerializer):
@@ -34,3 +34,11 @@ class DeploymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deployment
         fields = ('id', 'image', 'user', 'recipe', 'launch', 'dependencies', 'dependencies_log', 'syntax', 'syntax_log', 'deployment', 'deployment_log', 'ok', 'description')
+
+
+class RepoSerializer(serializers.ModelSerializer):
+    """ Serializer for a Repository Object """
+
+    class Meta:
+        model = Repo
+        fields = ('id', 'user', 'path', 'version')

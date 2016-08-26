@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from django.core import serializers
 from oslo_config import cfg
 from oslo_log import log as logging
 from rest_framework import permissions, status, viewsets
@@ -14,8 +14,8 @@ from clients.storage_client import LocalStorage
 from clients.chef_client import ChefClient
 from clients.puppet_client import PuppetClient
 from clients.murano_client import MuranoClient
-from models import CookBook, Recipe, Deployment, Image
-from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
+from models import CookBook, Recipe, Deployment, Image, Repo
+from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer, RepoSerializer
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
@@ -266,4 +266,100 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         d.save()
         return Response(s.data)
 
+
+class RepoViewSet(viewsets.ModelViewSet):
+    queryset = Repo.objects.all()
+    serializer_class = RepoSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        """ Generates db repo object """
+        user = request.data['user']
+        path = request.data['path']
+        version = request.data['version']
+
+        res = RepoManager(user).create()
+        if not version:
+            version = res
+
+        r = Repo(user=user, path=path, version=version)
+        r.save()
+
+        rs = RepoSerializer(r)
+        return Response(rs.data)
+
+    def delete(self, request, pk=None):
+        """Delete db repo object"""
+        r = Repo.objects.get(pk=pk)
+        user = request.data['user']
+        RepoManager(user).delete()
+        r.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['put', 'get'])
+    def branches(self, request, pk=None):
+        """
+        Returns current repo branches
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo branches
+        """
+        user = request.data['user']
+        b = RepoManager(user).check_branches()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def tags(self, request, pk=None):
+        """
+        Returns current repo tags
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo tags
+        """
+        user = request.data['user']
+        b = RepoManager(user).check_tags()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def browse(self, request, pk=None):
+        """
+        Returns current repo contents
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo contents
+        """
+        user = request.data['user']
+        b = RepoManager(user).browse_repository()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def file(self, request, pk=None):
+        """
+        Returns current repo file
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo file
+        """
+        user = request.data['user']
+        file = request.data['file']
+        b = RepoManager(user).browse_file(file)
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def stats(self, request, pk=None):
+        """
+        Returns current repo stats
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo stats
+        """
+        user = request.data['user']
+        b = RepoManager(user).statistics()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
 

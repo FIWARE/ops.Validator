@@ -71,3 +71,13 @@ class Deployment(models.Model):
     deployment_log = models.TextField(blank=True, null=True)
     ok = models.NullBooleanField(blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+
+
+class Repo(models.Model):
+    """
+    A user repository
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.CharField(max_length=255, blank=False, default='Unknown')
+    path = models.CharField(max_length=255, blank=False, default='/opt/cookbooks')
+    version = models.CharField(max_length=50, blank=False, default='Unknown')
