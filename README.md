@@ -26,12 +26,12 @@ Description
 -----------
 This project is part of [FIWARE] (http://fiware.org).
 
-A FIWARE validator for testing deployment artifacts implemented as
-a service with an OpenStack-native Rest API
+A FIWARE validator for testing deployment artifacts implemented as a Web UI/Restful API pair.
 
 Features Implemented
 --------------------
 A RESTful API for deployment artifacts validation
+A backbone.js based WebUI for FIWARE Lab user interaction.
 
 Installation Manual
 -------------------
@@ -74,7 +74,7 @@ Executing the listener API
 
 The listener api can be manually launched with the following command:
 
-    bork/command/validator-api.py --config-dir etc/bork
+    validator-api/manage.py <<URL:PORT>>
 
 
 External Dependencies
@@ -83,27 +83,27 @@ External Dependencies
 The system deployment depends on several external services for
 successful completion. The dependency list reads as follows:
 
-- **OpenStack Keystone server**: Used for issuing user tokens for several OpenStack services
+- **FIWARE Identity Manager**: Used for issuing user tokens for several OpenStack services
 - **Docker Server**: Used for managing the chef server image
-- **OpenStack Glance server**: Used for listing the available virtual machine images
-- **OpenStack Nova server**: Used for deploying the selected virtual machine
 
 
 Validation Process
 ------------------
 
-The cookbook validation process consists on the following steps:
+The validation process consists on the following steps:
+1. The User interacts with the **WEB UI**, indicating:
+    - Authentication credentials.
+    - Github Reposity to get a new deployment artifact.
+    - Deployment artifact placed in current server user Git repository.
+    - Desired Operating System against which to validate.
 
-1. The **Client** sends a POST request to the service API, containing:
-    - The name of the cookbook to be tested
-    - The *chef supermarket* repository from which to obtain the cookbook
-    - The virtual machine name for deployment
+2. The **WEB UI** sends a POST request to the service API, containing all the pertaining data.
 
-2. The **Server** receives the request and takes the following steps:
-    - Checks the user permissions to take the next steps by validating against Keystone
-    - Downloads the needed *cookbook*
-    - Deploys the selected *Virtual Machine* image
-    - Instructs the **Chef Server** to deploy the *cookbook* in the given *Virtual Machine*
+3. The **API** receives the request and takes the following steps:
+    - Checks the user permissions to take the next steps by validating against the IdM
+    - Downloads the needed *dependencies*
+    - Deploys the selected *container* image
+    - Instructs the **Deployment Server** to deploy the *artifact* in the given *container*
     - Responds to the **Client** request informing of the status of the validation process
 
 Example Client
