@@ -26,6 +26,7 @@ define(function (require) {
 
         events: {
             "click #button_upload": "upload_cookbook",
+            "click #button_github": "upload_github",
             // "click #button_refresh_local": "refresh_local_recipes",
             "click #button_add": "add_to_deployments",
             "click #button_run": "run_deployments",
@@ -103,6 +104,7 @@ define(function (require) {
         },
 
         run_deployments: function () {
+            $('#button_github').removeAttr('disabled');
             this.resultsview.collection.reset();
             this.deploymentsview.collection.each(function (d) {
                 this.resultsview.collection.add(d);
@@ -126,6 +128,11 @@ define(function (require) {
             });
             cb.save_remote(this.get_credentials());
             this.cookbookssel.collection.get_remote(creds);
+        },
+        upload_github: function () {
+            this.deploymentsview.collection.each(function (d) {
+              d.cookbook.upload_github();  
+            })
         },
         validate: function () {
             if (!this.cookbookssel.collection.selected || !this.imagessel.collection.selected || !this.recipessel.collection.selected) {

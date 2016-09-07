@@ -144,6 +144,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipes_add()
         return self.list(None)
 
+    @detail_route(methods=['put', 'get'])
+    def github(self, request, pk=None):
+        """
+        Upload the given cookbook to a remote github repository
+        :param request: request data
+        :param pk: id of selected cookbook
+        :return: operation status
+        """
+        cb = CookBook.objects.get(pk=pk)
+        user = request.user.username
+        LOG.info("Uploading cookbook %s to Github" % cb.name)
+        RepoManager(user).upload_coobook(cb.path)
+
 
 class DeploymentViewSet(viewsets.ModelViewSet):
     queryset = Deployment.objects.all()

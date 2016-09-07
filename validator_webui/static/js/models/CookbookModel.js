@@ -32,5 +32,21 @@ define(function (require) {
             }, this);
             return this;
         },
+        upload_github: function (credentials) {
+            notification().render({text:"Uploading cookbook to github..."});
+            var self = this;
+            this.credentials = credentials;
+            var resp = Backbone.sync("github", self, {
+                type: 'PUT',
+                url: this.url() + "/github/",
+                async: true,
+                success: function (model, response) {
+                    self.set('github', model.get('github'));
+                },
+                error: function (model, response) {
+                    notification().render({type:"error", text:response.responseJSON || "Error uploading Cookbook"});
+                }
+            });
+        }
     });
 });
