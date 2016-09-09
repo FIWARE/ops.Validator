@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'idm_auth',
     'corsheaders',
     'rest_framework',
+    #'rest_framework_swagger',
     'bork_api.apps.ValidatorApiConfig'
 ]
 
@@ -121,7 +122,7 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        #'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',

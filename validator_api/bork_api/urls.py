@@ -11,5 +11,6 @@ router.register(r'deployments', views.DeploymentViewSet)
 router.register(r'repos', views.RepoViewSet)
 
 urlpatterns = [
+    #url(r'^$', views.schema_view),
     url(r'^', include(router.urls)),
 ]

@@ -3,13 +3,13 @@
 # process, which may cause wedges in the gate later.
 
 Django<1.9,>=1.8 # BSD
-djangorestframework == 3.3.3
+djangorestframework == 3.4
 django-cors-headers == 1.1.0
 django-filter == 0.14.0
 
 # User Authentication
--e git+https://github.com/ging/django-openstack-auth.git#egg=django-openstack-auth
--e git+https://github.com/ging/python-keystoneclient.git#egg=python-keystoneclient
+# -e git+https://github.com/ging/django-openstack-auth.git#egg=django-openstack-auth
+# -e git+https://github.com/ging/python-keystoneclient.git#egg=python-keystoneclient
 pbr>=1.6 # Apache-2.0
 cryptography
 oslo.config == 3.13 # Apache-2.0

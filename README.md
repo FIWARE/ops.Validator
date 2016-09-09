@@ -48,7 +48,7 @@ The user manual is provided in rst format in the [User and Programmers manual](d
 API Documentation
 -----------------
 
-The API definition can be found at <http://docs.validatorapi2.apiary.io/#>
+The API definition can be found at <http://docs.uservalidatorapi.apiary.io/#>
 
 License
 -------
