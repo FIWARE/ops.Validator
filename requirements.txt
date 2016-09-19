@@ -6,4 +6,4 @@
 -r validator_api/requirements.txt
 
 # web ui
-#-r validator_webui/requirements.txt
+-r validator_webui/requirements.txt

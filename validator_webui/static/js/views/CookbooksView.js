@@ -14,11 +14,8 @@ define(function (require) {
         },
         el: "#sel_cookbooks",
 
-        initialize: function (data) {
+        initialize: function () {
             this.collection.bind('reset', this.render, this);
-            //this.listenTo(this.collection, 'reset', this.render);
-            Backbone.on("EV_ImageSelected", this.chooseCookbooks, this);
-            this.master = data.master;
         },
 
         render: function () {
@@ -39,17 +36,8 @@ define(function (require) {
         toggleSelected: function (event) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
-            this.collection.deselectAll();
-            id.forEach(function (i) {
-                this.collection.select(this.collection.get(i));
-            }, this);
+            this.collection.get( id ).toggleSelected();
             Backbone.trigger("EV_CookbookSelected", this.collection.selected);
-        },
-
-        chooseCookbooks: function (images) {
-            var systems = _.pluck(_.pluck(images, "attributes"), "system");
-            this.collection.reset(this.master.by_system(systems));
-
         },
 
     });

@@ -11,15 +11,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-from common import config, log
-from common import log
-APPNAME = "bork_api"
-
-config.setup_config(APPNAME)
-log.setup(APPNAME)
+from common import config
 
 CONF = config.CONF
-LOG = log.getLogger(__name__)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -47,6 +41,7 @@ INSTALLED_APPS = [
     'idm_auth',
     'corsheaders',
     'rest_framework',
+    #'rest_framework_swagger',
     'bork_api.apps.ValidatorApiConfig'
 ]
 
@@ -57,7 +52,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    # 'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bork_api.middleware.KeystoneAuthExceptionMiddleware',
@@ -127,17 +122,19 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        #'rest_framework.renderers.BrowsableAPIRenderer',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    )
+        # 'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',)
 }
-# Keystone Auth
-OPENSTACK_KEYSTONE_URL = "http://cloud.lab.fiware.org:4730/v2.0/"
 
 AUTHENTICATION_BACKENDS = ('idm_auth.backend.KeystoneBackend', )
+
+# Keystone Auth
+OPENSTACK_KEYSTONE_URL = CONF.keystone_authtoken.auth_uri
 
 LOGGING = {
     'version': 1,

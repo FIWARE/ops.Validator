@@ -61,7 +61,8 @@ docs/_build/
 .idea/
 
 # local configuration
-etc/bork/*.conf
+etc/bork_api/*.conf
+validator_webui/static/js/config.js
 
 # Runtime Built Documentation
 doc/make.bat

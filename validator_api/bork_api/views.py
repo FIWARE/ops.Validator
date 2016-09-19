@@ -1,19 +1,21 @@
 # coding=utf-8
-
-import os
+from django.core import serializers
 from oslo_config import cfg
 from oslo_log import log as logging
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework import status
-from rest_framework.response import Response
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import list_route, detail_route
-from models import Repo, CookBook, Recipe, Deployment, Image
-from serializers import RepoSerializer, CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer
+from rest_framework.response import Response
+
+from bork_api import filters
+from manager import images_cleanup, recipes_cleanup, recipes_add, cookbooks_cleanup, cookbooks_add
+from clients.git_client import RepoManager
+from clients.docker_client import DockerManager
 from clients.storage_client import LocalStorage
 from clients.chef_client import ChefClient
 from clients.puppet_client import PuppetClient
-from clients.docker_client import DockerManager
+from clients.murano_client import MuranoClient
+from models import CookBook, Recipe, Deployment, Image, Repo
+from serializers import CookBookSerializer, RecipeSerializer, DeploymentSerializer, ImageSerializer, RepoSerializer
 
 CONF = cfg.CONF
 LOG = logging.getLogger(__name__)
@@ -42,60 +44,118 @@ class ImageViewSet(viewsets.ModelViewSet):
     @list_route()
     def generate(self, request=None):
         """ Generate images from local configuration """
-        from clients.docker_client import DockerManager
         for s in Image.objects.all():
             DockerManager().prepare_image(s.tag)
         return self.list(None)
 
 
-class RepoViewSet(viewsets.ModelViewSet):
-    queryset = Repo.objects.all()
-    serializer_class = RepoSerializer
-    permission_classes = (permissions.IsAuthenticated,)
-
-
 class CookBookViewSet(viewsets.ModelViewSet):
     queryset = CookBook.objects.all()
     serializer_class = CookBookSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
     permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, **kwargs):
+        """
+        Creates a cookbook db object from a remote url
+        :param request: dict with request values
+        :param kwargs: additional arguments
+        :return: json response with operation status
+        """
+        # Check data validity
+        if 'upload_url' in request.data.keys():
+            url = request.data['upload_url']
+            user = request.user.username
+            LOG.info("Creating Cookbook from %s" % url)
+        else:
+            return Response({'detail': 'Insufficient payload'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Download contents to temporary local storage
+        # TODO: better github quota management
+        name, path = LocalStorage().download(url)
+        if not name:
+            return Response('Error downloading %s. Quota exceeded?' % url,
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Parse downloaded contents
+        system = LocalStorage().find_system(path)
+        if not system:
+            return Response({'detail': 'No valid cookbook detected for %s' % url},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Add valid cookbook to user repo
+        m = RepoManager(user)
+        cb_path, version = m.add_cookbook(path)
+
+        # Generate valid cookbook
+        LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
+        cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)
+        cb.save()
+        for r in LocalStorage().list_recipes(cb.path):
+            ro = Recipe()
+            ro.name = r
+            ro.cookbook = cb
+            ro.version = RepoManager(user).browse_file(r)
+            ro.system = system
+            ro.user = user
+            ro.save()
+        cbs = CookBookSerializer(cb)
+        resp = Response(cbs.data, status=status.HTTP_201_CREATED)
+
+        return resp
 
     @list_route()
     def refresh(self, request=None):
         """
-        Update cookbook list from repos
+        Update cookbook list from local repo
+        :param request: request data
+        :return: list of db cookbooks
         """
+        # Remove current cookbooks
         cookbooks_cleanup()
+        # Remove current recipes
         recipes_cleanup()
-        cookbooks = set()
-        for r in Repo.objects.all():
-            if r.type == "svn":
-                LOG.info("Downloading Cookbooks from %s" % r.location)
-                from clients.svn_client import SVNRepo
-                repo = SVNRepo(url=r.location, user=r.user, pwd=r.password)
-                repo.download_cookbooks()
-                cookbooks_add(cookbooks, r, version=repo.version)
-            elif r.type == "git":
-                from clients.repo_browse_client import GITRepo
-                LOG.info("Downloading Cookbooks from %s" % r.location)
-                repo = GITRepo(r.location)
-                repo.checkout()
-                cookbooks_add(cookbooks, r, version=repo.version)
+        # Add local cookbooks
+        cookbooks_add()
         return self.list(None)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
     permission_classes = (permissions.IsAuthenticated,)
 
     @list_route()
     def refresh(self, request):
         """
         Update recipe list from local cookbooks
+        :param request: request data
+        :return: list of db recipes
         """
+        # Remove current cookbooks
+        cookbooks_cleanup()
+        # Remove current recipes
         recipes_cleanup()
+        # Add local cookbooks
+        cookbooks_add()
+        # Add local recipes
         recipes_add()
         return self.list(None)
+
+    @detail_route(methods=['put', 'get'])
+    def github(self, request, pk=None):
+        """
+        Upload the given cookbook to a remote github repository
+        :param request: request data
+        :param pk: id of selected cookbook
+        :return: operation status
+        """
+        cb = CookBook.objects.get(pk=pk)
+        user = request.user.username
+        LOG.info("Uploading cookbook %s to Github" % cb.name)
+        RepoManager(user).upload_coobook(cb.path)
 
 
 class DeploymentViewSet(viewsets.ModelViewSet):
@@ -114,6 +174,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
+        d.user = request.user.id
         # Detect image
         if ":" in image:
             image_name, image_version = image.split(":")
@@ -155,6 +216,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             pc = PuppetClient()
             res = pc.run_install(d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_install(d.recipe.cookbook.name, d.image.tag)
+            d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
@@ -170,6 +235,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
             res = pc.run_test(d.recipe.cookbook.name, d.image.tag)
+            d.syntax, d.syntax_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_test(d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -187,6 +256,10 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             pc = PuppetClient()
             res = pc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            mc = MuranoClient()
+            res = mc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
@@ -200,64 +273,118 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         elif "puppet" == d.recipe.system:
             res = PuppetClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
+        elif "murano" == d.recipe.system:
+            res = MuranoClient().blueprint_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.ok, d.description = (res['success'], res['result'])
         d.save()
         return Response(s.data)
 
 
-def cookbooks_cleanup():
-    """ Cleanup previously downloaded cookbooks """
-    LOG.info("Cleanup old Cookbooks")
-    CookBook.objects.all().delete()
-    LocalStorage().reset()
+class RepoViewSet(viewsets.ModelViewSet):
+    queryset = Repo.objects.all()
+    serializer_class = RepoSerializer
+    filter_backends = (filters.IsOwnerFilterBackend,)
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        """ Generates db repo object """
+        user = request.data['user']
+        path = request.data['path']
+        version = request.data['version']
+
+        res = RepoManager(user).create()
+        if not version:
+            version = res
+
+        r = Repo(user=user, path=path, version=version)
+        r.save()
+
+        rs = RepoSerializer(r)
+        return Response(rs.data)
+
+    def delete(self, request, pk=None):
+        """Delete db repo object"""
+        r = Repo.objects.get(pk=pk)
+        user = request.data['user']
+        RepoManager(user).delete()
+        r.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @detail_route(methods=['put', 'get'])
+    def branches(self, request, pk=None):
+        """
+        Returns current repo branches
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo branches
+        """
+        user = request.data['user']
+        b = RepoManager(user).check_branches()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def tags(self, request, pk=None):
+        """
+        Returns current repo tags
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo tags
+        """
+        user = request.data['user']
+        b = RepoManager(user).check_tags()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def browse(self, request, pk=None):
+        """
+        Returns current repo contents
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo contents
+        """
+        user = request.data['user']
+        b = RepoManager(user).browse_repository()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def file(self, request, pk=None):
+        """
+        Returns current repo file
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo file
+        """
+        user = request.data['user']
+        file = request.data['file']
+        b = RepoManager(user).browse_file(file)
+        bs = serializers.serialize('json', b)
+        return Response(bs)
+
+    @detail_route(methods=['put', 'get'])
+    def stats(self, request, pk=None):
+        """
+        Returns current repo stats
+        :param request: request data
+        :param pk: repo id
+        :return: Current repo stats
+        """
+        user = request.data['user']
+        b = RepoManager(user).statistics()
+        bs = serializers.serialize('json', b)
+        return Response(bs)
 
 
-def images_cleanup():
-    """ Cleanup image db"""
-    LOG.debug("Cleanup old Images")
-    Image.objects.all().delete()
+# from rest_framework.decorators import api_view, renderer_classes
+# from rest_framework import response, schemas
+# from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer
+#
+#
+# @api_view()
+# @renderer_classes([OpenAPIRenderer, SwaggerUIRenderer])
+# def schema_view(request):
+#     generator = schemas.SchemaGenerator(title='Bookings API')
+#     return response.Response(generator.get_schema(request=request))
 
-
-def recipes_cleanup():
-    """ Cleanup previous recipes """
-    LOG.info("Cleanup old Recipes")
-    Recipe.objects.all().delete()
-
-
-def deployments_cleanup():
-    """ Cleanup previous deployments """
-    LOG.info("Cleanup old Deployments")
-    Deployment.objects.all().delete()
-
-
-def cookbooks_add(cookbooks, repo, version='Unknown'):
-    """
-    Add local cookbooks to db
-    :param cookbooks: current cookbooks
-    :param repo: current repository
-    :return:
-    """
-    l = LocalStorage()
-    for c in l.list_cookbooks():
-        if c['name'] not in cookbooks:
-            LOG.info("Adding cookbook %s" % c['name'])
-            cb = CookBook()
-            cb.repo = repo
-            cb.name = c['name']
-            cb.system = c['system']
-            cb.version = version
-            cb.path = os.path.join(l.path, c['name'])
-            cb.save()
-            cookbooks.add(c['name'])
-
-
-def recipes_add():
-    """ Add detected recipes based on local cookbooks """
-    l = LocalStorage()
-    for cb in CookBook.objects.all():
-        for r in l.list_recipes(cb.path):
-            ro = Recipe()
-            ro.name = r
-            ro.cookbook = cb
-            ro.version = cb.version
-            ro.system = cb.system
-            ro.save()

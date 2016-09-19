@@ -22,7 +22,7 @@ To run the code you can clone the git repo with:
 
 ::
 
-    git clone git@github.com:ging/fi-ware-validator.git
+    git clone git@github.com:ging/fiware-validator.git
 
 
 Installing Dependencies
@@ -35,47 +35,54 @@ To install package dependencies you must run:
     pip install -r requirements.txt
 
 
-Docker Container Install
-------------------------
+Deployment
+==========
+The system is deployed as two different projects, that can be installed and run in different locations.
+The API and WebUI can be run by executing the following command:
 
-As an alternative, if you have access to a docker server, you can pull and run the latest dev build from dockerhub with:
 ::
 
-    docker pull pmverdugo/fiware-validator:dev
-    docker run pmverdugo/fiware-validator:latest
+    ./run_all.sh
 
+Or separately by running:
+::
+
+    /usr/bin/python validator_api/manage.py
+
+
+for the RESTful API, and
+::
+
+    /usr/bin/python validator_webui/manage.py
+
+for the WebUI
 
 Sanity Check Procedures
 =======================
 
-Testing
--------
-
-Nosetests are provided via the tox tool. These tests can be executed simply by typing:
-::
-
-    tox
-
-in the root folder
-
 Running processes
 -----------------
 
-The only running process should be
+The running processes for the RESTful API should only be
 ::
 
-    /usr/bin/python validator-api.py
+    /usr/bin/python validator_api/manage.py
+
+Similarly, the WebUI is contained in the proccess
+::
+
+    /usr/bin/python validator_webui/manage.py
 
 Network Interfaces Up and Open
 ------------------------------
 
 The system only uses a TCP listener port linked on all interfaces.
-By default the port number is 4042, but it can be changed via the config file.
+By default the port number is 4042, but it can be changed via the aforementioned config file.
 
 Databases
 ---------
 
-In its current state the system doesn't use a database backend.
+The RESTful API uses a minimal sqlite based db for results buffering and storage, contained by default in the file validator.sqlite3
 
 Diagnosis Procedures
 ====================
@@ -86,32 +93,35 @@ Such specific testing is out of the scope of this section.
 Resource availability
 ---------------------
 
-The system requires a functional keystone server for authentication, with a valid and updated user list.
-The system also requires an accessible docker server, or alternatively a nova server.
+The system requires a functional FIWARE IdM server for authentication, with a valid and updated user list.
+The system also requires an accessible docker server.
 
 Remote Service Access
 ---------------------
 The system deployment depends on several external services for successful completion.
 The dependency list reads as follows:
 
-- OpenStack Keystone server:
-    Used for issuing user tokens for several OpenStack services
+- FIWARE IdM server:
+    Used for authenticating users
+
+- Docker daemon:
+    Used to deploy the test images
 
 Resource consumption
 --------------------
-The system runs as a lightweigth python process, so the typical memory usage should not surpass 10MB while running.
+The system runs as a couple of lightweigth python processes, so the typical memory usage should not surpass 20MB while running.
 The cpu usage should be none while listening, and should behave as a short activy spike when attending/processing.
 
 I/O flows
 ---------
-    - The client connects to the system via port 4042
-        - The system connects to the keystone server for authentication
-            - The keystone server responds
-        - The system connects to the docker server for deployment
-            - The docker server responds
-        - Alternatively, the system connects to the nova server for deployment
-            - The nova server responds
-    - The server responds
+    - The user accesses the WebUI url
+    - The WebUI requests the available images and deployment artifacts for the given user, by connecting to the API via port 4042
+    - The API connects to the IdM server for authentication
+        - The IdM server responds
+    - The API connects to the docker server for deployment
+        - The docker server responds
+    - The API responds to the WebUI
+    - The WebUI shows the results to the user
 
 License
 =======

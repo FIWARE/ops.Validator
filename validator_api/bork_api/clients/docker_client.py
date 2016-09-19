@@ -13,8 +13,6 @@ from bork_api.common.i18n import _LW, _LI
 from bork_api.common.exception import DockerContainerException
 
 CONF = cfg.CONF
-CONF.register_opt(cfg.StrOpt('url', default="tcp://127.0.0.1:2375"), group="clients_docker")
-CONF.register_opt(cfg.StrOpt('build_dir', default="/etc/bork"), group="clients_docker")
 LOG = logging.getLogger(__name__)
 
 
@@ -77,6 +75,11 @@ class DockerManager:
         return status
 
     def prepare_image(self, tag):
+        """
+        Generate image from local file or download if necessary
+        :param tag: image tag
+        :return: operation status
+        """
         status = True
         LOG.info("Preparing Image %s" % tag)
         available_images = [t['RepoTags'][0].split(":")[0] for t in self.dc.images()]
@@ -89,6 +92,7 @@ class DockerManager:
 
     def run_container(self, image_name):
         """Run and start a container based on the given image
+        mounts local cookbook storage path
         :param image_name: image to run
         :return:
         """
@@ -98,6 +102,7 @@ class DockerManager:
             self.container = self.dc.create_container(
                 image_name,
                 tty=True,
+                volumes=[CONF.clients_git.repo_path],
                 name=contname
             ).get('Id')
             self.dc.start(container=self.container)
@@ -111,7 +116,7 @@ class DockerManager:
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        if self.container:
+        if hasattr("container", self):
             LOG.info(_LI('Removing old container %s' % contname))
             self.dc.stop(self.container)
             if kill:

@@ -1,31 +1,27 @@
 # coding=utf-8
 from __future__ import unicode_literals
 from rest_framework import serializers
-from models import Repo, Recipe, CookBook, Deployment, Image
+from models import Recipe, CookBook, Deployment, Image, Repo
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    """ Serializer for a Image Object """
 
     class Meta:
         model = Image
         fields = ('id', 'name', 'version', 'dockerfile', 'system', 'tag')
 
 
-class RepoSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Repo
-        fields = ('id', 'type', 'location')
-
-
 class CookBookSerializer(serializers.ModelSerializer):
+    """ Serializer for a Cookbook Object """
 
     class Meta:
         model = CookBook
-        fields = ('id', 'name', 'version', 'repo', 'system')
+        fields = ('id', 'name', 'version', 'user', 'system')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    """ Serializer for a Recipe Object """
 
     class Meta:
         model = Recipe
@@ -33,7 +29,16 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class DeploymentSerializer(serializers.ModelSerializer):
+    """ Serializer for a Deployment Object """
 
     class Meta:
         model = Deployment
-        fields = ('id', 'image', 'recipe', 'launch', 'dependencies', 'dependencies_log', 'syntax', 'syntax_log', 'deployment', 'deployment_log', 'ok', 'description')
+        fields = ('id', 'image', 'user', 'recipe', 'launch', 'dependencies', 'dependencies_log', 'syntax', 'syntax_log', 'deployment', 'deployment_log', 'ok', 'description')
+
+
+class RepoSerializer(serializers.ModelSerializer):
+    """ Serializer for a Repository Object """
+
+    class Meta:
+        model = Repo
+        fields = ('id', 'user', 'path', 'version')

@@ -21,7 +21,7 @@ define(function (require) {
             console.log("Rendering Results...");
             if (!this.collection.length) {
                 this.$el.html(
-                    "<tr>" +
+                    "<tr class='odd'>" +
                     "<td>No Image Selected</td>" +
                     "<td>No Cookbook Selected</td>" +
                     "<td>No Recipe Selected</td>" +

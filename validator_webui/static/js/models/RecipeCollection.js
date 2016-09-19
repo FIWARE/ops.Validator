@@ -18,10 +18,10 @@ define(function (require) {
         sort_key: 'name',
 
         initialize: function (credentials, models, options) {
-            if (credentials && !!credentials.username && !!credentials.password) {
-                this.get_remote(credentials);
-            }
-            Backbone.Select.Many.applyTo(this, models, options);
+            // if (credentials && !!credentials.username && !!credentials.password) {
+            //     this.get_remote(credentials);
+            // }
+            Backbone.Select.One.applyTo(this, models, options);
         },
         comparator: function (item) {
             return item.get(this.sort_key);
@@ -33,7 +33,7 @@ define(function (require) {
         },
         by_cb: function (cbs) {
             return this.filter(function (rec) {
-                return $.inArray(rec.get('cookbook'), cbs) > -1;
+                return rec.get('cookbook') == cbs;
             });
         }
     });

@@ -1,0 +1,34 @@
+[DEFAULT]
+# Print debugging output (set logging level to DEBUG instead of default WARNING
+# level). (boolean value)
+debug = false
+
+# Host/port to listen to
+bind_host = 0.0.0.0
+bind_port = 4042
+
+# Where to find cookbooks
+[clients_storage]
+path = /tmp/cookbooks
+
+# keystone server api url
+[keystone_authtoken]
+auth_uri = http://localhost:5000/v2.0
+
+# Commands to run in chef instance
+[clients_puppet]
+cmd_install = puppet module install {}
+cmd_syntax = puppet parser validate {}
+cmd_deploy = puppet apply --modulepath=./modules -e "class { '%s':}" --debug
+
+# Commands to run in puppet instance
+[clients_chef]
+cmd_install = knife cookbook site install {}
+cmd_syntax    = knife cookbook test {}
+cmd_config = {"run_list": [ "recipe[%s]"]}
+cmd_inject  = echo '{}' >/etc/chef/solo.json
+cmd_deploy  = chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json
+
+# Docker server API url
+[clients_docker]
+url = tcp://127.0.0.1:2375

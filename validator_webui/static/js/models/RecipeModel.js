@@ -7,7 +7,6 @@ define(function (require) {
         bbsel = require('bbselect');
     return Backbone.Model.extend({
         initialize: function () {
-            // Applies the mixin:
             Backbone.Select.Me.applyTo(this);
         }
     });

@@ -1,0 +1,994 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: userValidatorAPI
+  description: A RESTful API for deployment artifact validation
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: GING
+    email: ging@etsit.upm.es
+    url: http://github.com/ging
+  license:
+    name: MIT
+    url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+host: validator.fiware.org
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  basic:
+    type: basic
+paths:
+  '/repos/{pk}/stats/':
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/deployments/{pk}/launch/':
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/repos/{pk}/browse/':
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/cookbooks/{pk}/':
+    put:
+      tags:
+        - cookbooks
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+      description: ''
+    delete:
+      tags:
+        - cookbooks
+      responses:
+        '204':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+    patch:
+      tags:
+        - cookbooks
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+      description: ''
+    get:
+      tags:
+        - cookbooks
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /repos/:
+    post:
+      tags:
+        - repos
+      responses:
+        '201':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: path
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: query
+          name: page
+      description: ''
+  '/repos/{pk}/':
+    put:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: path
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    delete:
+      tags:
+        - repos
+      responses:
+        '204':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+    patch:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: path
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/deployments/{pk}/full_deploy/':
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/repos/{pk}/branches/':
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /deployments/:
+    post:
+      tags:
+        - deployments
+      responses:
+        '201':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: image
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: recipe
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: launch
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: ok
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: description
+      description: ''
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: query
+          name: page
+      description: ''
+  '/recipes/{pk}/github/':
+    get:
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/deployments/{pk}/syntax/':
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/deployments/{pk}/':
+    put:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: image
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: recipe
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: launch
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: ok
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: description
+      description: ''
+    delete:
+      tags:
+        - deployments
+      responses:
+        '204':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+    patch:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: image
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: recipe
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: launch
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dependencies_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: syntax_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: deployment_log
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: ok
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: description
+      description: ''
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/deployments/{pk}/deploy/':
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /cookbooks/:
+    post:
+      tags:
+        - cookbooks
+      responses:
+        '201':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: user
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+      description: ''
+    get:
+      tags:
+        - cookbooks
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: query
+          name: page
+      description: ''
+  '/recipes/{pk}/':
+    put:
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: cookbook
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    delete:
+      tags:
+        - recipes
+      responses:
+        '204':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+    patch:
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: cookbook
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    get:
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /images/:
+    post:
+      tags:
+        - images
+      responses:
+        '201':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dockerfile
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: tag
+      description: ''
+    get:
+      tags:
+        - images
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: query
+          name: page
+      description: ''
+  /recipes/refresh/:
+    get:
+      tags:
+        - refresh
+      responses:
+        '200':
+          description: ''
+      parameters: []
+      description: ''
+  '/images/{pk}/':
+    put:
+      tags:
+        - images
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dockerfile
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: tag
+      description: ''
+    delete:
+      tags:
+        - images
+      responses:
+        '204':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+    patch:
+      tags:
+        - images
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: dockerfile
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: tag
+      description: ''
+    get:
+      tags:
+        - images
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /recipes/:
+    post:
+      tags:
+        - recipes
+      responses:
+        '201':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: name
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: cookbook
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: system
+        - required: false
+          type: string
+          description: ''
+          in: formData
+          name: version
+      description: ''
+    get:
+      tags:
+        - recipes
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: false
+          type: string
+          description: ''
+          in: query
+          name: page
+      description: ''
+  '/repos/{pk}/file/':
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  '/repos/{pk}/tags/':
+    get:
+      tags:
+        - repos
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+  /images/generate/:
+    get:
+      tags:
+        - generate
+      responses:
+        '200':
+          description: ''
+      parameters: []
+      description: ''
+  '/deployments/{pk}/dependencies/':
+    get:
+      tags:
+        - deployments
+      responses:
+        '200':
+          description: ''
+      parameters:
+        - required: true
+          type: string
+          description: ''
+          in: path
+          name: pk
+      description: ''
+
+

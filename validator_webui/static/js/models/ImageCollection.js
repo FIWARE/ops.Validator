@@ -9,6 +9,7 @@ define(function (require) {
         config = require('config'),
         Image = require('models/ImageModel'),
         basicauth = require('bbbasicauth'),
+        notification = require('views/NotificationView'),
         bbsel = require('bbselect');
     var $ = require("jquery");
 
@@ -18,10 +19,10 @@ define(function (require) {
         sort_key: 'system',
 
         initialize: function (credentials, models, options) {
-            if (credentials && !!credentials.username && !!credentials.password) {
-                this.get_remote(credentials);
-            }
-            Backbone.Select.Many.applyTo(this, models, options);
+            // if (credentials && !!credentials.username && !!credentials.password) {
+            //     this.get_remote(credentials);
+            // }
+            Backbone.Select.One.applyTo( this, models, options );
         },
 
         comparator: function (item) {
@@ -30,8 +31,22 @@ define(function (require) {
 
         get_remote: function (credentials) {
             console.log("Fetching Images...");
+            notification().render({ text: 'Retrieving images...' });
             this.credentials = credentials;
-            this.fetch({reset: true});
+            this.fetch({reset: true,
+                success: function (model, response) {
+                    notification().render({type:"success", text:"Images successfully retrieved"});
+                },
+                error: function (model, response) {
+                    console.log(response);
+                    notification().render({type:"error", text:"Error retrieving Images"});
+                }
+            });
+        },
+        by_system: function (system) {
+            return this.filter(function (rec) {
+                return rec.get('system') == system;
+            });
         }
     });
 });
