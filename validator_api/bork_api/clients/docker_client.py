@@ -96,9 +96,11 @@ class DockerManager:
         :param image_name: image to run
         :return:
         """
+        status = True
+        self.prepare_image(image_name)
         contname = "{}-validate".format(image_name).replace("/", "_")
         try:
-            self.dc.remove_container(contname, kill=True)
+            self.remove_container(contname, kill=True)
             self.container = self.dc.create_container(
                 image_name,
                 tty=True,
@@ -107,20 +109,28 @@ class DockerManager:
             ).get('Id')
             self.dc.start(container=self.container)
         except NotFound as e:
-            LOG.error(_LW("Image not found: %s" % image_name))
+            LOG.error(_LW("Image not found: [%s]" % image_name))
+            status = False
         except AttributeError as e:
-            LOG.error(_LW("Error creating container: %s" % e))
-            raise DockerContainerException(image=image_name)
+            LOG.error(_LW("Error creating container: [%s]" % e))
+            status = False
+            # raise DockerContainerException(image=image_name)
+        return status
 
     def remove_container(self, contname, kill=True):
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        if hasattr("container", self):
-            LOG.info(_LI('Removing old container %s' % contname))
-            self.dc.stop(self.container)
+        try:
+            found = next(c for c in self.dc.containers() if contname in c['Names'][0])
+            LOG.info(_LI('Removing old container [%s]' % contname))
             if kill:
-                self.dc.remove_container(self.container)
+                self.dc.kill(found)
+                self.dc.remove_container(found, force=True)
+            else:
+                self.dc.stop(found)
+        except StopIteration:
+            LOG.info(_LI('Old container not found for removal [%s]' % contname))
 
     def execute_command(self, command):
         """ Execute a command in the given container

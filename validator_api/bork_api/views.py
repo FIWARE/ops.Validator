@@ -170,7 +170,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         image = request.data['image'].lower()
         image_tag = image
         cookbook = request.data['cookbook']
-        recipe = request.data['recipe'] or 'default.rb'
+        recipe = request.data['recipe'] if 'recipe' in request.data.keys() else 'default.rb'
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
@@ -184,11 +184,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
             except Image.DoesNotExist:
                 pass
             except Image.MultipleObjectsReturned:
-                return Response({'detail': 'Multiple images found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': 'Multiple images found for [%s]' % image}, status=status.HTTP_400_BAD_REQUEST)
         try:
             i = Image.objects.get(tag=image_tag)
         except Image.DoesNotExist:
-            return Response({'detail': 'Image not found %s' % image}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Image not found: [%s]' % image}, status=status.HTTP_400_BAD_REQUEST)
         d.image = i
 
         d.save()
@@ -199,7 +199,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """Ensures launch image is ready for use"""
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        d.launch = DockerManager().prepare_image(d.image.tag)
+        d.launch = DockerManager().run_container(d.image.tag)
         d.save()
         return Response(s.data)
 
