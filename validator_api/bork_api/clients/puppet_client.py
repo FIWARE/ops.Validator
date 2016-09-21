@@ -74,7 +74,7 @@ class PuppetClient(object):
         self.container = None
         self.dc = DockerManager()
 
-    def cookbook_deployment_test(self, cookbook, recipe='default', image='default'):
+    def cookbook_deployment_test(self, user, cookbook, recipe='default', image='default'):
         """
         Try to process a cookbook and return results
         :param cookbook: cookbook to deploy
@@ -113,7 +113,7 @@ class PuppetClient(object):
         self.dc.remove_container()
         return msg
 
-    def run_install(self, cookbook, image):
+    def run_install(self, user, cookbook, image):
         """Run download and install command
         :param cookbook: cookbook to process
         :return msg: operation result
@@ -136,7 +136,7 @@ class PuppetClient(object):
             raise CookbookInstallException(cookbook=cookbook)
         return msg
 
-    def run_test(self, cookbook, image):
+    def run_test(self, user, cookbook, image):
         """ Test cookbook syntax
         :param cookbook: cookbook to test
         :return msg: dictionary with results and state
@@ -159,7 +159,7 @@ class PuppetClient(object):
             raise CookbookSyntaxException(cookbook=cookbook)
         return msg
 
-    def run_deploy(self, cookbook, recipe, image):
+    def run_deploy(self, user, cookbook, recipe, image):
         """ Run cookbook deployment
         :param cookbook: cookbook to deploy
         :return msg: dictionary with results and state

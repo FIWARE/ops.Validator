@@ -90,24 +90,24 @@ class DockerManager:
                 status = self.generate_image(df)
         return status
 
-    def run_container(self, image_name):
+    def run_container(self, user, cookbook, image_name):
         """Run and start a container based on the given image
         mounts local cookbook storage path
         :param image_name: image to run
-        :return:
+        :return: operation status
         """
         status = True
         self.prepare_image(image_name)
-        contname = "{}-validate".format(image_name).replace("/", "_")
+        contname = self.generate_container_name(user, cookbook, image_name)
         try:
             self.remove_container(contname, kill=True)
-            self.container = self.dc.create_container(
+            container = self.dc.create_container(
                 image_name,
                 tty=True,
                 volumes=[CONF.clients_git.repo_path],
                 name=contname
             ).get('Id')
-            self.dc.start(container=self.container)
+            self.dc.start(container=container)
         except NotFound as e:
             LOG.error(_LW("Image not found: [%s]" % image_name))
             status = False
@@ -121,25 +121,45 @@ class DockerManager:
         """destroy container on exit
         :param kill: inhibits removal for testing purposes
         """
-        try:
-            found = next(c for c in self.dc.containers() if contname in c['Names'][0])
+        found = self.get_container_by_name(contname)
+        if found:
             LOG.info(_LI('Removing old container [%s]' % contname))
             if kill:
-                self.dc.kill(found)
                 self.dc.remove_container(found, force=True)
             else:
                 self.dc.stop(found)
-        except StopIteration:
-            LOG.info(_LI('Old container not found for removal [%s]' % contname))
 
-    def execute_command(self, command):
+    def execute_command(self, contname, command):
         """ Execute a command in the given container
         :param command:  bash command to run
         :return:  execution result
         """
         bash_txt = "/bin/bash -c \"{}\"".format(command.replace('"', '\\"'))
         exec_txt = self.dc.exec_create(
-            container=self.container,
+            container=self.get_container_by_name(contname),
             cmd=bash_txt
         )
         return self.dc.exec_start(exec_txt)
+
+    def get_container_by_name(self, contname):
+        """
+        :param contname: name or alias of the container to find
+        :return: container found
+        """
+        found = None
+        try:
+            found = next(c for c in self.dc.containers(all=True) if contname.lower() in c['Names'][0])
+        except StopIteration:
+            LOG.info(_LI('Container not found for removal [%s]' % contname))
+        return found
+
+    @staticmethod
+    def generate_container_name(user, cookbook, image_name):
+        """
+        :param user: user name
+        :param cookbook:  cookbook name
+        :param image_name: docker image name
+        :return: regular generated container name
+        """
+        return "{}_{}_{}-validate".format(user, cookbook, image_name.replace("/", "_")).lower()
+

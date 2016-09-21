@@ -199,7 +199,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         """Ensures launch image is ready for use"""
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
-        d.launch = DockerManager().run_container(d.image.tag)
+        d.launch = DockerManager().run_container(d.user, d.recipe.cookbook.name, d.image.tag)
         d.save()
         return Response(s.data)
 
@@ -210,15 +210,15 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_install(d.recipe.cookbook.name, d.image.tag)
+            res = cc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_install(d.recipe.cookbook.name, d.image.tag)
+            res = pc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         elif "murano" == d.recipe.system:
             mc = MuranoClient()
-            res = mc.run_install(d.recipe.cookbook.name, d.image.tag)
+            res = mc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
             d.dependencies, d.dependencies_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -230,15 +230,15 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_test(d.recipe.cookbook.name, d.image.tag)
+            res = cc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_test(d.recipe.cookbook.name, d.image.tag)
+            res = pc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         elif "murano" == d.recipe.system:
             mc = MuranoClient()
-            res = mc.run_test(d.recipe.cookbook.name, d.image.tag)
+            res = mc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
             d.syntax, d.syntax_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -250,15 +250,15 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             cc = ChefClient()
-            res = cc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = cc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
             pc = PuppetClient()
-            res = pc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = pc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         elif "murano" == d.recipe.system:
             mc = MuranoClient()
-            res = mc.run_deploy(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = mc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.deployment, d.deployment_log = (res['success'], res['result'])
         d.save()
         return Response(s.data)
@@ -268,13 +268,13 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         d = Deployment.objects.get(pk=pk)
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
-            res = ChefClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = ChefClient().cookbook_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
         elif "puppet" == d.recipe.system:
-            res = PuppetClient().cookbook_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = PuppetClient().cookbook_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
         elif "murano" == d.recipe.system:
-            res = MuranoClient().blueprint_deployment_test(d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            res = MuranoClient().blueprint_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
             d.ok, d.description = (res['success'], res['result'])
         d.save()
         return Response(s.data)

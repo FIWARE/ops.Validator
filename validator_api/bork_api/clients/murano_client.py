@@ -72,7 +72,7 @@ class MuranoClient(object):
         self.container = None
         self.dc = DockerManager()
 
-    def blueprint_deployment_test(self, blueprint, spec='default', image='default'):
+    def blueprint_deployment_test(self, user, blueprint, spec='default', image='default'):
         """
         Try to process a blueprint and return results
         :param blueprint: blueprint to deploy
@@ -106,7 +106,7 @@ class MuranoClient(object):
         self.dc.remove_container()
         return msg
 
-    def run_deploy(self, blueprint, spec, image):
+    def run_deploy(self, user, blueprint, spec, image):
         """ Run blueprint deployment
         :param blueprint: blueprint to deploy
         :return msg: dictionary with results and state
@@ -129,7 +129,7 @@ class MuranoClient(object):
             raise CookbookDeploymentException(blueprint=blueprint)
         return msg
 
-    def run_test(self, blueprint, image):
+    def run_test(self, user, blueprint, image):
         """ Test blueprint syntax
         :param blueprint: blueprint to test
         :return msg: dictionary with results and state
@@ -152,7 +152,7 @@ class MuranoClient(object):
             raise CookbookSyntaxException(blueprint=blueprint)
         return msg
 
-    def run_install(self, blueprint, image):
+    def run_install(self, user, blueprint, image):
         """Run download and install command
         :param blueprint: blueprint to process
         :return msg: operation result
