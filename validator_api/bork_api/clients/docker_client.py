@@ -148,7 +148,7 @@ class DockerManager:
         """
         found = None
         try:
-            found = next(c for c in self.dc.containers(all=True) if contname.lower() in c['Names'][0])
+            found = next(c for c in self.dc.containers(all=True) if contname in c['Names'][0])
         except StopIteration:
             LOG.info(_LI('Container not found for removal [%s]' % contname))
         return found
