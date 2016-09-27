@@ -174,7 +174,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
-        d.user = request.user.id
+        d.user = str(request.user)
         # Detect image
         if ":" in image:
             image_name, image_version = image.split(":")
@@ -207,60 +207,51 @@ class DeploymentViewSet(viewsets.ModelViewSet):
     def dependencies(self, request, pk=None):
         """Install package and dependencies"""
         d = Deployment.objects.get(pk=pk)
-        s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
-            cc = ChefClient()
-            res = cc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.dependencies, d.dependencies_log = (res['success'], res['result'])
+            res = ChefClient().run_install(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.dependencies, d.dependencies_log = (res['success'], res['response'])
         elif "puppet" == d.recipe.system:
-            pc = PuppetClient()
-            res = pc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.dependencies, d.dependencies_log = (res['success'], res['result'])
+            res = PuppetClient().run_install(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.dependencies, d.dependencies_log = (res['success'], res['response'])
         elif "murano" == d.recipe.system:
-            mc = MuranoClient()
-            res = mc.run_install(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.dependencies, d.dependencies_log = (res['success'], res['result'])
+            res = MuranoClient().run_install(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.dependencies, d.dependencies_log = (res['success'], res['response'])
         d.save()
+        s = DeploymentSerializer(d)
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])
     def syntax(self, request, pk=None):
         """ Syntax checks package """
         d = Deployment.objects.get(pk=pk)
-        s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
-            cc = ChefClient()
-            res = cc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.syntax, d.syntax_log = (res['success'], res['result'])
+            res = ChefClient().run_test(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.syntax, d.syntax_log = (res['success'], res['response'])
         elif "puppet" == d.recipe.system:
-            pc = PuppetClient()
-            res = pc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.syntax, d.syntax_log = (res['success'], res['result'])
+            res = PuppetClient().run_test(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.syntax, d.syntax_log = (res['success'], res['response'])
         elif "murano" == d.recipe.system:
-            mc = MuranoClient()
-            res = mc.run_test(d.user, d.recipe.cookbook.name, d.image.tag)
-            d.syntax, d.syntax_log = (res['success'], res['result'])
+            res = MuranoClient().run_test(d.user, d.recipe.cookbook.name, d.image.tag)
+            d.syntax, d.syntax_log = (res['success'], res['response'])
         d.save()
+        s = DeploymentSerializer(d)
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])
     def deploy(self, request, pk=None):
         """ Deploys package"""
         d = Deployment.objects.get(pk=pk)
-        s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
-            cc = ChefClient()
-            res = cc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.deployment, d.deployment_log = (res['success'], res['result'])
+            res = ChefClient().run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.deployment, d.deployment_log = (res['success'], res['response'])
         elif "puppet" == d.recipe.system:
-            pc = PuppetClient()
-            res = pc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.deployment, d.deployment_log = (res['success'], res['result'])
+            res = PuppetClient().run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.deployment, d.deployment_log = (res['success'], res['response'])
         elif "murano" == d.recipe.system:
-            mc = MuranoClient()
-            res = mc.run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.deployment, d.deployment_log = (res['success'], res['result'])
+            res = MuranoClient().run_deploy(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
+            d.deployment, d.deployment_log = (res['success'], res['response'])
         d.save()
+        s = DeploymentSerializer(d)
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])
@@ -269,13 +260,13 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         s = DeploymentSerializer(d)
         if "chef" == d.recipe.system:
             res = ChefClient().cookbook_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.ok, d.description = (res['success'], res['result'])
+            d.ok, d.description = (res['success'], res['response'])
         elif "puppet" == d.recipe.system:
             res = PuppetClient().cookbook_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.ok, d.description = (res['success'], res['result'])
+            d.ok, d.description = (res['success'], res['response'])
         elif "murano" == d.recipe.system:
             res = MuranoClient().blueprint_deployment_test(d.user, d.recipe.cookbook.name, d.recipe.name, d.image.tag)
-            d.ok, d.description = (res['success'], res['result'])
+            d.ok, d.description = (res['success'], res['response'])
         d.save()
         return Response(s.data)
 
@@ -376,7 +367,7 @@ class RepoViewSet(viewsets.ModelViewSet):
         bs = serializers.serialize('json', b)
         return Response(bs)
 
-
+# API Documentation
 # from rest_framework.decorators import api_view, renderer_classes
 # from rest_framework import response, schemas
 # from rest_framework_swagger.renderers import OpenAPIRenderer, SwaggerUIRenderer

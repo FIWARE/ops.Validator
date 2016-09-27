@@ -69,8 +69,82 @@ class ChefClient(object):
     """
 
     def __init__(self):
-        self.container = None
         self.dc = DockerManager()
+
+    def run_install(self, user, cookbook, image):
+        """Run download and install command
+        :param cookbook: cookbook to process
+        :return msg: operation result
+        """
+        # try:
+        contname = self.dc.generate_container_name(user, cookbook, image)
+        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user), cookbook)
+        cmd_install = CONF.clients_chef.cmd_install.format(cbpath)
+        LOG.debug("Install command: %s" % cmd_install)
+        resp_install = self.dc.execute_command(contname, cmd_install)
+        msg = {
+            'success': True,
+            'response': resp_install
+        }
+        for line in resp_install.splitlines():
+            if "ERROR" in line:
+                msg['success'] = False
+        LOG.debug(_("Install result: %s") % resp_install)
+        # except Exception as e:
+        #     LOG.error(_LW("Chef install exception: %s" % e))
+        #     raise CookbookInstallException(cookbook=cookbook)
+        return msg
+
+    def run_test(self, user, cookbook, image):
+        """ Test cookbook syntax
+        :param cookbook: cookbook to test
+        :return msg: dictionary with results and state
+        """
+        # try:
+        contname = self.dc.generate_container_name(user, cookbook, image)
+        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
+        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/knife.rb".format(cbpath)
+        LOG.debug("Knife path: %s" % cmd_path)
+        self.dc.execute_command(contname, cmd_path)
+        cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
+        LOG.debug("Syntax cmd: %s" % cmd_syntax)
+        resp_test = self.dc.execute_command(contname, cmd_syntax)
+        msg = {
+            'success': True,
+            'response': resp_test
+        }
+        for line in resp_test.splitlines():
+            if "ERROR" in line:
+                msg['success'] = False
+        LOG.debug(_("Test result: %s") % resp_test)
+        # except Exception as e:
+        #     self.dc.remove_container(contname)
+        #     LOG.error(_LW("Cookbook syntax exception %s" % e))
+        #     raise CookbookSyntaxException(cookbook=cookbook)
+        return msg
+
+    def run_deploy(self, user, cookbook, recipe, image):
+        """ Run cookbook deployment
+        :param cookbook: cookbook to deploy
+        :return msg: dictionary with results and state
+        """
+        # try:
+        # launch execution
+        contname = self.dc.generate_container_name(user, cookbook, image)
+        cmd_deploy = CONF.clients_chef.cmd_deploy
+        resp_launch = self.dc.execute_command(contname, cmd_deploy)
+        msg = {
+            'success': True,
+            'response': resp_launch
+        }
+        LOG.debug(_("Launch result: %s") % resp_launch)
+        if resp_launch is None or "FATAL" in resp_launch:
+            msg['success'] = False
+        # except Exception as e:
+        #     self.dc.remove_container(self.container)
+        #     LOG.error(_LW("Cookbook deployment exception %s" % e))
+        #     raise CookbookDeploymentException(cookbook=cookbook)
+        return msg
 
     def cookbook_deployment_test(self, user, cookbook, recipe='default', image='default'):
         """
@@ -109,75 +183,6 @@ class ChefClient(object):
             }
             LOG.error(_LW(msg))
         self.dc.remove_container()
-        return msg
-
-    def run_deploy(self, user, cookbook, recipe, image):
-        """ Run cookbook deployment
-        :param cookbook: cookbook to deploy
-        :return msg: dictionary with results and state
-        """
-        try:
-            # launch execution
-            self.dc.container = self.dc.run_container(image)
-            cmd_deploy = CONF.clients_chef.cmd_deploy
-            resp_launch = self.dc.execute_command(cmd_deploy)
-            msg = {
-                'success': True,
-                'response': resp_launch
-            }
-            LOG.debug(_("Launch result: %s") % resp_launch)
-            if resp_launch is None or "FATAL" in resp_launch:
-                msg['success'] = False
-        except Exception as e:
-            self.dc.remove_container(self.container)
-            LOG.error(_LW("Cookbook deployment exception %s" % e))
-            raise CookbookDeploymentException(cookbook=cookbook)
-        return msg
-
-    def run_test(self, user, cookbook, image):
-        """ Test cookbook syntax
-        :param cookbook: cookbook to test
-        :return msg: dictionary with results and state
-        """
-        try:
-            self.dc.container = self.dc.run_container(image)
-            cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
-            resp_test = self.dc.execute_command(cmd_syntax)
-            msg = {
-                'success': True,
-                'response': resp_test
-            }
-            for line in resp_test.splitlines():
-                if "ERROR" in line:
-                    msg['success'] = False
-            LOG.debug(_("Test result: %s") % resp_test)
-        except Exception as e:
-            self.dc.remove_container(self.container)
-            LOG.error(_LW("Cookbook syntax exception %s" % e))
-            raise CookbookSyntaxException(cookbook=cookbook)
-        return msg
-
-    def run_install(self, user, cookbook, image):
-        """Run download and install command
-        :param cookbook: cookbook to process
-        :return msg: operation result
-        """
-        try:
-            self.dc.container = self.dc.run_container(image)
-            cmd_install = CONF.clients_chef.cmd_install.format(cookbook)
-            resp_install = self.dc.execute_command(cmd_install)
-            msg = {
-                'success': True,
-                'response': resp_install
-            }
-            for line in resp_install.splitlines():
-                if "ERROR" in line:
-                    msg['success'] = False
-            LOG.debug(_("Install result: %s") % resp_install)
-        except Exception as e:
-            self.dc.remove_container(self.container)
-            LOG.error(_LW("Chef install exception: %s" % e))
-            raise CookbookInstallException(cookbook=cookbook)
         return msg
 
 

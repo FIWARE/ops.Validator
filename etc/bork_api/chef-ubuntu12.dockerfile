@@ -38,10 +38,10 @@ RUN /opt/chefdk/embedded/bin/gem install knife-github-cookbooks && \
     rm -rf /tmp/*
 
 # Configure Chef-solo
-RUN echo 'cookbook_path "/var/chef/cookbooks"\nlog_level :debug' > /etc/chef/solo.rb
+RUN echo 'cookbook_path "/opt/cookbooks"\nlog_level :debug' > /etc/chef/solo.rb
 
 # Set the default directory where CMD will execute
-WORKDIR /etc/chef
+WORKDIR /opt/cookbooks
 
 # Bash command prompt by default
 CMD ["/bin/bash"]

@@ -4,6 +4,7 @@ Dockerfile Management
 """
 import os
 import re
+import urllib
 
 from docker import Client as DC
 from docker.errors import NotFound
@@ -105,7 +106,16 @@ class DockerManager:
                 image_name,
                 tty=True,
                 volumes=[CONF.clients_git.repo_path],
-                name=contname
+                name=contname,
+                host_config=self.dc.create_host_config(
+                    binds={
+                    CONF.clients_git.repo_path: {
+                        'bind': CONF.clients_git.repo_path,
+                        'mode': 'rw',
+                        },
+                    },
+                    network_mode="host"
+                ),
             ).get('Id')
             self.dc.start(container=container)
         except NotFound as e:
@@ -134,9 +144,10 @@ class DockerManager:
         :param command:  bash command to run
         :return:  execution result
         """
+        cont = self.get_container_by_name(contname)
         bash_txt = "/bin/bash -c \"{}\"".format(command.replace('"', '\\"'))
         exec_txt = self.dc.exec_create(
-            container=self.get_container_by_name(contname),
+            container=cont,
             cmd=bash_txt
         )
         return self.dc.exec_start(exec_txt)
@@ -147,19 +158,27 @@ class DockerManager:
         :return: container found
         """
         found = None
-        try:
-            found = next(c for c in self.dc.containers(all=True) if contname in c['Names'][0])
-        except StopIteration:
+        for c in self.dc.containers(all=True):
+            for n in c['Names']:
+                if contname in n:
+                    found = c
+                    break
+        if not found:
             LOG.info(_LI('Container not found for removal [%s]' % contname))
         return found
 
-    @staticmethod
-    def generate_container_name(user, cookbook, image_name):
+    def generate_container_name(self, user, cookbook, image_name):
         """
         :param user: user name
         :param cookbook:  cookbook name
         :param image_name: docker image name
         :return: regular generated container name
         """
-        return "{}_{}_{}-validate".format(user, cookbook, image_name.replace("/", "_")).lower()
+        return "{}_{}_{}-validate".format(self.generate_user_name(user), cookbook, image_name.replace("/", "_")).lower()
 
+    def generate_user_name(self, user):
+        """
+        :param user: input string
+        :return: cleaned up username
+        """
+        return "".join(c for c in user if c.isalnum() or c in ".-_")

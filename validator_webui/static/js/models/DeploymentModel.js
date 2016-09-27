@@ -4,6 +4,7 @@
 define(function (require) {
     "use strict";
     var Backbone = require('backbone');
+    var cfg = require('config');
     return Backbone.Model.extend({
         save_remote: function (credentials) {
             this.id = null;
@@ -16,7 +17,8 @@ define(function (require) {
                 },
                 error: function (model, response) {
                     console.log(response);
-                }
+                },
+                timeout: cfg.timeout
             }, this);
             return this;
         },
@@ -33,7 +35,8 @@ define(function (require) {
                 },
                 error: function (model, response) {
                     self.set('launch', 'ERROR')
-                }
+                },
+                timeout: cfg.timeout
             });
             return this;
         },
@@ -51,7 +54,8 @@ define(function (require) {
                 error: function (model, response) {
                     self.set('dependencies', 'ERROR');
                     self.syntax();
-                }
+                },
+                timeout: cfg.timeout
             });
         },
         syntax: function () {
@@ -66,7 +70,8 @@ define(function (require) {
                 error: function (model, response) {
                     self.set('syntax', 'ERROR');
                     self.deploy();
-                }
+                },
+                timeout: cfg.timeout
             });
         },
         deploy: function () {
@@ -81,7 +86,8 @@ define(function (require) {
                 error: function (model, response) {
                     self.set('deploy', 'ERROR');
                     self.set('ok', 'ERROR');
-                }
+                },
+                timeout: cfg.timeout
             });
 
         },
