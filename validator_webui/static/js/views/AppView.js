@@ -68,31 +68,7 @@ define(function (require) {
 
         },
 
-        // refresh_remote_recipes: function () {
-        //     var creds = this.get_credentials();
-        //     new CookbookCollection().refresh(creds);
-        //     var recipesRows = new RecipesView({collection: new RecipeCollection(creds)});
-        //     this.render();
-        // },
-        //
-        // refresh_local_recipes: function () {
-        //     this.render();
-        // },
-
         add_to_deployments: function () {
-            // var self = this;
-            // $.each(self.imagessel.collection.selected, function (key, image) {
-            //     $.each(self.recipessel.collection.selected, function (key, recipe) {
-            //         console.log("Creating new deployment");
-            //         var d = new DeploymentModel({
-            //             recipe_name: recipe.get('name'),
-            //             image_name: image.get('tag'),
-            //             cookbook: self.cookbookssel.collection.get(recipe.get('cookbook')).get('name'),
-            //             system: image.get('system')
-            //         });
-            //         self.deploymentsview.collection.add(d);
-            //     });
-            // });
             var d = new DeploymentModel({
                 cookbook: this.cookbookssel.collection.selected.get('name'),
                 recipe_name: this.recipessel.collection.selected.get('name'),
@@ -110,16 +86,6 @@ define(function (require) {
                 this.resultsview.collection.add(d);
                 d.save_remote(this.get_credentials());
             }, this);
-            // this.resultsview.collection.each(function(d) {
-            //    console.log("Generating " + d.get('recipe'));
-            //    d.save_remote(this.get_credentials());
-            // }, this);
-            // this.resultsview.collection.each(function(r){
-            //     r.launch();
-            //     // r.syntax();
-            //     // r.dependencies();
-            //     // r.deployment();
-            // }, this);
         },
 
         upload_cookbook: function () {
@@ -141,6 +107,6 @@ define(function (require) {
             } else {
                 $('#button_add').removeAttr('disabled');
             }
-        }
+        },
     });
 });

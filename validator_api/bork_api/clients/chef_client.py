@@ -89,7 +89,7 @@ class ChefClient(object):
         for line in resp_install.splitlines():
             if "ERROR" in line:
                 msg['success'] = False
-        LOG.debug(_("Install result: %s") % resp_install)
+        LOG.debug("Install result: %s" % resp_install)
         # except Exception as e:
         #     LOG.error(_LW("Chef install exception: %s" % e))
         #     raise CookbookInstallException(cookbook=cookbook)
@@ -116,7 +116,7 @@ class ChefClient(object):
         for line in resp_test.splitlines():
             if "ERROR" in line:
                 msg['success'] = False
-        LOG.debug(_("Test result: %s") % resp_test)
+        LOG.debug("Test result: %s" % resp_test)
         # except Exception as e:
         #     self.dc.remove_container(contname)
         #     LOG.error(_LW("Cookbook syntax exception %s" % e))
@@ -137,7 +137,7 @@ class ChefClient(object):
             'success': True,
             'response': resp_launch
         }
-        LOG.debug(_("Launch result: %s") % resp_launch)
+        LOG.debug("Launch result: %s" % resp_launch)
         if resp_launch is None or "FATAL" in resp_launch:
             msg['success'] = False
         # except Exception as e:
@@ -157,17 +157,17 @@ class ChefClient(object):
         LOG.debug("Sending cookbook to docker server at %s" % self.dc._url)
         b_success = True
         msg = {}
-        self.dc.run_container(image)
+        self.dc.run_container(user, cookbook, image)
         # inject custom solo.json/solo.rb file
         json_cont = CONF.clients_chef.cmd_config % (cookbook, recipe)
         cmd_inject = CONF.clients_chef.cmd_inject.format(json_cont)
-        self.dc.execute_command(cmd_inject)
+        self.dc.execute_command(self.dc.generate_container_name(user, cookbook, image), cmd_inject)
 
-        msg['install'] = self.run_install(cookbook)
+        msg['install'] = self.run_install(user, cookbook, image)
         b_success &= msg['install']['success']
-        msg['test'] = self.run_test(cookbook)
+        msg['test'] = self.run_test(user, cookbook, image)
         b_success &= msg['test']['success']
-        msg['deploy'] = self.run_deploy(cookbook)
+        msg['deploy'] = self.run_deploy(user, cookbook, image)
         b_success &= msg['deploy']['success']
 
         # check execution output
@@ -181,8 +181,8 @@ class ChefClient(object):
                 'success': False,
                 'result': "Error deploying cookbook {}\n".format(cookbook)
             }
-            LOG.error(_LW(msg))
-        self.dc.remove_container()
+            LOG.error(msg)
+        self.dc.remove_container(image)
         return msg
 
 

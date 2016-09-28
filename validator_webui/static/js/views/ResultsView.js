@@ -29,7 +29,6 @@ define(function (require) {
                     "<td>NA</td>" +
                     "<td>NA</td>" +
                     "<td>NA</td>" +
-                    "<td>NA</td>" +
                     "</tr>"
                 );
             } else {

@@ -10,6 +10,7 @@ require.config({
         backbone: 'lib/backbone',
         bbfileupload: 'lib/backbone.file-upload',
         bbbasicauth: 'lib/backbone.basicauth',
+        bbmodaldialog: 'lib/backbone.modaldialog',
         bbselect: 'lib/backbone.select',
         config: 'config'
     }

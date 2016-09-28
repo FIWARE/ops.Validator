@@ -98,6 +98,7 @@ class DockerManager:
         :return: operation status
         """
         status = True
+        error = "Image successfully created: [%s]" % image_name
         self.prepare_image(image_name)
         contname = self.generate_container_name(user, cookbook, image_name)
         try:
@@ -119,13 +120,15 @@ class DockerManager:
             ).get('Id')
             self.dc.start(container=container)
         except NotFound as e:
-            LOG.error(_LW("Image not found: [%s]" % image_name))
+            error = "Image not found: [%s]" % image_name
+            LOG.error(_LW(error))
             status = False
         except AttributeError as e:
-            LOG.error(_LW("Error creating container: [%s]" % e))
+            error = "Error creating container: [%s]" % e
+            LOG.error(_LW(error))
             status = False
             # raise DockerContainerException(image=image_name)
-        return status
+        return status, error
 
     def remove_container(self, contname, kill=True):
         """destroy container on exit

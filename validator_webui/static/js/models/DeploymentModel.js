@@ -31,10 +31,12 @@ define(function (require) {
                 async: true,
                 success: function (model, response) {
                     self.set('launch', model.launch);
+                    self.set('launch_log', model.launch_log);
                     self.dependencies();
                 },
                 error: function (model, response) {
                     self.set('launch', 'ERROR')
+                    self.set('launch_log', model.launch_log);
                 },
                 timeout: cfg.timeout
             });
@@ -48,11 +50,13 @@ define(function (require) {
                 url: this.url() + "/dependencies/",
                 async: true,
                 success: function (model, response) {
-                    self.set('dependencies', model.get('dependencies'));
+                    self.set('dependencies', model.dependencies);
+                    self.set('dependencies_log', model.dependencies_log);
                     self.syntax();
                 },
                 error: function (model, response) {
                     self.set('dependencies', 'ERROR');
+                    self.set('dependencies_log', model.dependencies_log);
                     self.syntax();
                 },
                 timeout: cfg.timeout
@@ -64,11 +68,13 @@ define(function (require) {
             var resp = Backbone.sync("syntax", self, {
                 type: 'PUT', url: this.url() + "/syntax/", async: true,
                 success: function (model, response) {
-                    self.set('syntax', model.get('syntax'));
+                    self.set('syntax', model.syntax);
+                    self.set('syntax_log', model.syntax_log);
                     self.deploy();
                 },
                 error: function (model, response) {
                     self.set('syntax', 'ERROR');
+                    self.set('syntax_log', model.syntax_log);
                     self.deploy();
                 },
                 timeout: cfg.timeout
@@ -80,12 +86,12 @@ define(function (require) {
             var resp = Backbone.sync("deploy", self, {
                 type: 'PUT', url: this.url() + "/deploy/", async: true,
                 success: function (model, response) {
-                    self.set('deploy', model.get('deploy'));
-                    self.set('ok', model.get('ok'));
+                    self.set('deployment', model.deployment);
+                    self.set('deployment_log', model.deployment_log);
                 },
                 error: function (model, response) {
-                    self.set('deploy', 'ERROR');
-                    self.set('ok', 'ERROR');
+                    self.set('deployment', 'ERROR');
+                    self.set('deployment_log', model.deployment_log);
                 },
                 timeout: cfg.timeout
             });

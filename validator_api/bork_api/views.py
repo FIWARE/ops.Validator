@@ -198,9 +198,9 @@ class DeploymentViewSet(viewsets.ModelViewSet):
     def launch(self, request, pk=None):
         """Ensures launch image is ready for use"""
         d = Deployment.objects.get(pk=pk)
-        s = DeploymentSerializer(d)
-        d.launch = DockerManager().run_container(d.user, d.recipe.cookbook.name, d.image.tag)
+        d.launch, d.launch_log = DockerManager().run_container(d.user, d.recipe.cookbook.name, d.image.tag)
         d.save()
+        s = DeploymentSerializer(d)
         return Response(s.data)
 
     @detail_route(methods=['put', 'get'])

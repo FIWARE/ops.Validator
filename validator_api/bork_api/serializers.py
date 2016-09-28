@@ -33,7 +33,7 @@ class DeploymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Deployment
-        fields = ('id', 'image', 'user', 'recipe', 'launch', 'dependencies', 'dependencies_log', 'syntax', 'syntax_log', 'deployment', 'deployment_log', 'ok', 'description')
+        fields = ('id', 'image', 'user', 'recipe', 'launch', 'launch_log', 'dependencies', 'dependencies_log', 'syntax', 'syntax_log', 'deployment', 'deployment_log')
 
 
 class RepoSerializer(serializers.ModelSerializer):

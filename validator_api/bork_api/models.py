@@ -50,6 +50,7 @@ class Recipe(models.Model):
     user = models.CharField(max_length=255, blank=False, default='Unknown')
     system = models.CharField(max_length=6, choices=SYSTEMS, default="chef")
     version = models.CharField(max_length=50, blank=False, default='Unknown')
+
     def __unicode__(self):
         return self.name
 
@@ -63,14 +64,13 @@ class Deployment(models.Model):
     recipe = models.ForeignKey(Recipe, blank=True, null=True)
     image = models.ForeignKey(Image, blank=True, null=True)
     launch = models.NullBooleanField(blank=True, null=True)
+    launch_log = models.TextField(blank=True, null=True)
     dependencies = models.NullBooleanField(blank=True, null=True)
     dependencies_log = models.TextField(blank=True, null=True)
     syntax = models.NullBooleanField(blank=True, null=True)
     syntax_log = models.TextField(blank=True, null=True)
     deployment = models.NullBooleanField(blank=True, null=True)
     deployment_log = models.TextField(blank=True, null=True)
-    ok = models.NullBooleanField(blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
 
 
 class Repo(models.Model):
