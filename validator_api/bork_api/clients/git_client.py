@@ -132,6 +132,7 @@ class RepoManager:
     def upload_coobook(self, path):
         """
         Uploads a validated cookbook to the official Github repo
+        Authentication must be enabled via external shared keys
         :param path: cookbook path
         :return: status message
         """

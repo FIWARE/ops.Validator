@@ -11,6 +11,14 @@ bind_port = 4042
 [clients_storage]
 path = /tmp/cookbooks
 
+# User git repositories
+[clients_git]
+repo_path = /opt/cookbooks
+
+# Docker server API url
+[clients_docker]
+url = tcp://127.0.0.1:2375
+
 # keystone server api url
 [keystone_authtoken]
 auth_uri = http://localhost:5000/v2.0
@@ -20,6 +28,7 @@ auth_uri = http://localhost:5000/v2.0
 cmd_install = puppet module install {}
 cmd_syntax = puppet parser validate {}
 cmd_deploy = puppet apply --modulepath=./modules -e "class { '%s':}" --debug
+github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/puppet-modules
 
 # Commands to run in puppet instance
 [clients_chef]
@@ -28,7 +37,12 @@ cmd_syntax    = knife cookbook test {}
 cmd_config = {"run_list": [ "recipe[%s]"]}
 cmd_inject  = echo '{}' >/etc/chef/solo.json
 cmd_deploy  = chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json
+github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/chef-recipes
 
-# Docker server API url
-[clients_docker]
-url = tcp://127.0.0.1:2375
+# Commands to run in murano instance
+[clients_murano]
+cmd_install = murano package import {blueprint}
+cmd_config = murano environment create {environment}
+cmd_syntax = murano environment-action-call {environment} --action syntax-check
+cmd_deploy = murano environment deploy {environment}
+github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/murano-blueprints

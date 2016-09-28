@@ -3,6 +3,7 @@ import os
 from oslo_config import cfg
 
 CONF = cfg.CONF
+
 # General Options
 opts = [
     cfg.StrOpt('bind_host', default='0.0.0.0'),
