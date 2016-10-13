@@ -52,7 +52,6 @@ define(function (require) {
         },
         show_launch_log: function () {
             var log = new LogView();
-            console.log(this.model.get("launch_log"));
             log.render(this.model.get("launch_log")).showModal({
                 showCloseButton:true,
                 closeImageUrl: "images/close-modal.png",

@@ -131,6 +131,10 @@ class ChefClient(object):
         # try:
         # launch execution
         contname = self.dc.generate_container_name(user, cookbook, image)
+        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
+        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/solo.rb".format(cbpath)
+        LOG.debug("Solo path: %s" % cmd_path)
+        self.dc.execute_command(contname, cmd_path)
         cmd_deploy = CONF.clients_chef.cmd_deploy
         resp_launch = self.dc.execute_command(contname, cmd_deploy)
         msg = {
@@ -184,8 +188,3 @@ class ChefClient(object):
             LOG.error(msg)
         self.dc.remove_container(image)
         return msg
-
-
-if __name__ == '__main__':
-    c = ChefClient("tcp://127.0.0.1:2375")
-    c.dc.run_container("/etc/bork/chef-trusty.dockerfile")
