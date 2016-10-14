@@ -80,7 +80,7 @@ class ChefClient(object):
         contname = self.dc.generate_container_name(user, cookbook, image)
         cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
         # set chef default cookbook path
-        cmd_path = "echo \"cookbook_path ['~/.berkshelf', '{}']\nlog_level :debug \"> /etc/chef/client.rb".format(cbpath)
+        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/client.rb".format(cbpath)
         LOG.debug("Chef path: %s" % cmd_path)
         self.dc.execute_command(contname, cmd_path)
         # set knife default cookbook path
@@ -89,7 +89,7 @@ class ChefClient(object):
         self.dc.execute_command(contname, cmd_path)
         # run install command
         currentpath = os.path.join(cbpath, cookbook)
-        cmd_install = CONF.clients_chef.cmd_install.format(currentpath)
+        cmd_install = CONF.clients_chef.cmd_install.format(currentpath, cbpath)
         LOG.debug("Install command: %s" % cmd_install)
         resp_install = self.dc.execute_command(contname, cmd_install)
         msg = {
