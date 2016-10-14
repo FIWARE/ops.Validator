@@ -35,8 +35,7 @@ github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/puppet
 cmd_install = knife cookbook site install {}
 cmd_syntax    = knife cookbook test {}
 cmd_config = {"run_list": [ "recipe[%s]"]}
-cmd_inject  = echo '{}' >/etc/chef/solo.json
-cmd_deploy  = chef-solo –c /etc/chef/solo.rb -j /etc/chef/solo.json
+cmd_deploy = 'chef-client -c /etc/chef/client.rb --local-mode --runlist "recipe[{}::{}]"'
 github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/chef-recipes
 
 # Commands to run in murano instance
