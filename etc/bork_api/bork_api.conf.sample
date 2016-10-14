@@ -23,14 +23,14 @@ url = tcp://127.0.0.1:2375
 [keystone_authtoken]
 auth_uri = http://localhost:5000/v2.0
 
-# Commands to run in chef instance
+# Commands to run in puppet instance
 [clients_puppet]
 cmd_install = puppet module install {}
 cmd_syntax = puppet parser validate {}
 cmd_deploy = puppet apply --modulepath=./modules -e "class { '%s':}" --debug
 github_url = https://github.com/telefonicaid/fiware-enablers/tree/develop/puppet-modules
 
-# Commands to run in puppet instance
+# Commands to run in chef instance
 [clients_chef]
 cmd_install = knife cookbook site install {}
 cmd_syntax    = knife cookbook test {}

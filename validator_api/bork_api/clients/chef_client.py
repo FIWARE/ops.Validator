@@ -78,8 +78,18 @@ class ChefClient(object):
         """
         # try:
         contname = self.dc.generate_container_name(user, cookbook, image)
-        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user), cookbook)
-        cmd_install = CONF.clients_chef.cmd_install.format(cbpath)
+        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
+        # set chef default cookbook path
+        cmd_path = "echo \"cookbook_path ['~/.berkshelf', '{}']\nlog_level :debug \"> /etc/chef/client.rb".format(cbpath)
+        LOG.debug("Chef path: %s" % cmd_path)
+        self.dc.execute_command(contname, cmd_path)
+        # set knife default cookbook path
+        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/knife.rb".format(cbpath)
+        LOG.debug("Knife path: %s" % cmd_path)
+        self.dc.execute_command(contname, cmd_path)
+        # run install command
+        currentpath = os.path.join(cbpath, cookbook)
+        cmd_install = CONF.clients_chef.cmd_install.format(currentpath)
         LOG.debug("Install command: %s" % cmd_install)
         resp_install = self.dc.execute_command(contname, cmd_install)
         msg = {
@@ -102,10 +112,6 @@ class ChefClient(object):
         """
         # try:
         contname = self.dc.generate_container_name(user, cookbook, image)
-        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
-        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/knife.rb".format(cbpath)
-        LOG.debug("Knife path: %s" % cmd_path)
-        self.dc.execute_command(contname, cmd_path)
         cmd_syntax = CONF.clients_chef.cmd_syntax.format(cookbook)
         LOG.debug("Syntax cmd: %s" % cmd_syntax)
         resp_test = self.dc.execute_command(contname, cmd_syntax)
@@ -131,11 +137,8 @@ class ChefClient(object):
         # try:
         # launch execution
         contname = self.dc.generate_container_name(user, cookbook, image)
-        cbpath = os.path.join(CONF.clients_git.repo_path, self.dc.generate_user_name(user))
-        cmd_path = "echo \"cookbook_path ['{}']\nlog_level :debug \"> /etc/chef/solo.rb".format(cbpath)
-        LOG.debug("Solo path: %s" % cmd_path)
-        self.dc.execute_command(contname, cmd_path)
-        cmd_deploy = CONF.clients_chef.cmd_deploy
+        # # run deploy
+        cmd_deploy = CONF.clients_chef.cmd_deploy.format(cookbook, recipe.replace(".rb", ""))
         resp_launch = self.dc.execute_command(contname, cmd_deploy)
         msg = {
             'success': True,
