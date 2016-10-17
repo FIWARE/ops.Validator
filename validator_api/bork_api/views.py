@@ -89,9 +89,13 @@ class CookBookViewSet(viewsets.ModelViewSet):
         cb_path, version = m.add_cookbook(path)
 
         # Generate valid cookbook
-        LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
-        cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)
-        cb.save()
+        cb = CookBook.objects.get(name=name, user=user)
+        if cb:
+            LOG.info("Updating Cookbook {} for user {}".format(name, request.user.id))
+        else:
+            LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
+            cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)
+            cb.save()
         for r in LocalStorage().list_recipes(cb.path):
             ro = Recipe()
             ro.name = r

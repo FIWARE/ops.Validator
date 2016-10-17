@@ -57,7 +57,7 @@ def generate_berksfile(cb_path):
         bf = os.path.join(cb_path, "Berksfile")
         if os.path.exists(mf):
             with open(mf) as f:
-                for dep in re.findall("depends\s'[^\']+'", f.read()):
+                for dep in re.findall(r"depends\s['\"]([^['\"]]+?)['\"]", f.read()):
                     bf_conts += 'cookbook "%s"' % dep
         LOG.info("Berksfile not detected. Generating in %s" % bf)
         with open(bf, "w") as f:

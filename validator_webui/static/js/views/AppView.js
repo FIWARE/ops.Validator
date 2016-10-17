@@ -33,6 +33,8 @@ define(function (require) {
             "change #sel_cookbooks": "validate",
             "change #sel_recipes ": "validate",
             "change #sel_images": "validate",
+            "change #username": "render",
+            "change #password": "render",
         },
 
         initialize: function () {
@@ -80,12 +82,12 @@ define(function (require) {
         },
 
         run_deployments: function () {
-            $('#button_github').removeAttr('disabled');
             this.resultsview.collection.reset();
             this.deploymentsview.collection.each(function (d) {
                 this.resultsview.collection.add(d);
                 d.save_remote(this.get_credentials());
             }, this);
+            $('#button_github').removeAttr('disabled');
         },
 
         upload_cookbook: function () {
@@ -93,7 +95,7 @@ define(function (require) {
                 upload_url: this.$("#upload_url").val()
             });
             cb.save_remote(this.get_credentials());
-            this.cookbookssel.collection.get_remote(creds);
+            this.render();
         },
         upload_github: function () {
             this.deploymentsview.collection.each(function (d) {
