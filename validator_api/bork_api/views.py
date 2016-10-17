@@ -89,10 +89,10 @@ class CookBookViewSet(viewsets.ModelViewSet):
         cb_path, version = m.add_cookbook(path)
 
         # Generate valid cookbook
-        cb = CookBook.objects.get(name=name, user=user)
-        if cb:
+        try:
+            cb = CookBook.objects.get(name=name, user=user)
             LOG.info("Updating Cookbook {} for user {}".format(name, request.user.id))
-        else:
+        except CookBook.DoesNotExist:
             LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
             cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)
             cb.save()
@@ -174,10 +174,11 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         image = request.data['image'].lower()
         image_tag = image
         cookbook = request.data['cookbook']
+        user = request.user.username
         recipe = request.data['recipe'] if 'recipe' in request.data.keys() else 'default.rb'
         system = request.data['system'].lower()
-        d.cookbook = CookBook.objects.get(name=cookbook)
-        d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook)
+        d.cookbook = CookBook.objects.get(name=cookbook, user=user)
+        d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook, user=user)
         d.user = str(request.user)
         # Detect image
         if ":" in image:
