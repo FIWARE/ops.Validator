@@ -13,12 +13,11 @@
 #  under the License.
 
 import os
+import re
 
 from oslo_config import cfg
 from oslo_log import log as logging
 from bork_api.clients.docker_client import DockerManager
-from bork_api.common.exception import CookbookDeploymentException, CookbookSyntaxException, CookbookInstallException
-from bork_api.common.i18n import _LW, _LE, _
 
 LOG = logging.getLogger(__name__)
 CONF = cfg.CONF
@@ -38,9 +37,35 @@ def check_chef_cookbook(cb_path):
         if os.path.isdir(os.path.join(cb_path, "recipes")):
             check = True
             LOG.debug("Cookbook found: %s" % cb_path)
+            if not os.path.exists(os.path.join(cb_path, "Berksfile")):
+                generate_berksfile(cb_path)
     if not check:
         LOG.debug("Not a cookbook: %s" % cb_path)
     return check
+
+
+def generate_berksfile(cb_path):
+    """
+    Generates a dependencies file if none are detected
+    :param cb_path:
+    :return:
+    """
+    status = False
+    try:
+        bf_conts = 'source "https://supermarket.chef.io"\n\nmetadata\n'
+        mf = os.path.join(cb_path, "metadata.rb")
+        bf = os.path.join(cb_path, "Berksfile")
+        if os.path.exists(mf):
+            with open(mf) as f:
+                for dep in re.findall("depends\s'[^\']+'", f.read()):
+                    bf_conts += 'cookbook "%s"' % dep
+        LOG.info("Berksfile not detected. Generating in %s" % bf)
+        with open(bf, "w") as f:
+            f.write(bf_conts)
+        status = True
+    except:
+        pass
+    return status
 
 
 def check_chef_recipe(rec):
