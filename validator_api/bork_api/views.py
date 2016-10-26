@@ -92,6 +92,8 @@ class CookBookViewSet(viewsets.ModelViewSet):
         try:
             cb = CookBook.objects.get(name=name, user=user)
             LOG.info("Updating Cookbook {} for user {}".format(name, request.user.id))
+            # Remove old recipes
+            Recipe.objects.filter(cookbook=cb).delete()
         except CookBook.DoesNotExist:
             LOG.info("Generating Cookbook {} for user {}".format(name, request.user.id))
             cb = CookBook(user=user, name=name, path=cb_path, version=version, system=system)

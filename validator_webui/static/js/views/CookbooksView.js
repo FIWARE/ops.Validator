@@ -36,7 +36,7 @@ define(function (require) {
         toggleSelected: function (event) {
             var id = $(event.currentTarget).val();
             if (event) event.preventDefault();
-            this.collection.get( id ).toggleSelected();
+            this.collection.get(id).toggleSelected();
             Backbone.trigger("EV_CookbookSelected", this.collection.selected);
         },
 

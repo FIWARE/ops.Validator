@@ -40,21 +40,24 @@ define(function (require) {
         initialize: function () {
             console.log("Booting...")
             this.cookbookssel = new CookbooksView({collection: new CookbookCollection()});
+            this.recipessel = new RecipesView({collection: new RecipeCollection(), master: new RecipeCollection()});
             this.imagessel = new ImagesView({collection: new ImageCollection()});
-            this.recipessel = new RecipesView({collection: new RecipeCollection()});
             this.deploymentsview = new DeploymentsView({collection: new DeploymentCollection()});
             this.resultsview = new ResultsView({collection: new DeploymentCollection()});
             notification().render({text: 'Please insert your FIWARE Lab credentials'});
             // debug mode
-            this.set_values();
+            if(config.debug)           
+                this.set_values();
             this.render();
         },
 
         render: function () {
             var creds = this.get_credentials();
             this.cookbookssel.collection.get_remote(creds);
-            this.imagessel.collection.get_remote(creds);
             this.recipessel.collection.get_remote(creds);
+            this.recipessel.master.get_remote(creds);
+            this.imagessel.collection.get_remote(creds);
+
         },
 
         get_credentials: function () {
@@ -103,7 +106,7 @@ define(function (require) {
             })
         },
         validate: function () {
-            if (!this.cookbookssel.collection.selected || !this.imagessel.collection.selected || !this.recipessel.collection.selected) {
+            if (!this.cookbookssel.collection.selected || !this.imagessel.collection.selected || !this.recipessel.master.selected) {
                 $('#button_add').attr('disabled', 'disabled');
 
             } else {
