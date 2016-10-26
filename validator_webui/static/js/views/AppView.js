@@ -76,7 +76,7 @@ define(function (require) {
         add_to_deployments: function () {
             var d = new DeploymentModel({
                 cookbook: this.cookbookssel.collection.selected.get('name'),
-                recipe_name: this.recipessel.collection.selected.get('name'),
+                recipe_name: this.recipessel.master.selected.get('name'),
                 image_name: this.imagessel.collection.selected.get('tag'),
                 system: this.imagessel.collection.selected.get('system')
             });
