@@ -181,7 +181,7 @@ class DeploymentViewSet(viewsets.ModelViewSet):
         system = request.data['system'].lower()
         d.cookbook = CookBook.objects.get(name=cookbook, user=user)
         d.recipe = Recipe.objects.get(name=recipe, cookbook=d.cookbook, user=user)
-        d.user = str(request.user)
+        d.user = str(request.user.username)
         # Detect image
         if ":" in image:
             image_name, image_version = image.split(":")
