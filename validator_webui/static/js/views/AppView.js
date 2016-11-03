@@ -100,11 +100,13 @@ define(function (require) {
             cb.save_remote(this.get_credentials());
             this.render();
         },
+        
         upload_github: function () {
             this.deploymentsview.collection.each(function (d) {
               d.cookbook.upload_github();  
             })
         },
+        
         validate: function () {
             if (!this.cookbookssel.collection.selected || !this.imagessel.collection.selected || !this.recipessel.master.selected) {
                 $('#button_add').attr('disabled', 'disabled');

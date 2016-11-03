@@ -62,7 +62,7 @@ docs/_build/
 
 # local configuration
 etc/bork_api/*.conf
-validator_webui/static/js/config.js
+#validator_webui/static/js/config.js
 
 # Runtime Built Documentation
 doc/make.bat
