@@ -22,6 +22,7 @@ import logging
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from six import text_type
 import six.moves.urllib.parse as urlparse
 
 from keystoneclient import exceptions as keystone_exceptions
@@ -99,7 +100,7 @@ class Service(base.APIDictWrapper):
             return self.type
 
     def __repr__(self):
-        return "<Service: %s>" % unicode(self)
+        return "<Service: %s>" % text_type(self)
 
 
 def _get_endpoint_url(request, endpoint_type, catalog=None):
