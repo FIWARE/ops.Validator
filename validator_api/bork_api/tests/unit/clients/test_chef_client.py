@@ -15,6 +15,7 @@
 
 import bork.tests.unit.base as tb
 import mock
+from docker.client import Client as DockerClient
 from docker.errors import DockerException
 from oslo_config import cfg
 
@@ -45,7 +46,7 @@ class ChefClientTestCase(tb.ValidatorTestCase):
     def test_create_client(self):
         """Test client creation"""
         self.assertRaises(DockerException, ChefClient, 'fakeurl')
-        self.assertIsInstance(self.client.dc, Docker.client.Client)
+        self.assertIsInstance(self.client.dc, DockerClient)
 
     def test_run_container(self):
         """Test container deployment"""
